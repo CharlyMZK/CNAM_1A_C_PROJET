@@ -15,7 +15,7 @@
  * titre: titre fenetre
  * r,g,b couleur de fond
  */
-void init_win(int w, int h, char* titre, float r, float g, float b);
+void init_win(int w, int h, char* titre);
 
 /**
  * boucle evenementielle
@@ -30,12 +30,12 @@ void clear_win();
 /**
  * largeur fenetre
  */
-int width_win();
+double width_win();
 
 /**
  * hauteur fenetre
  */
-int height_win();
+double height_win();
 
 /**
  *  change couleur de trace en RVB

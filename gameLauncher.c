@@ -5,7 +5,7 @@
 
 int main() 
 {
-	init_win(400,400, "Essai",0.2,0.2,0.6);
+	init_win(600,600, "Essai");
 	event_loop();
 	return EXIT_SUCCESS;
 }

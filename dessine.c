@@ -16,17 +16,17 @@ extern void mouse_clicked(int bouton, int x, int y);
 extern void key_pressed(KeySym code, char c, int x_souris, int y_souris);
 
 
-int width_win()
+double width_win()
 {
 	return largeur_fenetre;
 }
 
-int height_win()
+double height_win()
 {
 	return hauteur_fenetre;
 }
 
-void init_win(int w, int h, char* message, float r, float g, float b)
+void init_win(int w, int h, char* message)
 {
 	if ((display = XOpenDisplay ("")) == NULL) 
 	{
@@ -41,9 +41,9 @@ void init_win(int w, int h, char* message, float r, float g, float b)
 	screen = DefaultScreen (display);
 	root = RootWindow (display, screen);
 	
-	int rr = 255*r;
-	int gg = 255*g;
-	int bb = 255*b;
+	int rr = 255;
+	int gg = 178;
+	int bb = 102;
 	unsigned long col_pixel = rr<<16|gg<<8|bb;
 	unsigned long black_pixel = BlackPixel (display, screen);
 	// creation fenetre
@@ -135,7 +135,7 @@ void pixel(int x, int y)
 
 void string(int x, int y, char* chaine)
 {
-	XDrawString(display,win,gc,10,10, chaine, strlen(chaine));
+	XDrawString(display,win,gc,x,y, chaine, strlen(chaine));
 }
 
 

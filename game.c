@@ -10,39 +10,29 @@
  */
 void draw_win()
 {	
-	// vide la fenetre
+	// - Vide la fenetre
 	clear_win();
-
-	int i,j;
-	for(i=0; i<height_win()/2; i+=2)
-	{
-		for(j=0; j<width_win(); j+=2)
-		{
-			float r = (float)rand()/RAND_MAX;
-			float v = (float)rand()/RAND_MAX;
-			float b = (float)rand()/RAND_MAX;
-			color(r,v,b);
-			pixel(j,i);
-		}
-	}
-		
-	for(i=height_win()/2; i<height_win(); i+=4)
-	{
-		for(j=0; j<width_win(); j+=4)
-		{
-			float g = (float)rand()/RAND_MAX;
-			color(g,g,g);
-			filled_rectangle(j,i,4,4);
-		}
-	}
 	
-	color(1,0,0);
-	for(j=0; j<width_win(); j+=20)
-		line(j,24, width_win()-j, height_win()-24);
+	// -- Initialisation
+	double box_size,i;
+	int board_size = 19;
 
-	color(11,1,1);
-	string(5,5,"Test Affichage chaine");
+	// -- Lines color
+	color(0,0,0); 
+
+	// -- Cadre du board
+	rectangle(0,0,width_win(),height_win());
 	
+ 	// -- Calcul du nombre de cases
+	box_size = width_win() / board_size;
+
+	// -- Dessin des lignes horizontales
+	for(i=0; i<width_win(); i+=box_size)
+		line(i,0,i, height_win());
+			
+ 	// -- Dessin des lignes verticales
+	for(i=0; i<height_win(); i+=box_size)
+		line(0,i,width_win(),i);	
 }
 
 
@@ -53,9 +43,13 @@ void draw_win()
  */
 void mouse_clicked(int bouton, int x, int y)
 {
-	printf("Bouton %d presse au coord. %d,%d \n",bouton,x,y);
-	color( 1.0,0.0,1.0);
-	filled_circle(x,y,10);
+	double i = x/30;
+	double j = y/30;
+	printf("\n Bouton %d presse au coord. %d,%d \n",bouton,x,y);
+	printf("\n %f",i);
+	printf("\n %f \n",j);
+	color(0,0,0);
+	filled_circle(x,y,5);
 }
 
 
