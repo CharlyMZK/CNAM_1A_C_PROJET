@@ -96,10 +96,3 @@ void key_pressed(KeySym code, char c, int x_souris, int y_souris)
 
 }
 
-
-int main() 
-{
-	init_win(400,400, "Essai",0.2,0.2,0.6);
-	event_loop();
-	return EXIT_SUCCESS;
-}
