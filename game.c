@@ -111,7 +111,7 @@ void drop_stone(int x, int y){
 		color(0,0,0);
 	}else{
 		turn = 0;
-		color(155,155,155);
+		color(1.0,1.0,1.0);
 	}
 	// -- Pose le point
 	filled_circle(x,y,5);
@@ -134,14 +134,19 @@ void mouse_clicked(int bouton, int x, int y)
 	// -- Placement x et y sur le tableau
 	placement_x = (x/cell_size)-1;
 	placement_y = (y/cell_size)-1;  
-	play_stone(placement_x, placement_y,1);
+
+	// -- Si la pierre est placée, on drop une pierre et l'autre joueur joue 
+	if(play_stone(placement_x, placement_y,1)){
+		drop_stone(x,y); 
+		player_play();
+	}
 	
 	printf("\n x : %d \n",placement_x); 
 	printf("\n y : %d \n ",placement_y);  
 	print_board();
 	// -- Render la stone et le tour du joueur
-	player_play();
-	drop_stone(x,y); 
+	
+	
 }
 
 
@@ -223,9 +228,24 @@ void set_stone(int x, int y, Stone* stone){
 
 /*
  * Permet au joueur dont la couleur est passé en parametre de jouer un caillou
+ * Retourne 1 si le jeu a pu jouer, 0 sinon
  */
-void play_stone(int x, int y, int color){
+int play_stone(int x, int y, int color){
+	int played = 0;
   Stone* stone = malloc(sizeof(Stone));
   stone->color = color;
-  set_stone(x, y, stone);
+	if((played = check_play(x,y)) == 1)
+  	set_stone(x, y, stone);
+	return played;
+}
+
+/*
+ * Permet de savoir si le joueur peut jouer
+ * Retourne 1 si la pierre peut etre placée sur cette case
+ */
+int check_play(int x, int y){
+	int can_play = 0;
+	if(get_stone(x,y) == NULL)
+		can_play = 1;
+	return can_play;
 }
