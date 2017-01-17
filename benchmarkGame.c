@@ -5,7 +5,7 @@
 int main()
 {
   printf("test\n");
-  Board* board = create_board();
-  play_stone(board, 0, 5,13);
-  print_board(board, 19);
+  create_board(19);
+  play_stone(5, 13,1);
+  print_board();
 }

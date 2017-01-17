@@ -3,6 +3,8 @@
 #include <time.h>
 #include "game.h"
 
+Board* BOARD;
+
 /**
  * Mettre ici son code pour dessiner dans la fenetre
  * 1er affichage + redessine si resize
@@ -92,27 +94,47 @@ void key_pressed(KeySym code, char c, int x_souris, int y_souris)
 /*
  * Permet d'afficher ce qui est présent sur le plateau
  */
-void print_board(Board* board, int size){
-    for(int i = 0; i < size; i++){
-      for(int j = 0; j < size; j++){
-        printf("board[%i][%i] = %i", i, j, (board->stones[i][j]!=NULL)?(board->stones[i][j]->color):(-1));
+void print_board(){
+    for(int i = 0; i < BOARD->size; i++){
+      for(int j = 0; j < BOARD->size; j++){
+        printf("board[%i][%i] = %i", i, j, (get_stone(i,j)!=NULL)?(get_stone(i,j)->color):(-1));
       }
     }
 }
 
 /*
- * Permet de créer un tableau d'une taille défini
+ * Permet de créer un tableau d'une taille défini avec un int passé en paramètre
  */
-Board* create_board(){
-  Board* board = malloc(sizeof(Board));
-  return board;
+void create_board(int size){
+  BOARD = malloc(sizeof(Board));
+	BOARD->size = size;
+	BOARD->intersections = malloc(size*size*sizeof(Stone));
 }
+
+/*
+ * Permet de récupérer la pierre a x et y
+ */
+Stone* get_stone(int x, int y){
+	Stone* stone;
+	if(x < BOARD->size && y < BOARD->size)
+		stone = BOARD->intersections[x*BOARD->size+y];
+	return stone;
+}
+
+/*
+ * Permet de mettre une pierre à la position à x et y
+ */
+void set_stone(int x, int y, Stone* stone){
+	if(x < BOARD->size && y < BOARD->size)
+		BOARD->intersections[x*BOARD->size+y] = stone;
+}
+
 
 /*
  * Permet au joueur dont la couleur est passé en parametre de jouer un caillou
  */
-void play_stone(Board* board, int color, int x, int y){
+void play_stone(int x, int y, int color){
   Stone* stone = malloc(sizeof(Stone));
   stone->color = color;
-  board->stones[x][y] = stone;
+  set_stone(x, y, stone);
 }
