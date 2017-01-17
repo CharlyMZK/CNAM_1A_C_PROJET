@@ -30,19 +30,18 @@ double height_win()
 
 void init_win(int w, int h, char* message)
 {
-	if ((display = XOpenDisplay ("")) == NULL) 
+	if ((display = XOpenDisplay ("")) == NULL)
 	{
 		fprintf (stderr, "Can't open Display\n");
 		exit (1);
 	}
-	
+
 	largeur_fenetre = w;
 	hauteur_fenetre = h;
 	// recupere param pour creation fenetre
 	gc = DefaultGC (display, screen);
 	screen = DefaultScreen (display);
 	root = RootWindow (display, screen);
-	
 	int rr = 255;
 	int gg = 178;
 	int bb = 102;
@@ -53,12 +52,12 @@ void init_win(int w, int h, char* message)
 	// filtre les evenements
 	XSelectInput (display, win, ExposureMask|ButtonPressMask|KeyPressMask);
 	// titre fenetre
-	XStoreName (display, win, message); 
+	XStoreName (display, win, message);
 	XMapWindow (display, win);
 }
 
 
-void event_loop() 
+void event_loop()
 {
 	char buffer[8];
 	KeySym touche;
@@ -139,5 +138,3 @@ void string(int x, int y, char* chaine)
 {
 	XDrawString(display,win,gc,x,y, chaine, strlen(chaine));
 }
-
-

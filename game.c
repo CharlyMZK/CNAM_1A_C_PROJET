@@ -4,7 +4,8 @@
 #include <math.h>
 #include <string.h>
 #include "game.h"
-#include "dessine.h"
+
+Board* BOARD;
 
 int taille_plateau;
 int turn = 0;
@@ -29,20 +30,20 @@ void player_play(){
  * 1er affichage + redessine si resize
  */
 void draw_win()
-{	
+{
 	// - Vide la fenetre
 	clear_win();
-	
+
 	// -- Initialisation
 	double box_size,i;
 	int board_size = 19;
 
 	// -- Lines color
-	color(0,0,0); 
+	color(0,0,0);
 
 	// -- Cadre du board
 	rectangle(0,0,width_win(),height_win());
-	
+
  	// -- Calcul du nombre de cases
 	box_size = width_win() / board_size;
 	box_size = round(box_size);
@@ -53,7 +54,7 @@ void draw_win()
 	// -- Dessin des lignes horizontales
 	for(i=0; i<width_win(); i+=box_size)
 		line(i,0,i, height_win());
-			
+
  	// -- Dessin des lignes verticales
 	for(i=0; i<height_win(); i+=box_size)
 		line(0,i,width_win(),i);	
@@ -136,7 +137,7 @@ void key_pressed(KeySym code, char c, int x_souris, int y_souris)
 		default:
 			break;
 	}
-	
+
 	if (c>' ' && c<'z')
 		printf("char: %c \n",c);
 
@@ -144,3 +145,50 @@ void key_pressed(KeySym code, char c, int x_souris, int y_souris)
 
 }
 
+/*
+ * Permet d'afficher ce qui est présent sur le plateau
+ */
+void print_board(){
+    for(int i = 0; i < BOARD->size; i++){
+      for(int j = 0; j < BOARD->size; j++){
+        printf("board[%i][%i] = %i", i, j, (get_stone(i,j)!=NULL)?(get_stone(i,j)->color):(-1));
+      }
+    }
+}
+
+/*
+ * Permet de créer un tableau d'une taille défini avec un int passé en paramètre
+ */
+void create_board(int size){
+  BOARD = malloc(sizeof(Board));
+	BOARD->size = size;
+	BOARD->intersections = malloc(size*size*sizeof(Stone));
+}
+
+/*
+ * Permet de récupérer la pierre a x et y
+ */
+Stone* get_stone(int x, int y){
+	Stone* stone;
+	if(x < BOARD->size && y < BOARD->size)
+		stone = BOARD->intersections[x*BOARD->size+y];
+	return stone;
+}
+
+/*
+ * Permet de mettre une pierre à la position à x et y
+ */
+void set_stone(int x, int y, Stone* stone){
+	if(x < BOARD->size && y < BOARD->size)
+		BOARD->intersections[x*BOARD->size+y] = stone;
+}
+
+
+/*
+ * Permet au joueur dont la couleur est passé en parametre de jouer un caillou
+ */
+void play_stone(int x, int y, int color){
+  Stone* stone = malloc(sizeof(Stone));
+  stone->color = color;
+  set_stone(x, y, stone);
+}
