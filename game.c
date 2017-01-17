@@ -12,12 +12,15 @@ int turn = 0;
 int height_win_spaced;
 int width_win_spaced;
 
-
+/**
+ * Indique dans la textbox quel joueur joue
+ * 
+ */
 void player_play(){
-	printf("ENtrée");
+	// -- Couleur du rectangle
 	color(255,178,102); 
 	filled_rectangle(width_win_spaced+5,0,300,30);
-
+	// -- Couleur de l'écriture
 	color(0,0,0); 
 	if(turn == 0){
 		string(width_win_spaced+20,20,"Tour du joueur 1");
@@ -49,11 +52,11 @@ void draw_win()
  	// -- Calcul du nombre de cases
 	box_size = width_win() / board_size;
 	box_size = round(box_size);
-
+	
+	// -- Taille de la cellule
 	cell_size = 32;
-
-	printf("\n box size : %f",box_size);
-
+	
+	// -- Hauteur et largeur du tableau avec les margins
 	height_win_spaced = height_win()+cell_size;
 	width_win_spaced = width_win()+cell_size;
 
@@ -65,32 +68,44 @@ void draw_win()
 	for(i=cell_size; i<=height_win(); i+=box_size)
 		line(cell_size,i,height_win_spaced,i);	
 
-	
-		
+
+  	init_board(19);
+ 	play_stone(5, 13,1);
+  	print_board();
 }
 
  
-
-int test_clicked(int coord,float taille_case){
+/**
+ * Test si le point est posé au milieu d'un carré et le remet correctement a l'intersection
+ * 
+ */
+int test_clicked(int coord){
 	float res = 0;
+	// -- On fait le check jusqu'a la fin du board, les extremités sont prises en comptes
 	height_win_spaced = height_win()+(cell_size*2);
 	width_win_spaced = width_win()+(cell_size*2); 
  
-
-	if(coord < taille_case){
-		coord = taille_case;
-	}else if(coord > width_win_spaced - taille_case){
-		coord = width_win_spaced - taille_case;
-	}else if(coord > height_win_spaced - taille_case){
-		height_win_spaced - taille_case;
+	// -- Check pour mettre le point sur une intersection
+	if(coord < cell_size){
+		coord = cell_size;
+	}else if(coord > width_win_spaced - cell_size){
+		coord = width_win_spaced - cell_size;
+	}else if(coord > height_win_spaced - cell_size){
+		height_win_spaced - cell_size;
 	}
 	  
-	res = round(coord/taille_case);
-	res = res * taille_case;  
+	// -- Calcul exact 
+	res = round(coord/cell_size);
+	res = res * cell_size;  
 	return (int) res;
 }
 
+/**
+ * Pose le point de la pierre sur le board
+ * 
+ */
 void drop_stone(int x, int y){
+	// -- Couleur du point en fonction du tour du joueur
 	if(turn == 0){
 		turn = 1;
 		color(0,0,0);
@@ -98,6 +113,7 @@ void drop_stone(int x, int y){
 		turn = 0;
 		color(155,155,155);
 	}
+	// -- Pose le point
 	filled_circle(x,y,5);
 }
 
@@ -108,10 +124,24 @@ void drop_stone(int x, int y){
  */
 void mouse_clicked(int bouton, int x, int y)
 {
-	x = test_clicked(x,cell_size);
-	y = test_clicked(y,cell_size);  
+	int placement_x;
+	int placement_y;
+	
+	// -- Placement x et y sur le render
+	x = test_clicked(x);  
+	y = test_clicked(y);  
+
+	// -- Placement x et y sur le tableau
+	placement_x = (x/cell_size)-1;
+	placement_y = (y/cell_size)-1;  
+	play_stone(placement_x, placement_y,1);
+	
+	printf("\n x : %d \n",placement_x); 
+	printf("\n y : %d \n ",placement_y);  
+	print_board();
+	// -- Render la stone et le tour du joueur
 	player_play();
-	drop_stone(x,y);
+	drop_stone(x,y); 
 }
 
 
@@ -166,7 +196,7 @@ void print_board(){
 /*
  * Permet de créer un tableau d'une taille défini avec un int passé en paramètre
  */
-void create_board(int size){
+void init_board(int size){
   BOARD = malloc(sizeof(Board));
 	BOARD->size = size;
 	BOARD->intersections = malloc(size*size*sizeof(Stone));
