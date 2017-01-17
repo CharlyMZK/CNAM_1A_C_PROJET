@@ -48,7 +48,7 @@ void init_win(int w, int h, char* message)
 	unsigned long col_pixel = rr<<16|gg<<8|bb;
 	unsigned long black_pixel = BlackPixel (display, screen);
 	// creation fenetre
-	win = XCreateSimpleWindow (display, root, 0, 0, largeur_fenetre+300, hauteur_fenetre, 5, black_pixel, col_pixel);
+	win = XCreateSimpleWindow (display, root, 0, 0, largeur_fenetre+300, hauteur_fenetre+300, 5, black_pixel, col_pixel);
 	// filtre les evenements
 	XSelectInput (display, win, ExposureMask|ButtonPressMask|KeyPressMask);
 	// titre fenetre
