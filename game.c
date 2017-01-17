@@ -1,9 +1,31 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <math.h>
+#include <string.h>
 #include "game.h"
 
 Board* BOARD;
+
+int cell_size;
+int turn = 0;
+int height_win_spaced;
+int width_win_spaced;
+
+
+void player_play(){
+	printf("ENtrée");
+	color(255,178,102); 
+	filled_rectangle(width_win_spaced+5,0,300,30);
+
+	color(0,0,0); 
+	if(turn == 0){
+		string(width_win_spaced+20,20,"Tour du joueur 1");
+	}else{
+		string(width_win_spaced+20,20,"Tour du joueur 2");
+	}
+}
+
 
 /**
  * Mettre ici son code pour dessiner dans la fenetre
@@ -22,20 +44,62 @@ void draw_win()
 	color(0,0,0);
 
 	// -- Cadre du board
-	rectangle(0,0,width_win(),height_win());
+	rectangle(cell_size,cell_size,width_win(),height_win());
 
  	// -- Calcul du nombre de cases
 	box_size = width_win() / board_size;
+	box_size = round(box_size);
+
+	cell_size = 32;
+
+	printf("\n box size : %f",box_size);
+
+	height_win_spaced = height_win()+cell_size;
+	width_win_spaced = width_win()+cell_size;
 
 	// -- Dessin des lignes horizontales
-	for(i=0; i<width_win(); i+=box_size)
-		line(i,0,i, height_win());
+	for(i=cell_size; i<=width_win(); i+=box_size)
+		line(i,cell_size,i, height_win_spaced);
 
  	// -- Dessin des lignes verticales
-	for(i=0; i<height_win(); i+=box_size)
-		line(0,i,width_win(),i);
+	for(i=cell_size; i<=height_win(); i+=box_size)
+		line(cell_size,i,height_win_spaced,i);	
+
+	
+		
 }
 
+ 
+
+int test_clicked(int coord,float taille_case){
+	float res = 0;
+	height_win_spaced = height_win()+(cell_size*2);
+	width_win_spaced = width_win()+(cell_size*2); 
+ 
+
+	if(coord < taille_case){
+		coord = taille_case;
+	}else if(coord > width_win_spaced - taille_case){
+		coord = width_win_spaced - taille_case;
+	}else if(coord > height_win_spaced - taille_case){
+		height_win_spaced - taille_case;
+	}
+	  
+	res = round(coord/taille_case);
+	res = res * taille_case;  
+	return (int) res;
+}
+
+void drop_stone(int x, int y){
+	if(turn == 0){
+		turn = 1;
+		color(0,0,0);
+	}else{
+		turn = 0;
+		color(155,155,155);
+	}
+	filled_circle(x,y,5);
+}
 
 /**
  * on a cliqué a la souris:
@@ -44,13 +108,10 @@ void draw_win()
  */
 void mouse_clicked(int bouton, int x, int y)
 {
-	double i = x/30;
-	double j = y/30;
-	printf("\n Bouton %d presse au coord. %d,%d \n",bouton,x,y);
-	printf("\n %f",i);
-	printf("\n %f \n",j);
-	color(0,0,0);
-	filled_circle(x,y,5);
+	x = test_clicked(x,cell_size);
+	y = test_clicked(y,cell_size);  
+	player_play();
+	drop_stone(x,y);
 }
 
 

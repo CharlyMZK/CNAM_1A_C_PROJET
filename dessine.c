@@ -10,8 +10,10 @@ Display *display;
 int     screen;
 Window  win, root;
 
-
-extern void draw_win();
+extern void player_play();
+extern void draw_win(); 
+extern void drop_stone(int x, int y);
+extern void test_clicked(int coord,float taille_case);
 extern void mouse_clicked(int bouton, int x, int y);
 extern void key_pressed(KeySym code, char c, int x_souris, int y_souris);
 
@@ -46,7 +48,7 @@ void init_win(int w, int h, char* message)
 	unsigned long col_pixel = rr<<16|gg<<8|bb;
 	unsigned long black_pixel = BlackPixel (display, screen);
 	// creation fenetre
-	win = XCreateSimpleWindow (display, root, 0, 0, largeur_fenetre, hauteur_fenetre, 5, black_pixel, col_pixel);
+	win = XCreateSimpleWindow (display, root, 0, 0, largeur_fenetre+300, hauteur_fenetre+300, 5, black_pixel, col_pixel);
 	// filtre les evenements
 	XSelectInput (display, win, ExposureMask|ButtonPressMask|KeyPressMask);
 	// titre fenetre
