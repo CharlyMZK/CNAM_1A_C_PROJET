@@ -8,4 +8,5 @@ int main()
   create_board(19);
   play_stone(5, 13,1);
   print_board();
+  play_stone(5, 13,2);
 }

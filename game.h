@@ -22,4 +22,5 @@ void print_board();
 void create_board(int size);
 Stone* get_stone(int x, int y);
 void set_stone(int x, int y, Stone* stone);
-void play_stone(int x, int y, int color);
+int play_stone(int x, int y, int color);
+int check_play(int x, int y);

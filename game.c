@@ -132,9 +132,24 @@ void set_stone(int x, int y, Stone* stone){
 
 /*
  * Permet au joueur dont la couleur est passé en parametre de jouer un caillou
+ * Retourne 1 si le jeu a pu jouer, 0 sinon
  */
-void play_stone(int x, int y, int color){
+int play_stone(int x, int y, int color){
+	int played = 0;
   Stone* stone = malloc(sizeof(Stone));
   stone->color = color;
-  set_stone(x, y, stone);
+	if((played = check_play(x,y)) == 1)
+  	set_stone(x, y, stone);
+	return played;
+}
+
+/*
+ * Permet de savoir si le joueur peut jouer
+ * Retourne 1 si la pierre peut etre placée sur cette case
+ */
+int check_play(int x, int y){
+	int can_play = 0;
+	if(get_stone(x,y) == NULL)
+		can_play = 1;
+	return can_play;
 }
