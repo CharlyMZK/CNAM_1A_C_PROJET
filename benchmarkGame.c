@@ -4,6 +4,8 @@
 
 int main()
 {
-  printf("test");
+  printf("test\n");
+  Board* board = create_board();
+  play_stone(board, 0, 5,13);
+  print_board(board, 19);
 }
-
