@@ -41,7 +41,6 @@ void draw_win()
 
 	// -- Initialisation
 	double box_size,i;
-	int board_size = 19;
 
 	// -- Lines color
 	color(0,0,0);
@@ -50,7 +49,7 @@ void draw_win()
 	rectangle(cell_size,cell_size,width_win(),height_win());
 
  	// -- Calcul du nombre de cases
-	box_size = width_win() / board_size;
+	box_size = width_win() / BOARD->size;
 	box_size = round(box_size);
 
 	// -- Taille de la cellule
@@ -68,8 +67,6 @@ void draw_win()
 	for(i=cell_size; i<=height_win(); i+=box_size)
 		line(cell_size,i,height_win_spaced,i);
 
-  	init_board(19);
- 	play_stone(5, 13,1);
   	print_board();
 }
 
@@ -206,11 +203,16 @@ void init_board(int size){
 
 /*
  * Permet de récupérer la pierre a x et y
+ * Retourne NULL s'il n'y pas de pierre, la pierre si elle est bonne et une pierre avec color = "O" si elle est hors case
  */
 Stone* get_stone(int x, int y){
 	Stone* stone;
 	if(x < BOARD->size && y < BOARD->size)
 		stone = BOARD->intersections[x*BOARD->size+y];
+	else{
+		stone = malloc(sizeof(Stone));
+		stone->color = 'O';
+	}
 	return stone;
 }
 
@@ -271,10 +273,11 @@ int check_play(int x, int y){
 int check_chain_liberties(int size, Stone** stones){
 	int result = 1;
 	for(int stone = 0; stone < size; stone++){
-		if(get_stone(stones[stone]->x+1, stones[stone]->y) != NULL
-			&& get_stone(stones[stone]->x-1, stones[stone]->y) != NULL
-			&& get_stone(stones[stone]->x, stones[stone]->y+1) != NULL
-			&& get_stone(stones[stone]->x, stones[stone]->y-1) != NULL) // Regarde si la pierre est entouré et qu'elle n'a pas de liberté
+		if(get_stone(stones[stone]->x+1, stones[stone]->y) != NULL || get_stone(stones[stone]->x+1, stones[stone]->y)->color == 'O'
+			&& get_stone(stones[stone]->x-1, stones[stone]->y) != NULL || get_stone(stones[stone]->x-1, stones[stone]->y)->color == 'O'
+			&& get_stone(stones[stone]->x, stones[stone]->y+1) != NULL || get_stone(stones[stone]->x, stones[stone]->y+1)->color == 'O'
+			&& get_stone(stones[stone]->x, stones[stone]->y-1) != NULL || get_stone(stones[stone]->x, stones[stone]->y-1)->color == 'O')
+			// Regarde si la pierre est entouré par une pierre ou qu'elle est sur la limite
 			result = 0;
 	}
 	return result;
