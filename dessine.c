@@ -10,7 +10,7 @@ Display *display;
 int     screen;
 Window  win, root;
 
-extern void player_play();
+extern void player_play(int x, int y);
 extern void draw_win(); 
 extern void drop_stone(int x, int y);
 extern void test_clicked(int coord,float taille_case);

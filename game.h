@@ -5,7 +5,7 @@
 
 // Structure de la pierre
 typedef struct Structure_Stone{
-  int color; // 0 pour les noirs et 1 pour les blancs
+  char color; // W pour blanc et B pour noir
   int visible; // Permet de savoir s'il faut afficher la pierre
 }Stone;
 
@@ -15,7 +15,8 @@ typedef struct Structure_Board{
   Stone** intersections; // Tableau des cases
 }Board;
 
-void player_play();
+int find_chain(int x, int y, int size, Stone** stones);
+void player_play(int x, int y);
 void draw_win();
 int test_clicked(int coord);
 void drop_stone(int x, int y);
@@ -25,5 +26,7 @@ void print_board();
 void init_board(int size);
 Stone* get_stone(int x, int y);
 void set_stone(int x, int y, Stone* stone);
-int play_stone(int x, int y, int color);
+int play_white_stone(int x, int y);
+int play_black_stone(int x, int y);
+int play_stone(int x, int y, char color);
 int check_play(int x, int y);
