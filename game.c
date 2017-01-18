@@ -12,6 +12,14 @@ int turn = 0;
 int height_win_spaced;
 int width_win_spaced;
 
+void pass(){
+	if(turn = 0){
+		turn = 1;
+	}else{
+		turn = 0;
+	}
+}
+
 /**
  * Indique dans la textbox quel joueur joue
  * 
@@ -29,6 +37,18 @@ void player_play(){
 	}
 }
 
+void check_capture(int x, int y ){
+	printf("je recupère : %d , %d ",x,y);
+	Stone* stone = get_stone(x,y); 
+		
+
+	if(stone->color == 0){
+		printf("la couleur est blanche");
+
+	}else{
+		printf("la couleur est noire");
+	} 
+}
 
 /**
  * Mettre ici son code pour dessiner dans la fenetre
@@ -137,16 +157,16 @@ void mouse_clicked(int bouton, int x, int y)
 
 	// -- Si la pierre est placée, on drop une pierre et l'autre joueur joue 
 	if(play_stone(placement_x, placement_y,1)){
+		printf("\n ================================ \n");
+		print_board();
+		check_capture(placement_x,placement_y);
 		drop_stone(x,y); 
 		player_play();
 	}
 	
 	printf("\n x : %d \n",placement_x); 
 	printf("\n y : %d \n ",placement_y);  
-	print_board();
 	// -- Render la stone et le tour du joueur
-	
-	
 }
 
 
@@ -249,3 +269,6 @@ int check_play(int x, int y){
 		can_play = 1;
 	return can_play;
 }
+
+
+
