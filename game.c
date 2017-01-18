@@ -17,19 +17,11 @@ int width_win_spaced;
  *
  */
 void player_play(){
-<<<<<<< HEAD
-	printf("ENtrée");
-	color(255,178,102);
-	filled_rectangle(width_win_spaced+5,0,300,30);
-
-	color(0,0,0);
-=======
 	// -- Couleur du rectangle
 	color(255,178,102);
 	filled_rectangle(width_win_spaced+5,0,300,30);
 	// -- Couleur de l'écriture
 	color(0,0,0);
->>>>>>> 196d111a46f27acfb70f314124a60438d3279f08
 	if(turn == 0){
 		string(width_win_spaced+20,20,"Tour du joueur 1");
 	}else{
@@ -76,16 +68,6 @@ void draw_win()
 	for(i=cell_size; i<=height_win(); i+=box_size)
 		line(cell_size,i,height_win_spaced,i);
 
-
-
-<<<<<<< HEAD
-}
-
-
-
-int test_clicked(int coord,float taille_case){
-=======
-
   	init_board(19);
  	play_stone(5, 13,1);
   	print_board();
@@ -97,25 +79,9 @@ int test_clicked(int coord,float taille_case){
  *
  */
 int test_clicked(int coord){
->>>>>>> 196d111a46f27acfb70f314124a60438d3279f08
 	float res = 0;
 	// -- On fait le check jusqu'a la fin du board, les extremités sont prises en comptes
 	height_win_spaced = height_win()+(cell_size*2);
-<<<<<<< HEAD
-	width_win_spaced = width_win()+(cell_size*2);
-
-
-	if(coord < taille_case){
-		coord = taille_case;
-	}else if(coord > width_win_spaced - taille_case){
-		coord = width_win_spaced - taille_case;
-	}else if(coord > height_win_spaced - taille_case){
-		height_win_spaced - taille_case;
-	}
-
-	res = round(coord/taille_case);
-	res = res * taille_case;
-=======
 	width_win_spaced = width_win()+(cell_size*2);
 
 	// -- Check pour mettre le point sur une intersection
@@ -130,7 +96,6 @@ int test_clicked(int coord){
 	// -- Calcul exact
 	res = round(coord/cell_size);
 	res = res * cell_size;
->>>>>>> 196d111a46f27acfb70f314124a60438d3279f08
 	return (int) res;
 }
 
@@ -281,6 +246,8 @@ int play_stone(int x, int y, char color){
 	int played = 0;
   Stone* stone = malloc(sizeof(Stone));
   stone->color = color;
+	stone->x = x;
+	stone->y = y;
 	if((played = check_play(x,y)) == 1) // on vérifie si le joueur peut jouer
   	set_stone(x, y, stone);
 	return played;
@@ -295,4 +262,8 @@ int check_play(int x, int y){
 	if(get_stone(x,y) == NULL) // s'il n'y a pas de pierre sur la case
 		can_play = 1;
 	return can_play;
+}
+
+int check_group_liberties(Stone* stones){
+	
 }
