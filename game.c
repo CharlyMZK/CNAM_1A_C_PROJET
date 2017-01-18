@@ -264,6 +264,18 @@ int check_play(int x, int y){
 	return can_play;
 }
 
-int check_group_liberties(Stone* stones){
-	
+/*
+ * Permet de savoir s'il reste des libertés a la chaine
+ * Retourne 1 si oui, non sinon
+ */
+int check_chain_liberties(int size, Stone** stones){
+	int result = 1;
+	for(int stone = 0; stone < size; stone++){
+		if(get_stone(stones[stone]->x+1, stones[stone]->y) != NULL
+			&& get_stone(stones[stone]->x-1, stones[stone]->y) != NULL
+			&& get_stone(stones[stone]->x, stones[stone]->y+1) != NULL
+			&& get_stone(stones[stone]->x, stones[stone]->y-1) != NULL) // Regarde si la pierre est entouré et qu'elle n'a pas de liberté
+			result = 0;
+	}
+	return result;
 }

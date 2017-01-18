@@ -31,4 +31,4 @@ int play_white_stone(int x, int y);
 int play_black_stone(int x, int y);
 int play_stone(int x, int y, char color);
 int check_play(int x, int y);
-int check_group_liberties(Stone* stones);
+int check_chain_liberties(int size, Stone** stones);
