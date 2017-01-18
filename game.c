@@ -50,8 +50,9 @@ int find_chain(int x, int y, int size, Stone** stones){
 
 /**
  * Indique dans la textbox quel joueur joue
- * 
+ *
  */
+
 void player_play(int x, int y){ 
 	int placement_x;
 	int placement_y;
@@ -64,13 +65,17 @@ void player_play(int x, int y){
 	placement_x = (x/cell_size)-1;
 	placement_y = (y/cell_size)-1;  
 
+
 	// -- Couleur du rectangle
-	color(255,178,102); 
+	color(255,178,102);
 	filled_rectangle(width_win_spaced+5,0,300,30);
 	// -- Couleur de l'écriture
-	color(0,0,0); 
+
 
 	// -- Tour du joueur
+
+	color(0,0,0);
+
 	if(turn == 0){
 		printf("%d, %d",x,y);
 		if(play_stone(placement_x,placement_y,'W')){
@@ -98,7 +103,6 @@ void draw_win()
 
 	// -- Initialisation
 	double box_size,i;
-	int board_size = 19;
 
 	// -- Lines color
 	color(0,0,0);
@@ -107,12 +111,12 @@ void draw_win()
 	rectangle(cell_size,cell_size,width_win(),height_win());
 
  	// -- Calcul du nombre de cases
-	box_size = width_win() / board_size;
+	box_size = width_win() / BOARD->size;
 	box_size = round(box_size);
-	
+
 	// -- Taille de la cellule
 	cell_size = 32;
-	
+
 	// -- Hauteur et largeur du tableau avec les margins
 	height_win_spaced = height_win()+cell_size;
 	width_win_spaced = width_win()+cell_size;
@@ -126,23 +130,25 @@ void draw_win()
 		line(cell_size,i,height_win_spaced,i);
 
 
+
   	init_board(19);
  	play_stone(5, 13,'W');
   	//print_board();
 }
 
- 
+
 /**
  * Test si le point est posé au milieu d'un carré et le remet correctement a l'intersection
- * 
+ *
  */
 int test_clicked(int coord){
 
 	float res = 0;
 	// -- On fait le check jusqu'a la fin du board, les extremités sont prises en comptes
+	height_win_spaced = height_win()+(cell_size*2);
+	width_win_spaced = width_win()+(cell_size*2);
 
-	width_win_spaced = width_win()+(cell_size*2); 
- 
+
 	// -- Check pour mettre le point sur une intersection
 	if(coord < cell_size){
 		coord = cell_size;
@@ -151,17 +157,18 @@ int test_clicked(int coord){
 	}else if(coord > height_win_spaced - cell_size){
 		height_win_spaced - cell_size;
 	}
-	  
-	// -- Calcul exact 
+
+	// -- Calcul exact
 	res = round(coord/cell_size);
-	res = res * cell_size;  
+
+	res = res * cell_size;
 
 	return (int) res;
 }
 
 /**
  * Pose le point de la pierre sur le board
- * 
+ *
  */
 void drop_stone(int x, int y){
 	// -- Couleur du point en fonction du tour du joueur
@@ -183,7 +190,9 @@ void drop_stone(int x, int y){
  */
 void mouse_clicked(int bouton, int x, int y)
 {
+
 	player_play(x,y);
+
 }
 
 
@@ -250,11 +259,16 @@ void init_board(int size){
 
 /*
  * Permet de récupérer la pierre a x et y
+ * Retourne NULL s'il n'y pas de pierre, la pierre si elle est bonne et une pierre avec color = "O" si elle est hors case
  */
 Stone* get_stone(int x, int y){
 	Stone* stone;
 	if(x < BOARD->size && y < BOARD->size)
 		stone = BOARD->intersections[x*BOARD->size+y];
+	else{
+		stone = malloc(sizeof(Stone));
+		stone->color = 'O';
+	}
 	return stone;
 }
 
@@ -290,6 +304,9 @@ int play_stone(int x, int y, char color){
 	int played = 0;
   	Stone* stone = malloc(sizeof(Stone));
   	stone->color = color;
+	stone->x = x;
+	stone->y = y;
+
 	if((played = check_play(x,y)) == 1) // on vérifie si le joueur peut jouer
   	set_stone(x, y, stone);
 	return played;
@@ -306,5 +323,20 @@ int check_play(int x, int y){
 	return can_play;
 }
 
-
+/*
+ * Permet de savoir s'il reste des libertés a la chaine
+ * Retourne 1 si oui, non sinon
+ */
+int check_chain_liberties(int size, Stone** stones){
+	int result = 1;
+	for(int stone = 0; stone < size; stone++){
+		if(get_stone(stones[stone]->x+1, stones[stone]->y) != NULL || get_stone(stones[stone]->x+1, stones[stone]->y)->color == 'O'
+			&& get_stone(stones[stone]->x-1, stones[stone]->y) != NULL || get_stone(stones[stone]->x-1, stones[stone]->y)->color == 'O'
+			&& get_stone(stones[stone]->x, stones[stone]->y+1) != NULL || get_stone(stones[stone]->x, stones[stone]->y+1)->color == 'O'
+			&& get_stone(stones[stone]->x, stones[stone]->y-1) != NULL || get_stone(stones[stone]->x, stones[stone]->y-1)->color == 'O')
+			// Regarde si la pierre est entouré par une pierre ou qu'elle est sur la limite
+			result = 0;
+	}
+	return result;
+}
 
