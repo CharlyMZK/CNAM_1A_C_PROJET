@@ -15,10 +15,10 @@ int width_win_spaced;
 
 void player_play(){
 	printf("ENtrée");
-	color(255,178,102); 
+	color(255,178,102);
 	filled_rectangle(width_win_spaced+5,0,300,30);
 
-	color(0,0,0); 
+	color(0,0,0);
 	if(turn == 0){
 		string(width_win_spaced+20,20,"Tour du joueur 1");
 	}else{
@@ -63,19 +63,19 @@ void draw_win()
 
  	// -- Dessin des lignes verticales
 	for(i=cell_size; i<=height_win(); i+=box_size)
-		line(cell_size,i,height_win_spaced,i);	
+		line(cell_size,i,height_win_spaced,i);
 
-	
-		
+
+
 }
 
- 
+
 
 int test_clicked(int coord,float taille_case){
 	float res = 0;
 	height_win_spaced = height_win()+(cell_size*2);
-	width_win_spaced = width_win()+(cell_size*2); 
- 
+	width_win_spaced = width_win()+(cell_size*2);
+
 
 	if(coord < taille_case){
 		coord = taille_case;
@@ -84,9 +84,9 @@ int test_clicked(int coord,float taille_case){
 	}else if(coord > height_win_spaced - taille_case){
 		height_win_spaced - taille_case;
 	}
-	  
+
 	res = round(coord/taille_case);
-	res = res * taille_case;  
+	res = res * taille_case;
 	return (int) res;
 }
 
@@ -109,7 +109,7 @@ void drop_stone(int x, int y){
 void mouse_clicked(int bouton, int x, int y)
 {
 	x = test_clicked(x,cell_size);
-	y = test_clicked(y,cell_size);  
+	y = test_clicked(y,cell_size);
 	player_play();
 	drop_stone(x,y);
 }
@@ -158,7 +158,7 @@ void key_pressed(KeySym code, char c, int x_souris, int y_souris)
 void print_board(){
     for(int i = 0; i < BOARD->size; i++){
       for(int j = 0; j < BOARD->size; j++){
-        printf("board[%i][%i] = %i", i, j, (get_stone(i,j)!=NULL)?(get_stone(i,j)->color):(-1));
+        printf("board[%i][%i] = %c", i, j, (get_stone(i,j)!=NULL)?(get_stone(i,j)->color):(' '));
       }
     }
 }
@@ -190,16 +190,31 @@ void set_stone(int x, int y, Stone* stone){
 		BOARD->intersections[x*BOARD->size+y] = stone;
 }
 
+/*
+ * Permet au joueur blanc de jouer une pierre
+ * Retourne 1 si le jeu a pu jouer, 0 sinon
+ */
+int play_white_stone(int x, int y){
+	return play_stone(x, y, 'W');
+}
+
+/*
+ * Permet au joueur noir de placer une pierre
+ * Retourne 1 si le jeu a pu jouer, 0 sinon
+ */
+int play_black_stone(int x, int y){
+	return play_stone(x, y, 'B');
+}
 
 /*
  * Permet au joueur dont la couleur est passé en parametre de jouer un caillou
  * Retourne 1 si le jeu a pu jouer, 0 sinon
  */
-int play_stone(int x, int y, int color){
+int play_stone(int x, int y, char color){
 	int played = 0;
   Stone* stone = malloc(sizeof(Stone));
   stone->color = color;
-	if((played = check_play(x,y)) == 1)
+	if((played = check_play(x,y)) == 1) // on vérifie si le joueur peut jouer
   	set_stone(x, y, stone);
 	return played;
 }
@@ -210,7 +225,7 @@ int play_stone(int x, int y, int color){
  */
 int check_play(int x, int y){
 	int can_play = 0;
-	if(get_stone(x,y) == NULL)
+	if(get_stone(x,y) == NULL) // s'il n'y a pas de pierre sur la case
 		can_play = 1;
 	return can_play;
 }

@@ -6,7 +6,6 @@ int main()
 {
   printf("test\n");
   create_board(19);
-  play_stone(5, 13,1);
+  play_white_stone(5, 13);
   print_board();
-  play_stone(5, 13,2);
 }

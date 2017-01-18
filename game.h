@@ -5,7 +5,7 @@
 
 // Structure de la pierre
 typedef struct Structure_Stone{
-  int color; // 0 pour les noirs et 1 pour les blancs
+  char color; // W pour blanc et B pour noir
   int visible; // Permet de savoir s'il faut afficher la pierre
 }Stone;
 
@@ -22,5 +22,7 @@ void print_board();
 void create_board(int size);
 Stone* get_stone(int x, int y);
 void set_stone(int x, int y, Stone* stone);
-int play_stone(int x, int y, int color);
+int play_white_stone(int x, int y);
+int play_black_stone(int x, int y);
+int play_stone(int x, int y, char color);
 int check_play(int x, int y);
