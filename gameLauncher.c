@@ -30,10 +30,10 @@ int ask_board_size(){
 
 int main()
 {
-	if(ask_mode() == 'j'){
-		init_board(ask_board_size());
+	//if(ask_mode() == 'j'){
+		init_board(/*ask_board_size()*/19);
 		init_win(608,608, "Essai");
 		event_loop();
-	}
+	//}
 	return EXIT_SUCCESS;
 }
