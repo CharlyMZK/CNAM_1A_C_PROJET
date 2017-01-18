@@ -15,11 +15,14 @@ typedef struct Structure_Board{
   Stone** intersections; // Tableau des cases
 }Board;
 
+void player_play();
 void draw_win();
+int test_clicked(int coord);
+void drop_stone(int x, int y);
 void mouse_clicked(int bouton, int x, int y);
 void key_pressed(KeySym code, char c, int x_souris, int y_souris);
 void print_board();
-void create_board(int size);
+void init_board(int size);
 Stone* get_stone(int x, int y);
 void set_stone(int x, int y, Stone* stone);
 int play_white_stone(int x, int y);
