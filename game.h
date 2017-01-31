@@ -8,7 +8,7 @@ typedef struct Structure_Stone{
   char color;
   int x;
   int y;
-  int visible; // Permet de savoir s'il faut afficher la pierre
+  bool visible; // Permet de savoir s'il faut afficher la pierre
 }Stone;
 
 // Structure du plateau de jeu
@@ -45,8 +45,11 @@ int play_black_stone(int x, int y);
 int play_stone(int x, int y, char color);
 void print_chains();
 int add_in_chain(Stone* stone); 
-Chain* find_chain(Stone* stone); 
+Chain* find_chain(Stone* stone);
+void chain_captured(Chain* chain); 
+void redraw_win();  
 void modify_freedoms(Stone* stone);
 int find_in_chain(Stone* stone);  
 int check_play(int x, int y);
+bool is_in_same_chain(Stone* stone1, Stone* stone2); 
 int check_chain_liberties(int size, Stone** stones);
