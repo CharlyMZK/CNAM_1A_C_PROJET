@@ -9,8 +9,6 @@ Board* BOARD;
 
 int cell_size;
 int turn = 0;
-int height_win_spaced;
-int width_win_spaced;
 
 void pass(){
 	if(turn = 0){
@@ -19,10 +17,10 @@ void pass(){
 		turn = 0;
 	}
 }
- 
+
 int find_chain(int x, int y, int size, Stone** stones){
 	/*printf("\nje recupère : %d , %d \n",x,y);
-	Stone* stone = get_stone(x,y); 
+	Stone* stone = get_stone(x,y);
 	int equals = 0;
 	int i;
 	for(i = 0 ; i < size ; i++){
@@ -30,8 +28,8 @@ int find_chain(int x, int y, int size, Stone** stones){
 			equals = 1;
 		}
 	}*/
-	
-	
+
+
 
 	/*if(stone != NULL){
 		printf("\nje retourne 1 \n");
@@ -45,7 +43,7 @@ int find_chain(int x, int y, int size, Stone** stones){
 		return 0;
 	}	*/
 
-	
+
 }
 
 /**
@@ -53,43 +51,41 @@ int find_chain(int x, int y, int size, Stone** stones){
  *
  */
 
-void player_play(int x, int y){ 
+void player_play(int x, int y){
 	int placement_x;
 	int placement_y;
-	
-	// -- Placement x et y sur le render
-	x = test_clicked(x);  
-	y = test_clicked(y);  
 
+	// -- Placement x et y sur le render
+	x = test_clicked(x);
+	y = test_clicked(y);
 	// -- Placement x et y sur le tableau
 	placement_x = (x/cell_size)-1;
-	placement_y = (y/cell_size)-1;  
-
-
-	// -- Couleur du rectangle
-	color(255,178,102);
-	filled_rectangle(width_win_spaced+5,0,300,30);
-	// -- Couleur de l'écriture
-
-
-	// -- Tour du joueur
-
-	color(0,0,0);
+	placement_y = (y/cell_size)-1;
 
 	if(turn == 0){
-		printf("%d, %d",x,y);
+		printf("Joue une pierre : %d, %d\n",x,y);
 		if(play_stone(placement_x,placement_y,'W')){
-			string(width_win_spaced+20,20,"Tour du joueur 1");
-			drop_stone(x,y); 
+			// -- Refresh du rectange
+			color(255,178,102);
+			filled_rectangle(width_win()+cell_size+5,0,300,30);
+			// -- Marquage du joueur
+			color(0,0,0);
+			string(width_win()+cell_size+20,20,"Tour du joueur 1");
+			drop_stone(x,y);
 		}
-		
+
 	}else{
 		if(play_stone(placement_x,placement_y,'B')){
-			string(width_win_spaced+20,20,"Tour du joueur 2");
-			drop_stone(x,y); 
+			// -- Refresh du rectangle
+			color(255,178,102);
+			filled_rectangle(width_win()+cell_size+5,0,300,30);
+			// -- Marquage du joueur
+			color(0,0,0);
+			string(width_win()+cell_size+20,20,"Tour du joueur 2");
+			drop_stone(x,y);
 		}
-		 
-	} 
+
+	}
 }
 
 /**
@@ -102,38 +98,25 @@ void draw_win()
 	clear_win();
 
 	// -- Initialisation
-	double box_size,i;
+	int i;
 
 	// -- Lines color
 	color(0,0,0);
 
-	// -- Cadre du board
-	rectangle(cell_size,cell_size,width_win(),height_win());
-
- 	// -- Calcul du nombre de cases
-	box_size = width_win() / BOARD->size;
-	box_size = round(box_size);
-
 	// -- Taille de la cellule
-	cell_size = 32;
-
-	// -- Hauteur et largeur du tableau avec les margins
-	height_win_spaced = height_win()+cell_size;
-	width_win_spaced = width_win()+cell_size;
+	cell_size = round(height_win() / BOARD->size);
 
 	// -- Dessin des lignes horizontales
-	for(i=cell_size; i<=width_win(); i+=box_size)
-		line(i,cell_size,i, height_win_spaced);
+	for(i=cell_size; i<=cell_size*BOARD->size; i+=cell_size) // On prend la taille d'une cellule - la taille du board - 1 car sinon on a une case de trop
+		line(i,cell_size,i, width_win());
 
  	// -- Dessin des lignes verticales
-	for(i=cell_size; i<=height_win(); i+=box_size)
-		line(cell_size,i,height_win_spaced,i);
+	for(i=cell_size; i<=cell_size*BOARD->size; i+=cell_size)// On prend la taille d'une cellule - la taille du board - 1 car sinon on a une case de trop
+		line(cell_size,i,height_win(),i);
 
-
-
-  	init_board(19);
- 	play_stone(5, 13,'W');
-  	//print_board();
+	// On dessine les hoshis
+	draw_hoshi();
+	init_board(BOARD->size);
 }
 
 
@@ -141,30 +124,49 @@ void draw_win()
  * Test si le point est posé au milieu d'un carré et le remet correctement a l'intersection
  *
  */
-int test_clicked(int coord){
+ int test_clicked(int coord){
+ 	float res = (float)coord/cell_size; // on prend la cellule avec une virgule
+ 	res = round(res) * cell_size; // On arroundi et on multiplie par la taille d'une cellule
+ 	return (int) res;
+ }
 
-	float res = 0;
-	// -- On fait le check jusqu'a la fin du board, les extremités sont prises en comptes
-	height_win_spaced = height_win()+(cell_size*2);
-	width_win_spaced = width_win()+(cell_size*2);
-
-
-	// -- Check pour mettre le point sur une intersection
-	if(coord < cell_size){
-		coord = cell_size;
-	}else if(coord > width_win_spaced - cell_size){
-		coord = width_win_spaced - cell_size;
-	}else if(coord > height_win_spaced - cell_size){
-		height_win_spaced - cell_size;
+ /*
+  * Permet de dessiner les hoshis sur le plateau
+  */
+ void draw_hoshi()
+ {
+ 	int i,j;
+	color(0,0,0);
+	switch(BOARD->size){
+		case 9:
+			for(i=2; i <= 6; i+=4){
+				for(j=2; j <= 6; j+=4){
+					int x = cell_size + (j * cell_size);
+					int y = cell_size + (i * cell_size);
+					filled_circle(x,y,cell_size/6);
+				}
+			}
+			break;
+		case 13:
+			for(i=3; i <= 9; i+=3){
+				for(j=3; j <= 9; j+=3){
+					int x = cell_size + (j * cell_size);
+					int y = cell_size + (i * cell_size);
+					filled_circle(x,y,cell_size/6);
+				}
+			}
+		break;
+		case 19:
+			for(i=3; i <= 15; i+=6){
+				for(j=3; j <= 15; j+=6){
+					int x = cell_size + (j * cell_size);
+					int y = cell_size + (i * cell_size);
+					filled_circle(x,y,cell_size/6);
+				}
+			}
+			break;
 	}
-
-	// -- Calcul exact
-	res = round(coord/cell_size);
-
-	res = res * cell_size;
-
-	return (int) res;
-}
+ }
 
 /**
  * Pose le point de la pierre sur le board
@@ -180,7 +182,7 @@ void drop_stone(int x, int y){
 		color(1.0,1.0,1.0);
 	}
 	// -- Pose le point
-	filled_circle(x,y,5);
+	filled_circle(x,y,cell_size/3);
 }
 
 /**
@@ -190,9 +192,7 @@ void drop_stone(int x, int y){
  */
 void mouse_clicked(int bouton, int x, int y)
 {
-
 	player_play(x,y);
-
 }
 
 
@@ -302,8 +302,8 @@ int play_black_stone(int x, int y){
  */
 int play_stone(int x, int y, char color){
 	int played = 0;
-  	Stone* stone = malloc(sizeof(Stone));
-  	stone->color = color;
+  Stone* stone = malloc(sizeof(Stone));
+	stone->color = color;
 	stone->x = x;
 	stone->y = y;
 
@@ -339,4 +339,3 @@ int check_chain_liberties(int size, Stone** stones){
 	}
 	return result;
 }
-

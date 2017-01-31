@@ -21,6 +21,7 @@ int find_chain(int x, int y, int size, Stone** stones);
 void player_play(int x, int y);
 void draw_win();
 int test_clicked(int coord);
+void draw_hoshi();
 void drop_stone(int x, int y);
 void mouse_clicked(int bouton, int x, int y);
 void key_pressed(KeySym code, char c, int x_souris, int y_souris);
