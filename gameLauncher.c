@@ -28,11 +28,15 @@ int ask_board_size(){
 	return size;
 }
 
-int main()
+// Peut prendre en paramètre la taille de la fenêtre
+int main(int argc, char* argv[])
 {
 	//if(ask_mode() == 'j'){
-		init_board(/*ask_board_size()*/19);
-		init_win(608,608, "Essai");
+		init_board(ask_board_size());
+		if(argc > 1)
+			init_win(atoi(argv[1]),atoi(argv[1]), "GO Game Mraled");
+		else
+			init_win(608,608, "GO Game Mraled");
 		event_loop();
 	//}
 	return EXIT_SUCCESS;
