@@ -12,7 +12,7 @@ Chains* CHAINS;
 int cell_size;
 int turn = 0;
 int pass_counter = 0; 
-bool bot_activated = true;
+bool bot_activated = false;
 /**
  * Passe le tour du joueur
  *
@@ -106,27 +106,28 @@ void player_play(int x, int y){
 
 	pass_counter = 0;
 
-
+	// -- Check si l'endroit posé est ok 
 	if( (x >= cell_size && x <= ( height_win()+cell_size )  ) && ( y >= cell_size && y <= ( height_win()+cell_size )  )  ){
 
-	// -- Placement x et y sur le render
-	x = test_clicked(x);
-	y = test_clicked(y);
-	// -- Placement x et y sur le tableau
-	placement_x = (x/cell_size)-1;
-	placement_y = (y/cell_size)-1;
+		// -- Placement x et y sur le render
+		x = test_clicked(x);
+		y = test_clicked(y);
+		// -- Placement x et y sur le tableau
+		placement_x = (x/cell_size)-1;
+		placement_y = (y/cell_size)-1;
 
-	printf("\n===============================PIERRE POSEE  [%d, %d]===============================\n",x,y);
-
-		if(turn == 0){
-			if(play_stone(placement_x,placement_y,'B')){
-				drop_stone(x,y);
+		printf("\n===============================PIERRE POSEE  [%d, %d]===============================\n",x,y);
+		if(get_stone(placement_x,placement_y) == NULL){
+			if(turn == 0){
+				if(play_stone(placement_x,placement_y,'B')){
+					drop_stone(x,y);
+				} 
+			}else{
+				if(play_stone(placement_x,placement_y,'W')){
+					drop_stone(x,y);
+				}
 			}
-		}else{
-			if(play_stone(placement_x,placement_y,'W')){
-				drop_stone(x,y);
-			}
-		}
+		} 
 		draw_player_turn(); 
 		check_game_finished();
 		printf("\n\n]===============================FIN PIERRE POSEE  [%d, %d] ]===============================\n\n\n\n",x,y);
