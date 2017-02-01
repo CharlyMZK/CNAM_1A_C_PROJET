@@ -11,25 +11,79 @@ Chains* CHAINS;
 
 int cell_size;
 int turn = 0;
+int pass_counter = 0;
 
+/**
+ * Passe le tour du joueur
+ *
+ */
 void pass(){
-	if(turn = 0){
-		turn = 1;
-	}else{
-		turn = 0;
+	pass_counter++;
+	if(pass_counter == 2){
+		game_finished(); 
 	}
+	if(turn == 0){
+		turn = 1;
+		draw_player_turn();  
+	}else{ 
+		turn = 0;
+		draw_player_turn();
+	} 
 }
 
+/**
+ * Check si la partie est terminée
+ *
+ */
+void check_game_finished(){
+	int stone_counter = 0;
+	bool finished = false;
+    for(int i = 0; i < BOARD->size; i++){ 
+      for(int j = 0; j < BOARD->size; j++){
+		if(get_stone(i,j) != NULL){
+			stone_counter++;       
+		}  
+      } 
+    }  
+	Stone* checked_stone = NULL;
+	if(stone_counter >= 1){
+		game_finished();
+	}
+	printf("\n Dans le jeu il y a %d pierres sur %d",stone_counter,BOARD->size*BOARD->size);   
+}
+
+/**
+ * Finis la partie 
+ *
+ */
+void game_finished(){
+	Stone* checked_stone = NULL;  
+	int points_player_1 = 0; 
+	int points_player_2 = 0;
+	for(int i = 0; i < BOARD->size; i++){ 
+		for(int j = 0; j < BOARD->size; j++){
+			checked_stone = get_stone(i,j);
+			if(checked_stone != NULL){
+				if(checked_stone->color == 'B'){
+					points_player_1++;
+				}else{
+					points_player_2++; 
+				} 
+			}  
+		} 
+	} 
+	printf("\n Le joueur 1 a %d points",points_player_1);  
+	printf("\n Le joueur 2 a %d points",points_player_2);
+}
 
 /**
  * Indique dans la textbox quel joueur joue
  *
  */
-
 void player_play(int x, int y){
 	int placement_x;
 	int placement_y;
-
+	pass_counter = 0;
 	// -- Placement x et y sur le render
 	x = test_clicked(x);
 	y = test_clicked(y);
@@ -37,7 +91,7 @@ void player_play(int x, int y){
 	placement_x = (x/cell_size)-1;
 	placement_y = (y/cell_size)-1;
 	printf("\n\n\n\n==================================PIERRE POSEE  [%d, %d] ============================================================ \n\n",x,y);
-
+	printf("\nTour du joueur qui a posé : %d\n",turn);
 
 	if( (x >= cell_size && x <= ( height_win()+cell_size )  ) && ( y >= cell_size && y <= ( height_win()+cell_size )  )  ){
 		if(turn == 0){
@@ -62,17 +116,34 @@ void player_play(int x, int y){
 			}
 
 		} 
-	} 
-	
+	}  
+	check_game_finished();
+	printf("\nTour du joueur ensuite : %d\n",turn);
 	printf("\n\n\n\n==================================FIN PIERRE POSEE  [%d, %d] ============================================================ \n\n\n\n\n\n\n\n\n\n",x,y);
+}
+
+/**
+ * Affiche le tour du joueur
+ */ 
+void draw_player_turn(){
+	// -- Refresh du rectange 
+	color(255,178,102); 
+	filled_rectangle(width_win()+cell_size+5,0,300,30);
+	// -- Marquage du joueur
+	color(0,0,0);
+	printf("\n\nTour du joueur : %d\n\n",turn);
+	if(turn == 0){
+		string(width_win()+cell_size+20,20,"Tour du joueur 1");
+	}else{
+		string(width_win()+cell_size+20,20,"Tour du joueur 2");
+	} 
 }
 
 /**
  * Mettre ici son code pour dessiner dans la fenetre
  * 1er affichage + redessine si resize
  */
-void draw_win()
-{
+void draw_win(){
 	// - Vide la fenetre
 	clear_win();
 
@@ -95,15 +166,17 @@ void draw_win()
 
 	// On dessine les hoshis
 	draw_hoshi();
+
+	// -- On défini le tour du joueur
+	draw_player_turn(); 
 	
 } 
-
 
 /**
  * Test si le point est posé au milieu d'un carré et le remet correctement a l'intersection
  *
  */
- int test_clicked(int coord){
+int test_clicked(int coord){
  	float res = (float)coord/cell_size; // on prend la cellule avec une virgule
  	res = round(res) * cell_size; // On arroundi et on multiplie par la taille d'une cellule
  	return (int) res;
@@ -147,11 +220,12 @@ void draw_win()
 	}
  }
 
+
 /**
  * Pose le point de la pierre sur le board
  *
  */
-void drop_stone(int x, int y){
+ void drop_stone(int x, int y){ 
 	// -- Couleur du point en fonction du tour du joueur
 	if(turn == 0){
 		turn = 1;
@@ -169,11 +243,9 @@ void drop_stone(int x, int y){
  * bouton: 1,2,3,4,5,... : gauche, milieu, droit, molette, ...
  * x,y position
  */
-void mouse_clicked(int bouton, int x, int y)
-{
+void mouse_clicked(int bouton, int x, int y){
 	player_play(x,y);
 }
-
 
 /**
  * on a appuyé sur une touche
@@ -181,8 +253,7 @@ void mouse_clicked(int bouton, int x, int y)
  * c caractère correspondant si caractere
  * x_souris,y_souris position de la souris
  */
-void key_pressed(KeySym code, char c, int x_souris, int y_souris)
-{
+void key_pressed(KeySym code, char c, int x_souris, int y_souris){
 	switch(code)
 	{
 		case XK_Down:
@@ -307,7 +378,7 @@ int play_stone(int x, int y, char color){
 	return played;
 }
 
-/*
+/* 
  * Affiche le tableau de chaines
  */
 void print_chains(){ 
@@ -425,8 +496,8 @@ void modify_freedoms(Stone* stone){
 	// -- CHECK PIERRE A GAUCHE
 	printf("\n -- Je cherche la pierre a gauche\n");  
 	getStone = get_stone(stone->x-1,stone->y); 
-	if(getStone != NULL){ 
-		Chain* getChain = find_chain(getStone); 
+	if(getStone != NULL){  
+		Chain* getChain = find_chain(getStone);   
 		printf("\nLibertés de sa chaine : %d\n",getChain->number_of_freedoms); 
 		printf("\n-1\n");
 		check_is_in_same_chain = is_in_same_chain(stone,getStone);
@@ -520,7 +591,11 @@ void chain_captured(Chain* chain){
 	
 	redraw_win();   
 }
-
+ 
+/*
+ * Redessine la fenêtre
+ *
+ */
 void redraw_win(){ 
 	draw_win(); 
 	Stone* stone = NULL;
@@ -547,6 +622,10 @@ void redraw_win(){
  
 }
  
+/*
+ * Verifie si la chaine de la stone1 est dans la même chaine que la chaine de la stone2
+ *
+ */
 bool is_in_same_chain(Stone* stone1, Stone* stone2){
 	bool is_in_his_chain = false;
 	Chain* stone1_chain = find_chain(stone1);
@@ -555,9 +634,10 @@ bool is_in_same_chain(Stone* stone1, Stone* stone2){
 		if(stoneChecked->x == stone2->x && stoneChecked->y == stone2->y){ 
 			is_in_his_chain = true; 
 		} 
-	} 
+	}  
 	return is_in_his_chain;  
 } 
+
 /*
  * Permet de savoir si le joueur peut jouer
  * Retourne 1 si la pierre peut etre placée sur cette case

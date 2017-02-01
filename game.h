@@ -29,7 +29,11 @@ typedef struct Structure_Chains{
   Chain** chains;
 }Chains;
 
-void player_play(int x, int y);
+void pass();  
+void check_game_finished(); 
+void game_finished(); 
+void player_play(int x, int y); 
+void draw_player_turn();
 void draw_win();
 int test_clicked(int coord);
 void draw_hoshi();
