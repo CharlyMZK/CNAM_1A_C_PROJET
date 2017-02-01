@@ -33,6 +33,7 @@ void pass();
 void check_game_finished(); 
 void game_finished(); 
 void player_play(int x, int y); 
+void bot_play();
 void draw_player_turn();
 void draw_win();
 int test_clicked(int coord);

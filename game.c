@@ -11,8 +11,8 @@ Chains* CHAINS;
 
 int cell_size;
 int turn = 0;
-int pass_counter = 0;
-
+int pass_counter = 0; 
+bool bot_activated = true;
 /**
  * Passe le tour du joueur
  *
@@ -131,14 +131,48 @@ void player_play(int x, int y){
 		check_game_finished();
 		printf("\n\n]===============================FIN PIERRE POSEE  [%d, %d] ]===============================\n\n\n\n",x,y);
 	}
-	printf("Pas de pose de pierre !");
+	//printf("Pas de pose de pierre !");
+	
 }
 
+/**
+ * Le bot joue
+ *
+ */
+void bot_play(){
+	printf("================================= [LE BOT JOUE] ============================");
+	int x = 0;  
+	int y = 0;
+	srand(time(NULL)); // initialisation de rand
+	x = rand()%(BOARD->size);   
+	y = rand()%(BOARD->size);  
+	printf("\nil pose sur : %d / %d\n",x,y);  
+	if(get_stone(x,y)==NULL){
+		if(turn == 0){
+			if(play_stone(x,y,'B')){
+				drop_stone(x,y);
+			}
+		}else{
+			if(play_stone(x,y,'W')){
+				drop_stone(x,y);
+			}
+		}
+	}else{ 
+		bot_play(); 
+		return;
+	} 
+
+	redraw_win();   
+	printf("\n================================= [LE BOT A FINI] ============================\n");
+}
+ 
+  
+  
 /**
  * Affiche le tour du joueur
  */ 
 void draw_player_turn(){
-	// -- Refresh du rectange  
+	// -- Refresh du rectange   
 	color(255,178,102); 
 	filled_rectangle(width_win()+cell_size+5,0,300,30);
 	// -- Marquage du joueur
@@ -192,7 +226,7 @@ int test_clicked(int coord){
  	float res = (float)coord/cell_size; // on prend la cellule avec une virgule
  	res = round(res) * cell_size; // On arroundi et on multiplie par la taille d'une cellule
  	return (int) res;
- }
+ } 
 
  /*
   * Permet de dessiner les hoshis sur le plateau
@@ -257,7 +291,8 @@ int test_clicked(int coord){
  */
 void mouse_clicked(int bouton, int x, int y){
 	player_play(x,y);
-}
+	if(bot_activated){bot_play();} 
+}  
 
 /**
  * on a appuyé sur une touche
@@ -298,7 +333,7 @@ void key_pressed(KeySym code, char c, int x_souris, int y_souris){
 		pass();
 	}
 }
-
+ 
 /*
  * Permet d'afficher ce qui est présent sur le plateau
  */
@@ -610,13 +645,13 @@ void redraw_win(){
 	draw_win(); 
 	Stone* stone = NULL;
 	int actualTurn = turn;
-	printf("Redraw win : %lu",(BOARD->size*BOARD->size*sizeof(Stone)));
+	printf("\nRedraw win : %lu\n",(BOARD->size*BOARD->size*sizeof(Stone)));
     for(int i = 0; i < BOARD->size; i++){
       for(int j = 0; j < BOARD->size; j++){
 
 		if(get_stone(i,j)!=NULL){
 			stone = get_stone(i,j);
-			printf("board[%i][%i][%d] = %c", i, j, stone->visible, (get_stone(i,j)!=NULL)?(get_stone(i,j)->color):(' '));
+			printf("\nboard[%i][%i][%d] = %c\n", i, j, stone->visible, (get_stone(i,j)!=NULL)?(get_stone(i,j)->color):(' '));
 			if(stone->visible == 1){
 				if(stone->color == 'B'){
 					turn = 0;
