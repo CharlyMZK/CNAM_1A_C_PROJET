@@ -63,6 +63,7 @@ void player_play(int x, int y){
 
 		} 
 	} 
+	
 	printf("\n\n\n\n==================================FIN PIERRE POSEE  [%d, %d] ============================================================ \n\n\n\n\n\n\n\n\n\n",x,y);
 }
 
@@ -94,8 +95,8 @@ void draw_win()
 
 	// On dessine les hoshis
 	draw_hoshi();
-	init_board(BOARD->size);
-}
+	
+} 
 
 
 /**
@@ -506,6 +507,7 @@ void chain_captured(Chain* chain){
 	for(int chainCounter = 0; chainCounter < chain->chain_size; chainCounter++){
 		Stone* stone_checked = chain->stones[chainCounter];
 		stone_checked->visible = false;
+		printf("\nSTONE CHECKED : %d, %d, %d",stone_checked->x,stone_checked->y,stone_checked->visible);
 		switch(stone_checked->color){
 			case 'W': 
 				stone_checked->color = 'B'; 
@@ -514,15 +516,37 @@ void chain_captured(Chain* chain){
 				stone_checked->color = 'W';
 				break;
 		}
-	} 
+	}  
 	
-	redraw_win();  
+	redraw_win();   
 }
 
-void redraw_win(){
+void redraw_win(){ 
 	draw_win(); 
+	Stone* stone = NULL;
+	int actualTurn = turn;
+	printf("Redraw win : %lu",(BOARD->size*BOARD->size*sizeof(Stone)));    
+    for(int i = 0; i < BOARD->size; i++){ 
+      for(int j = 0; j < BOARD->size; j++){
+         
+		if(get_stone(i,j)!=NULL){
+			stone = get_stone(i,j);
+			printf("board[%i][%i][%d] = %c", i, j, stone->visible, (get_stone(i,j)!=NULL)?(get_stone(i,j)->color):(' '));
+			if(stone->visible == 1){
+				if(stone->color == 'B'){
+					turn = 0; 
+				}else{ 
+					turn = 1;   
+				}
+				drop_stone( (i+1) *cell_size, (j+1) *cell_size);        
+			} 
+		 }
+      } 
+    }
+	actualTurn = turn; 
+ 
 }
-
+ 
 bool is_in_same_chain(Stone* stone1, Stone* stone2){
 	bool is_in_his_chain = false;
 	Chain* stone1_chain = find_chain(stone1);

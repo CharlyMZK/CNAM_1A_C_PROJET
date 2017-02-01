@@ -34,6 +34,7 @@ int main(int argc, char* argv[])
 	//if(ask_mode() == 'j'){
 		//init_board(ask_board_size());
 		init_board(19);
+		 
 		if(argc > 1)
 			init_win(atoi(argv[1]),atoi(argv[1]), "GO Game Mraled");
 		else
