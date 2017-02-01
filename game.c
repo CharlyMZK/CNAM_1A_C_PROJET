@@ -244,8 +244,8 @@ void init_board(int size){
  */
 Stone* get_stone(int x, int y){
 	Stone* stone;
-	if(x < BOARD->size && y < BOARD->size)
-		stone = BOARD->intersections[x*BOARD->size+y];
+	if(x >= 0 && x < BOARD->size && y >= 0 && y < BOARD->size)
+		stone = BOARD->intersections[x*(BOARD->size-1)+y];
 	return stone;
 }
 
@@ -253,8 +253,8 @@ Stone* get_stone(int x, int y){
  * Permet de mettre une pierre à la position à x et y
  */
 void set_stone(int x, int y, Stone* stone){
-	if(x < BOARD->size && y < BOARD->size)
-		BOARD->intersections[x*BOARD->size+y] = stone;
+	if(x >= 0 && x < BOARD->size && y >= 0 && y < BOARD->size)
+		BOARD->intersections[x*(BOARD->size-1)+y] = stone;
 }
 
 /*
