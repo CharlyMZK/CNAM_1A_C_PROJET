@@ -70,63 +70,75 @@ void game_finished(){
 					points_player_2++; 
 				} 
 			}  
-		} 
+		}  
 	} 
+
+	// -- Refresh du rectange 
+	color(255,178,102); 
+	filled_rectangle(width_win()+cell_size+5,50,300,30);
+	// -- Marquage du joueur
+	color(0,0,0);
+	string(width_win()+cell_size+20,70,"La partie est terminee");
+
+
+	// -- Refresh du rectange 
+	color(255,178,102); 
+	filled_rectangle(width_win()+cell_size+5,100,300,30);
+	// -- Marquage du joueur
+	color(0,0,0); 
+	if(points_player_1 > points_player_2){
+		string(width_win()+cell_size+20,120,"Le joueur 1 gagne");
+	}else{
+		string(width_win()+cell_size+20,120,"Le joueur 2 gagne");
+	}       
+
 	printf("\n Le joueur 1 a %d points",points_player_1);  
 	printf("\n Le joueur 2 a %d points",points_player_2);
-}
+} 
 
 /**
  * Indique dans la textbox quel joueur joue
  *
  */
-void player_play(int x, int y){
+void player_play(int x, int y){ 
 	int placement_x;
 	int placement_y;
+
 	pass_counter = 0;
+
+
+	if( (x >= cell_size && x <= ( height_win()+cell_size )  ) && ( y >= cell_size && y <= ( height_win()+cell_size )  )  ){
+
 	// -- Placement x et y sur le render
 	x = test_clicked(x);
 	y = test_clicked(y);
 	// -- Placement x et y sur le tableau
 	placement_x = (x/cell_size)-1;
 	placement_y = (y/cell_size)-1;
-	printf("\n\n\n\n==================================PIERRE POSEE  [%d, %d] ============================================================ \n\n",x,y);
-	printf("\nTour du joueur qui a posé : %d\n",turn);
 
-	if( (x >= cell_size && x <= ( height_win()+cell_size )  ) && ( y >= cell_size && y <= ( height_win()+cell_size )  )  ){
+	printf("\n===============================PIERRE POSEE  [%d, %d]===============================\n",x,y);
+
 		if(turn == 0){
 			if(play_stone(placement_x,placement_y,'B')){
-				// -- Refresh du rectange
-				color(255,178,102);
-				filled_rectangle(width_win()+cell_size+5,0,300,30);
-				// -- Marquage du joueur
-				color(0,0,0);
-				string(width_win()+cell_size+20,20,"Tour du joueur 1");
 				drop_stone(x,y);
 			}
-		}else{ 
+		}else{
 			if(play_stone(placement_x,placement_y,'W')){
-				// -- Refresh du rectangle
-				color(255,178,102);
-				filled_rectangle(width_win()+cell_size+5,0,300,30);
-				// -- Marquage du joueur
-				color(0,0,0);
-				string(width_win()+cell_size+20,20,"Tour du joueur 2");
 				drop_stone(x,y);
 			}
-
-		} 
-	}  
-	check_game_finished();
-	printf("\nTour du joueur ensuite : %d\n",turn);
-	printf("\n\n\n\n==================================FIN PIERRE POSEE  [%d, %d] ============================================================ \n\n\n\n\n\n\n\n\n\n",x,y);
+		}
+		draw_player_turn(); 
+		check_game_finished();
+		printf("\n\n]===============================FIN PIERRE POSEE  [%d, %d] ]===============================\n\n\n\n",x,y);
+	}
+	printf("Pas de pose de pierre !");
 }
 
 /**
  * Affiche le tour du joueur
  */ 
 void draw_player_turn(){
-	// -- Refresh du rectange 
+	// -- Refresh du rectange  
 	color(255,178,102); 
 	filled_rectangle(width_win()+cell_size+5,0,300,30);
 	// -- Marquage du joueur
@@ -170,7 +182,7 @@ void draw_win(){
 	// -- On défini le tour du joueur
 	draw_player_turn(); 
 	
-} 
+}
 
 /**
  * Test si le point est posé au milieu d'un carré et le remet correctement a l'intersection
@@ -303,14 +315,13 @@ void print_board(){
  */
 void init_board(int size){
 	// -- Initialisation du board
-  	BOARD = malloc(sizeof(Board));
+  BOARD = malloc(sizeof(Board));
 	BOARD->size = size;
 	BOARD->intersections = malloc(size*size*sizeof(Stone));
 	// -- Initialisation des chaines
-	CHAINS = malloc(sizeof(Chains)); 
-	CHAINS->number_of_chain = 0;  
+	CHAINS = malloc(sizeof(Chains));
+	CHAINS->number_of_chain = 0;
 	CHAINS->chains = malloc(size*size*sizeof(Stone));
-
 }
 
 /*
@@ -318,13 +329,9 @@ void init_board(int size){
  * Retourne NULL s'il n'y pas de pierre, la pierre si elle est bonne et une pierre avec color = "O" si elle est hors case
  */
 Stone* get_stone(int x, int y){
-	Stone* stone;
-	if(x < BOARD->size && y < BOARD->size)
-		stone = BOARD->intersections[x*BOARD->size+y];
-	else{
-		stone = malloc(sizeof(Stone));
-		stone->color = 'O';
-	}
+	Stone* stone = NULL; 
+	if(x >= 0 && x < BOARD->size && y >= 0 && y < BOARD->size)
+		stone = BOARD->intersections[x*(BOARD->size-1)+y];
 	return stone;
 }
 
@@ -332,8 +339,8 @@ Stone* get_stone(int x, int y){
  * Permet de mettre une pierre à la position à x et y
  */
 void set_stone(int x, int y, Stone* stone){
-	if(x < BOARD->size && y < BOARD->size)
-		BOARD->intersections[x*BOARD->size+y] = stone;
+	if(x >= 0 && x < BOARD->size && y >= 0 && y < BOARD->size)
+		BOARD->intersections[x*(BOARD->size-1)+y] = stone;
 }
 
 /*
@@ -361,59 +368,59 @@ int play_stone(int x, int y, char color){
   	Stone* stone = malloc(sizeof(Stone));
 	stone->color = color;
 	stone->x = x;
-	stone->y = y; 
+	stone->y = y;
  	stone->visible = true;
-	
+
 	// -- Ajout dans les chaines
-	add_in_chain(stone);  
+	add_in_chain(stone);
 	modify_freedoms(stone);
-	print_chains(); 
+	print_chains();
 	// -- Affichage des chaines
-	//print_chains();   
- 
+	//print_chains();
+
 	if((played = check_play(x,y)) == 1){ // on vérifie si le joueur peut jouer
-	  	set_stone(x, y, stone);
+	  	set_stone(x, y, stone); // Sinon hors du tableau
 	}
- 
+
 	return played;
 }
 
 /* 
  * Affiche le tableau de chaines
  */
-void print_chains(){ 
-	printf("\n-------------------------------[PRINT CHAINS]--------------------------------------------\n");   
+void print_chains(){
+	printf("\n--------------------------------[PRINT CHAINS]---------------------------------\n");
 	// -- On boucle sur la liste des chaines
 	for(int chainsCounter = 0; chainsCounter < CHAINS->number_of_chain; chainsCounter++){
-		    printf("\n[CHAINES] Compteur de chains : %d\n",chainsCounter); 
+		    printf("\n[CHAINES] Compteur de chains : %d\n",chainsCounter);
 			// -- On récupère la chaine
 			Chain* chain = CHAINS->chains[chainsCounter];
-			printf("\n ----- [CHAINE] Chaine freedoms : %d",chain->number_of_freedoms);  
-			 // -- On boucle sur les pierres de la chaine 
+			printf("\n ----- [CHAINE] Chaine freedoms : %d",chain->number_of_freedoms);
+			 // -- On boucle sur les pierres de la chaine
 			 for(int chainCounter = 0; chainCounter < chain->chain_size; chainCounter++){
-				Stone* stoneChecked = chain->stones[chainCounter]; 
-				printf("\n ---------------- [PIERRE] Compteur de pierres : %d\n",chainsCounter); 
-				printf("\n ---------------- [PIERRE] [%c][%d][%d][%d]\n",stoneChecked->color,stoneChecked->x,stoneChecked->y,stoneChecked->visible); 
+				Stone* stoneChecked = chain->stones[chainCounter];
+				printf("\n ---------------- [PIERRE] Compteur de pierres : %d\n",chainsCounter);
+				printf("\n ---------------- [PIERRE] [%c][%d][%d][%d]\n",stoneChecked->color,stoneChecked->x,stoneChecked->y,stoneChecked->visible);
 			 }
 	}
-	printf("\n-----------------------------------[PRINT CHAINS END]----------------------------------------\n");   
+	printf("\n--------------------------------[PRINT CHAINS END]--------------------------------\n");
 }
 
 /*
  * Ajoute une pierre dans le tableau de chaines
- * 
+ *
  */
 int add_in_chain(Stone* stone){
 	int checkx = 0;
-	int checky = 0; 
-	bool added = false; 
-	
+	int checky = 0;
+	bool added = false;
+
 	// -- On boucle sur la liste des chaines
 	for(int chainsCounter = 0; chainsCounter < CHAINS->number_of_chain; chainsCounter++){
-	 
+
 			// -- On récupère la chaine
 			Chain* chain = CHAINS->chains[chainsCounter];
-			 // -- On boucle sur les pierres de la chaine 
+			 // -- On boucle sur les pierres de la chaine
 			 for(int chainCounter = 0; chainCounter < chain->chain_size; chainCounter++){
 				Stone* stoneChecked = chain->stones[chainCounter];
 				// -- Check il est dedans
@@ -425,36 +432,36 @@ int add_in_chain(Stone* stone){
 					}
 					if(stoneChecked->x+1 == stone->x && stoneChecked->y == stone->y){
 						checkx = 1;
-					}  
+					}
 
 					// -- Check des y
 					if(stoneChecked->y-1 == stone->y && stoneChecked->x == stone->x){
 						checky = 1;
-					} 
+					}
 					if(stoneChecked->y+1 == stone->y && stoneChecked->x == stone->x){
 						checky = 1;
-					}   
+					}
 				}
 
-			 }    
-			// -- Si checkx et checky = 1 c'est que une pierre autour est de la meme couleur, on l'ajoute donc a sa chaine
-			 if(checkx != 0 || checky != 0){ 
-				added = true; 
-				CHAINS->chains[chainsCounter]->stones[chain->chain_size] = stone; 
-				CHAINS->chains[chainsCounter]->number_of_freedoms = CHAINS->chains[chainsCounter]->number_of_freedoms + 3;  
-				CHAINS->chains[chainsCounter]->chain_size++;   
 			 }
- 
+			// -- Si checkx et checky = 1 c'est que une pierre autour est de la meme couleur, on l'ajoute donc a sa chaine
+			 if(checkx != 0 || checky != 0){
+				added = true;
+				CHAINS->chains[chainsCounter]->stones[chain->chain_size] = stone;
+				CHAINS->chains[chainsCounter]->number_of_freedoms = CHAINS->chains[chainsCounter]->number_of_freedoms + 3;
+				CHAINS->chains[chainsCounter]->chain_size++;
+			 }
+
 			checkx = 0;
-   			checky = 0;    
-	} 
+   			checky = 0;
+	}
 	// -- Si la pierre n'a pas été ajoutée nul part on crée une nouvelle chaine
-	if(!added){ 
+	if(!added){
 				Chain* chain = malloc(sizeof(Chain));
 				chain->stones = malloc(BOARD->size*BOARD->size*sizeof(Stone));
-				chain->chain_size = 0;       
-				chain->stones[chain->chain_size] = stone; 
-				chain->number_of_freedoms = 4; 
+				chain->chain_size = 0;
+				chain->stones[chain->chain_size] = stone;
+				chain->number_of_freedoms = 4;
 				CHAINS->chains[CHAINS->number_of_chain] = chain;
 				CHAINS->number_of_chain++;
 				chain->chain_size++;
@@ -463,134 +470,137 @@ int add_in_chain(Stone* stone){
 }
 
 /*
- * Modifie les libertés des chaines autour  
- * 
+ * Modifie les libertés des chaines autour
+ *
  */
-void modify_freedoms(Stone* stone){ 
-	printf("\n-----------------------------------[MODIFY FREEDOM]----------------------------------------\n");
+void modify_freedoms(Stone* stone){
+	printf("\n--------------------------------[MODIFY FREEDOM]--------------------------------\n");
 	Chain* stone_parameter_chain = find_chain(stone);
 	bool check_is_in_same_chain = false;
-	
+
 	// -- CHECK PIERRE A DROITE
-	printf("\n -- Je cherche la pierre a droite\n");  
-	Stone* getStone = get_stone(stone->x+1,stone->y); 
-	if(getStone != NULL){ 
-		Chain* getChain = find_chain(getStone); 
+	printf("\n -- Je cherche la pierre a droite\n");
+	Stone* getStone = get_stone(stone->x+1,stone->y);
+	if(getStone != NULL){
+		Chain* getChain = find_chain(getStone);
 
 		printf("\nils sont dans la meme chaine ? \n");
-		printf("\n%d\n",is_in_same_chain(stone,getStone));	
-		
-		printf("\nLibertés de sa chaine : %d\n",getChain->number_of_freedoms); 
+		printf("\n%d\n",is_in_same_chain(stone,getStone));
+
+		printf("\nLibertés de sa chaine : %d\n",getChain->number_of_freedoms);
 		printf("\n-1\n");
 		check_is_in_same_chain = is_in_same_chain(stone,getStone);
-		getChain->number_of_freedoms =  getChain->number_of_freedoms - 1; 
+		getChain->number_of_freedoms =  getChain->number_of_freedoms - 1;
 		if(!check_is_in_same_chain){stone_parameter_chain->number_of_freedoms =  stone_parameter_chain->number_of_freedoms - 1; }
 
 		if(getChain->number_of_freedoms == 0){
-			chain_captured(getChain); 
+			chain_captured(getChain);
 		}
 
-		printf("\nNouvelle liberetés de sa chaine : %d\n",getChain->number_of_freedoms); 
-	}  
+		printf("\nNouvelle liberetés de sa chaine : %d\n",getChain->number_of_freedoms);
+	}
 
 	// -- CHECK PIERRE A GAUCHE
+
 	printf("\n -- Je cherche la pierre a gauche\n");  
-	getStone = get_stone(stone->x-1,stone->y); 
-	if(getStone != NULL){  
+	getStone = get_stone(stone->x-1,stone->y);  
+	if(getStone != NULL){     
+		printf("la pierre n'est pas nulle"); 
 		Chain* getChain = find_chain(getStone);   
 		printf("\nLibertés de sa chaine : %d\n",getChain->number_of_freedoms); 
 		printf("\n-1\n");
 		check_is_in_same_chain = is_in_same_chain(stone,getStone);
-		getChain->number_of_freedoms =  getChain->number_of_freedoms - 1; 
-		if(!check_is_in_same_chain){stone_parameter_chain->number_of_freedoms =  stone_parameter_chain->number_of_freedoms - 1; } 
-
-		if(getChain->number_of_freedoms == 0){
-			chain_captured(getChain); 
-		}
-		printf("\nNouvelle liberetés de sa chaine : %d\n",getChain->number_of_freedoms); 
-	}  
-
-	// -- CHECK PIERRE AU DESSUS
-	printf("\n -- Je cherche la pierre au dessus\n");  
-	getStone = get_stone(stone->x,stone->y-1); 
-	if(getStone != NULL){ 
-		Chain* getChain = find_chain(getStone); 
-		printf("\nLibertés de sa chaine : %d\n",getChain->number_of_freedoms); 
-		printf("\n-1\n");
-		check_is_in_same_chain = is_in_same_chain(stone,getStone);
-		getChain->number_of_freedoms =  getChain->number_of_freedoms - 1; 
+		getChain->number_of_freedoms =  getChain->number_of_freedoms - 1;
 		if(!check_is_in_same_chain){stone_parameter_chain->number_of_freedoms =  stone_parameter_chain->number_of_freedoms - 1; }
 
 		if(getChain->number_of_freedoms == 0){
-			chain_captured(getChain); 
+			chain_captured(getChain);
 		}
-		printf("\nNouvelle liberetés de sa chaine : %d\n",getChain->number_of_freedoms); 
-	}   
-
-	// -- CHECK PIERRE EN DESSOUS
-	printf("\n -- Je cherche la pierre en dessous\n");  
-	getStone = get_stone(stone->x,stone->y+1); 
-	if(getStone != NULL){  
-		Chain* getChain = find_chain(getStone); 
-		printf("\nLibertés de sa chaine : %d\n",getChain->number_of_freedoms); 
+		printf("\nNouvelle liberetés de sa chaine : %d\n",getChain->number_of_freedoms);
+	}
+ 
+	// -- CHECK PIERRE AU DESSUS
+	printf("\n -- Je cherche la pierre au dessus\n");
+	getStone = get_stone(stone->x,stone->y-1);
+	if(getStone != NULL){
+		Chain* getChain = find_chain(getStone);
+		printf("\nLibertés de sa chaine : %d\n",getChain->number_of_freedoms);
 		printf("\n-1\n");
 		check_is_in_same_chain = is_in_same_chain(stone,getStone);
-		getChain->number_of_freedoms =  getChain->number_of_freedoms - 1; 
-		if(!check_is_in_same_chain){stone_parameter_chain->number_of_freedoms =  stone_parameter_chain->number_of_freedoms - 1; }; 
+		getChain->number_of_freedoms =  getChain->number_of_freedoms - 1;
+		if(!check_is_in_same_chain){stone_parameter_chain->number_of_freedoms =  stone_parameter_chain->number_of_freedoms - 1; }
 
 		if(getChain->number_of_freedoms == 0){
-			chain_captured(getChain); 
-		} 
-		printf("\nNouvelle liberetés de sa chaine : %d\n",getChain->number_of_freedoms); 
-	}   
+			chain_captured(getChain);
+		}
+		printf("\nNouvelle liberetés de sa chaine : %d\n",getChain->number_of_freedoms);
+	}
 
-	printf("\n-----------------------------------[MODIFY FREEDOM END]----------------------------------------\n");
+	// -- CHECK PIERRE EN DESSOUS
+	printf("\n -- Je cherche la pierre en dessous\n");
+	getStone = get_stone(stone->x,stone->y+1);
+	if(getStone != NULL){
+		Chain* getChain = find_chain(getStone);
+		printf("\nLibertés de sa chaine : %d\n",getChain->number_of_freedoms);
+		printf("\n-1\n");
+		check_is_in_same_chain = is_in_same_chain(stone,getStone);
+		getChain->number_of_freedoms =  getChain->number_of_freedoms - 1;
+		if(!check_is_in_same_chain){stone_parameter_chain->number_of_freedoms =  stone_parameter_chain->number_of_freedoms - 1; };
+
+		if(getChain->number_of_freedoms == 0){
+			chain_captured(getChain);
+		}
+		printf("\nNouvelle liberetés de sa chaine : %d\n",getChain->number_of_freedoms);
+	}
+
+	printf("\n--------------------------------[MODIFY FREEDOM END]--------------------------------\n");
 }
 
 /*
- * Cherche si la pierre est dans une chaine 
- * 
+ * Cherche si la pierre est dans une chaine
+ *
  */
-Chain* find_chain(Stone* stone){      
+Chain* find_chain(Stone* stone){
 	// -- On boucle sur la liste des chaines
 	Chain* returnedChain = NULL;
 	for(int chainsCounter = 0; chainsCounter < CHAINS->number_of_chain; chainsCounter++){
-			// -- On récupère la chaine 
+			// -- On récupère la chaine
 			Chain* chain = CHAINS->chains[chainsCounter];
-			 // -- On boucle sur les pierres de la chaine 
-			 for(int chainCounter = 0; chainCounter < chain->chain_size; chainCounter++){ 
+			 // -- On boucle sur les pierres de la chaine
+			 for(int chainCounter = 0; chainCounter < chain->chain_size; chainCounter++){
 				Stone* stoneChecked = chain->stones[chainCounter];
-				if(stoneChecked->x == stone->x && stoneChecked->y == stone->y){ 
-					returnedChain = chain; 
+				if(stoneChecked->x == stone->x && stoneChecked->y == stone->y){
+					returnedChain = chain;
 				}
-			 } 
+			 }
 	}
 	return returnedChain;
-    
+
 }
 
 /*
  * Gère la capture des chaines
  *
  */
-void chain_captured(Chain* chain){  
-	printf("============================[ CHAIN CAPUTRES ]=============================================");
+void chain_captured(Chain* chain){
+	printf("============================[ CHAIN CAPUTRES ]========================================");
 	for(int chainCounter = 0; chainCounter < chain->chain_size; chainCounter++){
 		Stone* stone_checked = chain->stones[chainCounter];
 		stone_checked->visible = false;
 		printf("\nSTONE CHECKED : %d, %d, %d",stone_checked->x,stone_checked->y,stone_checked->visible);
 		switch(stone_checked->color){
-			case 'W': 
-				stone_checked->color = 'B'; 
+			case 'W':
+				stone_checked->color = 'B';
 				break;
-			case 'B' : 
+			case 'B' :
 				stone_checked->color = 'W';
 				break;
 		}
-	}  
-	
-	redraw_win();   
+	}
+
+	redraw_win();
 }
+
  
 /*
  * Redessine la fenêtre
@@ -600,27 +610,28 @@ void redraw_win(){
 	draw_win(); 
 	Stone* stone = NULL;
 	int actualTurn = turn;
-	printf("Redraw win : %lu",(BOARD->size*BOARD->size*sizeof(Stone)));    
-    for(int i = 0; i < BOARD->size; i++){ 
+	printf("Redraw win : %lu",(BOARD->size*BOARD->size*sizeof(Stone)));
+    for(int i = 0; i < BOARD->size; i++){
       for(int j = 0; j < BOARD->size; j++){
-         
+
 		if(get_stone(i,j)!=NULL){
 			stone = get_stone(i,j);
 			printf("board[%i][%i][%d] = %c", i, j, stone->visible, (get_stone(i,j)!=NULL)?(get_stone(i,j)->color):(' '));
 			if(stone->visible == 1){
 				if(stone->color == 'B'){
-					turn = 0; 
-				}else{ 
-					turn = 1;   
+					turn = 0;
+				}else{
+					turn = 1;
 				}
-				drop_stone( (i+1) *cell_size, (j+1) *cell_size);        
-			} 
+				drop_stone( (i+1) *cell_size, (j+1) *cell_size);
+			}
 		 }
-      } 
+      }
     }
-	actualTurn = turn; 
- 
+	actualTurn = turn;
+
 }
+
  
 /*
  * Verifie si la chaine de la stone1 est dans la même chaine que la chaine de la stone2
@@ -631,6 +642,7 @@ bool is_in_same_chain(Stone* stone1, Stone* stone2){
 	Chain* stone1_chain = find_chain(stone1);
 	for(int chainCounter = 0; chainCounter < stone1_chain->chain_size; chainCounter++){
 		Stone* stoneChecked = stone1_chain->stones[chainCounter];
+
 		if(stoneChecked->x == stone2->x && stoneChecked->y == stone2->y){ 
 			is_in_his_chain = true; 
 		} 
@@ -656,10 +668,10 @@ int check_play(int x, int y){
 int check_chain_liberties(int size, Stone** stones){
 	int result = 1;
 	for(int stone = 0; stone < size; stone++){
-		if(get_stone(stones[stone]->x+1, stones[stone]->y) != NULL || get_stone(stones[stone]->x+1, stones[stone]->y)->color == 'O'
-			&& get_stone(stones[stone]->x-1, stones[stone]->y) != NULL || get_stone(stones[stone]->x-1, stones[stone]->y)->color == 'O'
-			&& get_stone(stones[stone]->x, stones[stone]->y+1) != NULL || get_stone(stones[stone]->x, stones[stone]->y+1)->color == 'O'
-			&& get_stone(stones[stone]->x, stones[stone]->y-1) != NULL || get_stone(stones[stone]->x, stones[stone]->y-1)->color == 'O')
+		if(get_stone(stones[stone]->x+1, stones[stone]->y) != NULL
+			&& get_stone(stones[stone]->x-1, stones[stone]->y) != NULL
+			&& get_stone(stones[stone]->x, stones[stone]->y+1) != NULL
+			&& get_stone(stones[stone]->x, stones[stone]->y-1) != NULL )
 			// Regarde si la pierre est entouré par une pierre ou qu'elle est sur la limite
 			result = 0;
 	}
