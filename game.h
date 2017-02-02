@@ -36,6 +36,7 @@ void player_play(int x, int y);
 void bot_play();
 void draw_player_turn();
 void draw_win();
+void draw_win_menu(); 
 int test_clicked(int coord);
 void draw_hoshi();
 void drop_stone(int x, int y);

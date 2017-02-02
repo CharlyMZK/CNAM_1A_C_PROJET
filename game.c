@@ -13,6 +13,8 @@ int cell_size;
 int turn = 0;
 int pass_counter = 0; 
 bool bot_activated = false;
+bool game_launched = false;
+ 
 /**
  * Passe le tour du joueur
  *
@@ -119,10 +121,12 @@ void player_play(int x, int y){
 		printf("\n===============================PIERRE POSEE  [%d, %d]===============================\n",x,y);
 		if(get_stone(placement_x,placement_y) == NULL){
 			if(turn == 0){
+				printf("La pierre jouée est noire");
 				if(play_stone(placement_x,placement_y,'B')){
 					drop_stone(x,y);
 				} 
-			}else{
+			}else{ 
+				printf("La pierre jouée est blanche");
 				if(play_stone(placement_x,placement_y,'W')){
 					drop_stone(x,y);
 				}
@@ -167,8 +171,6 @@ void bot_play(){
 	printf("\n================================= [LE BOT A FINI] ============================\n");
 }
  
-  
-  
 /**
  * Affiche le tour du joueur
  */ 
@@ -211,13 +213,42 @@ void draw_win(){
 	for(i=cell_size; i<=cell_size*BOARD->size; i+=cell_size)// On prend la taille d'une cellule - la taille du board - 1 car sinon on a une case de trop
 		line(cell_size,i,height_win(),i);
 
-	// On dessine les hoshis
+	// On dessine les hoshis 
 	draw_hoshi();
 
 	// -- On défini le tour du joueur
 	draw_player_turn(); 
 	
 }
+
+/**
+ * Mettre ici son code pour dessiner dans la fenetre
+ * 1er affichage + redessine si resize
+ */
+void draw_win_menu(){
+	// - Vide la fenetre
+	clear_win();
+	// -- Bouton joueur contre joueur
+	color(255,178,102);  
+	filled_rectangle(50,50,200,30); 
+	color(0,0,0);  
+	rectangle(50,50,200,30); 
+	string(70,70,"Joueur vs joueur");
+	// -- Bouton joueur contre bot
+	color(255,178,102);  
+	filled_rectangle(50,100,200,30); 
+	color(0,0,0);  
+	rectangle(50,100,200,30); 
+	string(70,120,"Joueur vs bot");
+	// -- Charger une partie
+	color(255,178,102);   
+	filled_rectangle(50,150,200,30); 
+	color(0,0,0);  
+	rectangle(50,150,200,30); 
+	string(70,170,"Charger une partie");
+	
+}
+
 
 /**
  * Test si le point est posé au milieu d'un carré et le remet correctement a l'intersection
@@ -291,8 +322,31 @@ int test_clicked(int coord){
  * x,y position
  */
 void mouse_clicked(int bouton, int x, int y){
-	player_play(x,y);
-	if(bot_activated){bot_play();} 
+
+	if(game_launched){
+		player_play(x,y);
+		if(bot_activated){bot_play();}
+	}
+
+	// -- Clic boutton jcj
+	if( (x > 50 && x < 250) && (y>50 && y<80) ){
+		bot_activated = false;
+		game_launched = true;
+		draw_win();
+	}
+  
+	// -- Clic boutton bot
+	if( (x > 50 && x < 250) && (y>100 && y<130) ){
+		bot_activated = true;
+		game_launched = true;
+		draw_win(); 
+	}
+
+	// -- Clic boutton charger
+	if( (x > 50 && x < 250) && (y>150 && y<180) ){
+		printf("Boutton charger"); 
+	} 
+	 
 }  
 
 /**
