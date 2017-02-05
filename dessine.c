@@ -13,6 +13,7 @@ Window  win, root;
 extern void player_play(int x, int y);
 extern void draw_win();
 extern void draw_win_menu();
+extern void draw_win_board_size();
 extern void drop_stone(int x, int y);
 extern void test_clicked(int coord,float taille_case);
 extern void mouse_clicked(int bouton, int x, int y);
@@ -63,15 +64,15 @@ void event_loop()
 	KeySym touche;
 	int nb;   
 	XEvent ev;
-
-	draw_win_menu();
+	draw_win_board_size();
+	//draw_win_menu();
 	while(1)
 	{
 		XNextEvent (display, &ev);
 		switch (ev.type)
 		{
 		case Expose :
-			draw_win_menu();
+			draw_win_board_size();
 			break;
 		case ButtonPress:
 			mouse_clicked(ev.xbutton.button,ev.xbutton.x,ev.xbutton.y);
