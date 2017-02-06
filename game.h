@@ -17,12 +17,18 @@ typedef struct Structure_Board{
   Stone** intersections; // Tableau des cases
 }Board;
 
-// Structure du plateau de jeu
+// Structure d'une chaine
 typedef struct Structure_Chain{
   int chain_size; //Taille du plateau 
   int number_of_freedoms; // -- Nombre de libertés
   Stone** stones; // Tableau des cases  
 }Chain; 
+
+//Structure des territoires 
+typedef struct Structure_Territory{
+    int territory_size; //Taille du territoire
+    Stone** stones; // Tableau des cases  
+}Territory;
   
 typedef struct Structure_Chains{
   int number_of_chain;
@@ -59,3 +65,5 @@ int find_in_chain(Stone* stone);
 int check_play(int x, int y);
 bool is_in_same_chain(Stone* stone1, Stone* stone2); 
 int check_chain_liberties(int size, Stone** stones);
+bool check_stone_territory(Stone* stone);
+bool is_stone_on_border(Stone* stone);
