@@ -18,7 +18,7 @@ bool size_picked = false;
 bool handicap_picked = false;
 int handicap_number = 0;
 bool mode_picked = false;
-
+char debug_mode = 'c';
 /**
  * Passe le tour du joueur
  *
@@ -97,9 +97,6 @@ void game_finished(){
 	}else{
 		string(width_win()+cell_size+20,120,"Le joueur 2 gagne");
 	}       
-
-	//printf("\n Le joueur 1 a %d points",points_player_1);  
-	//printf("\n Le joueur 2 a %d points",points_player_2);
 } 
 
 /**
@@ -122,16 +119,18 @@ void player_play(int x, int y){
 		placement_x = (x/cell_size)-1;
 		placement_y = (y/cell_size)-1;
 
-		printf("\n===============================PIERRE POSEE  [%d, %d]===============================\n",x,y);
-		printf("\n TOUR : %d \n",turn);
+		if(debug_mode == 'c'){printf("\n===============================PIERRE POSEE  [%d, %d]===============================\n",x,y);}
+		if(debug_mode == 'c'){printf("\n TOUR : %d \n",turn);}
 		if(get_stone(placement_x,placement_y) == NULL){
 			if(turn == 0){
-				printf("[Player play] La pierre jouée est noire");
+
+				if(debug_mode == 'c'){printf("[Player play] La pierre jouée est noire");}
+
 				if(play_stone(placement_x,placement_y,'B')){
 					drop_stone(x,y);
 				} 
 			}else{ 
-				printf("[Player play] La pierre jouée est blanche");
+				if(debug_mode == 'c'){printf("[Player play] La pierre jouée est blanche");}
 				if(play_stone(placement_x,placement_y,'W')){
 					drop_stone(x,y);
 				}
@@ -139,8 +138,8 @@ void player_play(int x, int y){
 		} 
 		draw_player_turn(); 
 		check_game_finished();
-		printf("\n TOUR : %d \n",turn);
-		printf("\n\n===============================FIN PIERRE POSEE  [%d, %d] ]===============================\n\n\n\n",x,y);
+		if(debug_mode == 'c'){printf("\n TOUR : %d \n",turn);
+		printf("\n\n===============================FIN PIERRE POSEE  [%d, %d] ]===============================\n\n\n\n",x,y);}
 	}
 	//printf("Pas de pose de pierre !");
 	
@@ -151,15 +150,15 @@ void player_play(int x, int y){
  *
  */
 void bot_play(){
-	printf("================================= [LE BOT JOUE] ============================");
-	printf("\n TOUR : %d \n",turn);
+	if(debug_mode == 'c'){printf("================================= [LE BOT JOUE] ============================");
+	printf("\n TOUR : %d \n",turn);}
 	int x = 0;  
 	int y = 0;
 	srand(time(NULL)); // initialisation de rand
 	x = rand()%(BOARD->size);   
 	y = rand()%(BOARD->size);  
 
-	printf("\nil pose sur : %d / %d\n",x,y);  
+	if(debug_mode == 'c'){printf("\nil pose sur : %d / %d\n",x,y);  }
 	if(get_stone(x,y)==NULL){
 		if(turn == 0){
 			if(play_stone(x,y,'B')){
@@ -175,8 +174,8 @@ void bot_play(){
 		bot_play(); 
 		return;
 	} 
-	printf("\n TOUR : %d \n",turn);
-	printf("\n================================= [LE BOT A FINI] ============================\n");
+	if(debug_mode == 'c'){printf("\n TOUR : %d \n",turn);
+	printf("\n================================= [LE BOT A FINI] ============================\n");}
 }
  
 /**
@@ -202,7 +201,7 @@ void draw_player_turn(){
 void draw_win(){
 	// - Vide la fenetre
 	clear_win();
-	printf("\n[DRAW WIN]\n"); 
+	if(debug_mode == 'c'){printf("\n[DRAW WIN]\n"); }
 	// -- Initialisation
 	int i;
 
@@ -369,11 +368,11 @@ int test_clicked(int coord){
 	if(turn == 0){
 		turn = 1;
 		color(0,0,0); 
-		printf("\n[Drop stone] pose d'une pierre noire, le tour est à 0->1\n");
+		if(debug_mode == 'c'){printf("\n[Drop stone] pose d'une pierre noire, le tour est à 0->1\n");}
 	}else{
 		turn = 0; 
 		color(1.0,1.0,1.0);
-		printf("\n[Drop stone] pose d'une pierre blanche, le tour est à 1->0\n");;
+		if(debug_mode == 'c'){printf("\n[Drop stone] pose d'une pierre blanche, le tour est à 1->0\n");}
 	}
 	// -- Pose le point
 	filled_circle(x,y,cell_size/3);
@@ -403,16 +402,16 @@ int test_clicked(int coord){
  * x,y position
  */
 void mouse_clicked(int bouton, int x, int y){
-	printf("[MOUSE CLICKED - %d]",turn);
+	if(debug_mode == 'c'){printf("[MOUSE CLICKED - %d]",turn);}
 	// -- Si tout a été pick, on joue  
 	if(size_picked && mode_picked && handicap_picked && game_launched){
-		printf("[ENTER CLICK PLAY]");
+		if(debug_mode == 'c'){printf("[ENTER CLICK PLAY]");}
 		player_play(x,y);
 
 		if(bot_activated){bot_play();} 
 
 		if(!bot_activated && handicap_picked && handicap_number > 0){ 
-			printf("[ENTER PASS]");
+			if(debug_mode == 'c'){printf("[ENTER PASS]");}
 			handicap_number--;
 			pass();  
 		}
@@ -422,7 +421,7 @@ void mouse_clicked(int bouton, int x, int y){
 	// -- Handicap
 	if(size_picked && mode_picked && !handicap_picked){ 
 		// -- On met un handicap de moins car les noir jouerons 3 fois puis le blanc jouera
-		printf("[ENTER CLICK HANDICAP]");
+		if(debug_mode == 'c'){printf("[ENTER CLICK HANDICAP]");}
 		// -- 6 handicap
 		if( (x > 50 && x < 250) && (y>50 && y<80) ){
 			handicap_picked = true; 
@@ -459,7 +458,7 @@ void mouse_clicked(int bouton, int x, int y){
 	// -- Mode de jeu
 	if(size_picked && !mode_picked){ 
 		
-		printf("[ENTER CLICK MODE DE JEU]");
+		if(debug_mode == 'c'){printf("[ENTER CLICK MODE DE JEU]");}
 
 		// -- Clic boutton jcj
 		if( (x > 50 && x < 250) && (y>50 && y<80) ){
@@ -477,7 +476,7 @@ void mouse_clicked(int bouton, int x, int y){
 
 		// -- Clic boutton charger
 		if( (x > 50 && x < 250) && (y>150 && y<180) ){
-			printf("Boutton charger"); 
+			if(debug_mode == 'c'){printf("Boutton charger"); }
 			draw_menu_handicap();
 		}
 		mode_picked = true;
@@ -486,7 +485,7 @@ void mouse_clicked(int bouton, int x, int y){
 
 	// -- Size du board
 	if(!size_picked){
-		printf("[ENTER CLICK SIZE BOARD]");
+		if(debug_mode == 'c'){ printf("[ENTER CLICK SIZE BOARD]"); } 
 		if( (x > 50 && x < 250) && (y>50 && y<80) ){
 			init_board(19);
 			size_picked = true;
