@@ -8,6 +8,7 @@
 
 Board* BOARD;
 Chains* CHAINS;
+Territory* TERRITORY;
 
 int cell_size;
 int turn = 0;
@@ -67,8 +68,7 @@ void game_finished(){
 		for(int j = 0; j < BOARD->size; j++){
 			checked_stone = get_stone(i,j);
 			if(checked_stone != NULL){
-				if(checked_stone->color == 'B'){
-					points_player_1++;
+				if(checked_stone->color == 'B'){					points_player_1++;
 				}else{
 					points_player_2++;
 				}
@@ -110,7 +110,7 @@ void player_play(int x, int y){
 	pass_counter = 0;
 
 	// -- Check si l'endroit posé est ok
-	if( (x >= cell_size && x <= ( height_win()+cell_size )  ) && ( y >= cell_size && y <= ( height_win()+cell_size )  )  ){
+	if( (x >= cell_size && x <= width_win() ) && ( y >= cell_size && y <= height_win() )  ){
 
 		// -- Placement x et y sur le render
 		x = test_clicked(x);
@@ -122,12 +122,12 @@ void player_play(int x, int y){
 		printf("\n===============================PIERRE POSEE  [%d, %d]===============================\n",x,y);
 		if(get_stone(placement_x,placement_y) == NULL){
 			if(turn == 0){
-				printf("La pierre jouée est noire");
+				printf("La pierre jouée est noire\n");
 				if(play_stone(placement_x,placement_y,'B')){
 					drop_stone(x,y);
 				}
 			}else{
-				printf("La pierre jouée est blanche");
+				printf("La pierre jouée est blanche\n");
 				if(play_stone(placement_x,placement_y,'W')){
 					drop_stone(x,y);
 				}
@@ -478,6 +478,17 @@ void print_board(){
 }
 
 /*
+ * Permet d'afficher ce qui est présent dans le territoire
+ */
+void print_territory(){
+    for(int i = 0; i < TERRITORY->size; i++){
+      for(int j = 0; j < TERRITORY->size; j++){
+        printf("\nTerritory[%i][%i] = %c", i, j, (get_stone(i,j)!=NULL)?(get_stone(i,j)->color):(' '));
+      }
+    }
+}
+
+/*
  * Permet de créer un tableau d'une taille défini avec un int passé en paramètre
  */
 void init_board(int size){
@@ -539,13 +550,16 @@ int play_stone(int x, int y, char color){
  	stone->visible = true;
 
 	// -- Ajout dans les chaines
-	add_in_chain(stone);
+	/*add_in_chain(stone);
 	modify_freedoms(stone);
-	print_chains();
+	print_chains();*/
 	// -- Affichage des chaines
 	//print_chains();
+
 	// -- Check si la pierre peut former un territoire
+	create_territory();
 	check_stone_territory(stone);
+	free(TERRITORY);
 
 	if((played = check_play(x,y)) == 1){ // on vérifie si le joueur peut jouer
 	  	set_stone(x, y, stone); // Sinon hors du tableau
@@ -880,11 +894,12 @@ int check_chain_liberties(int size, Stone** stones){
 /*
  * Permet de savoir si la pierre peut délimiter un territoire
  */
-bool check_stone_territory(Stone* stone){
-	bool result = false;
+void check_stone_territory(Stone* stone){
+	bool found = false;
 	int number_of_stones = 0;
-	int i = 0;
+	int i, j;
 	Stone** stones_around = malloc(8*sizeof(Stone)); // Tableau pour les cailloux environnents
+	Stone * stone_checked = malloc(sizeof(Stone));
 	if(get_stone(stone->x, stone->y-1) != NULL && (get_stone(stone->x, stone->y-1))->color == stone->color){ // En haut
 		stones_around[0] = get_stone(stone->x, stone->y-1);
 		number_of_stones++;
@@ -917,39 +932,41 @@ bool check_stone_territory(Stone* stone){
 		stones_around[7] = get_stone(stone->x-1, stone->y-1);
 		number_of_stones++;
 	}
-	if(number_of_stones > 2){
-		result = true;
-	} else if(number_of_stones > 1){
-		if(is_stone_on_border(stone)) {
-			result = true;
-		} else {
-			while(stones_around[i]==NULL) // On cherche la première stone dans le tableau
-				i++;
-			if(i != 0 && stones_around[i+1] == NULL || i == 0 && stones_around[7] == NULL) // On vérifie qu'il n'y a pas de caillou l'un à coter de l'autre
-				result = true;
-		}
-	} else if(number_of_stones > 0){
-		while(stones_around[i]==NULL) // On cherche la première stone dans le tableau
-				i++;
-		if(!is_stone_on_border(stone) && !is_stone_on_border(stones_around[i])){ // Si  les deux ne sont pas sur le bord
-		}else {
-			result = true;
+
+	if(number_of_stones > 1){
+		TERRITORY->stones[TERRITORY->size] = stone; // On ajoute la stone au territoire potentiel
+		TERRITORY->size++; // On augmente la taille
+		for(i = 0; i < 8; i++){ // Pour toutes les pierres du tableau
+			stone_checked = stones_around[i];
+			if(stone_checked != NULL) { // Si la pierre n'est pas null
+				for(j = 0; j < TERRITORY->size; j++){
+					if(stone_checked == TERRITORY->stones[j]){
+						found = true;
+						break;
+					}
+				}
+				if(!found){ // Si la pierre n'est pas dans le tableau
+					check_stone_territory(stone_checked);
+				}else{ // Si elle l'est deja
+					found = false;
+					if(stone_checked == TERRITORY->stones[0]) // Si on a retrouvé la premiere pierre
+						print_territory();
+				}
+			}
 		}
 	}
 	free(stones_around);
-	printf("Peut former une chaine si égale à 1 : x = %i", result);
-	return result;
 }
 
 /*
- * Permet de savoir si la pierre est sur un bord, sans les coins
+ *  Permet de créer un territoire
  */
-bool is_stone_on_border(Stone* stone){
-	bool result = false;
-	if(stone->x == 0 && stone->y != 0 && stone->y !=18
-		|| stone->x == 18 && stone->y != 0 && stone->y !=18
-		|| stone->y == 0 && stone->x != 0 && stone->x !=18
-		|| stone->y == 18 && stone->x != 0 && stone->x !=18)
-		result = true;
-	return result;
+void create_territory(){
+	TERRITORY = malloc(sizeof(Territory));
+	TERRITORY->size = 0;
+	TERRITORY->min_x = 0;
+	TERRITORY->min_y = 0;
+	TERRITORY->max_x = 18;
+	TERRITORY->max_y = 18;
+	TERRITORY->stones = malloc(BOARD->size*BOARD->size*sizeof(Stone));
 }
