@@ -50,6 +50,8 @@ void draw_win_menu();
 int test_clicked(int coord);
 void draw_hoshi();
 void drop_stone(int x, int y);
+void drop_white_stone(int x, int y);
+void drop_black_stone(int x, int y);
 void mouse_clicked(int bouton, int x, int y);
 void key_pressed(KeySym code, char c, int x_souris, int y_souris);
 void print_board();

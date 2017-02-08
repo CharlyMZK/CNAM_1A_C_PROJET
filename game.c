@@ -17,6 +17,9 @@ bool bot_activated = false;
 bool game_launched = false;
 bool size_picked = false;
 bool handicap_picked = false;
+int handicap_number = 0;
+bool mode_picked = false;
+char debug_mode = 'c';
 /**
  * Passe le tour du joueur
  *
@@ -53,7 +56,7 @@ void check_game_finished(){
 	if(stone_counter >= 1){
 		game_finished();
 	}
-	printf("\n Dans le jeu il y a %d pierres sur %d",stone_counter,BOARD->size*BOARD->size);
+	//printf("\n Dans le jeu il y a %d pierres sur %d",stone_counter,BOARD->size*BOARD->size);
 }
 
 /**
@@ -94,9 +97,6 @@ void game_finished(){
 	}else{
 		string(width_win()+cell_size+20,120,"Le joueur 2 gagne");
 	}
-
-	printf("\n Le joueur 1 a %d points",points_player_1);
-	printf("\n Le joueur 2 a %d points",points_player_2);
 }
 
 /**
@@ -119,15 +119,17 @@ void player_play(int x, int y){
 		placement_x = (x/cell_size)-1;
 		placement_y = (y/cell_size)-1;
 
-		printf("\n===============================PIERRE POSEE  [%d, %d]===============================\n",x,y);
+		if(debug_mode == 'c'){printf("\n===============================PIERRE POSEE  [%d, %d]===============================\n",x,y);}
+		if(debug_mode == 'c'){printf("\n TOUR : %d \n",turn);}
 		if(get_stone(placement_x,placement_y) == NULL){
 			if(turn == 0){
-				printf("La pierre jouée est noire\n");
+				if(debug_mode == 'c'){printf("[Player play] La pierre jouée est noire");}
+
 				if(play_stone(placement_x,placement_y,'B')){
 					drop_stone(x,y);
 				}
 			}else{
-				printf("La pierre jouée est blanche\n");
+				if(debug_mode == 'c'){printf("[Player play] La pierre jouée est blanche");}
 				if(play_stone(placement_x,placement_y,'W')){
 					drop_stone(x,y);
 				}
@@ -135,7 +137,8 @@ void player_play(int x, int y){
 		}
 		draw_player_turn();
 		check_game_finished();
-		printf("\n\n]===============================FIN PIERRE POSEE  [%d, %d] ]===============================\n\n\n\n",x,y);
+		if(debug_mode == 'c'){printf("\n TOUR : %d \n",turn);
+		printf("\n\n===============================FIN PIERRE POSEE  [%d, %d] ]===============================\n\n\n\n",x,y);}
 	}
 	//printf("Pas de pose de pierre !");
 
@@ -146,14 +149,15 @@ void player_play(int x, int y){
  *
  */
 void bot_play(){
-	printf("bot activated : %d",bot_activated);
-	printf("================================= [LE BOT JOUE] ============================");
+	if(debug_mode == 'c'){printf("================================= [LE BOT JOUE] ============================");
+	printf("\n TOUR : %d \n",turn);}
 	int x = 0;
 	int y = 0;
 	srand(time(NULL)); // initialisation de rand
 	x = rand()%(BOARD->size);
 	y = rand()%(BOARD->size);
-	printf("\nil pose sur : %d / %d\n",x,y);
+
+	if(debug_mode == 'c'){printf("\nil pose sur : %d / %d\n",x,y);  }
 	if(get_stone(x,y)==NULL){
 		if(turn == 0){
 			if(play_stone(x,y,'B')){
@@ -164,13 +168,13 @@ void bot_play(){
 				drop_stone(x,y);
 			}
 		}
+		redraw_win();
 	}else{
 		bot_play();
 		return;
 	}
-
-	redraw_win();
-	printf("\n================================= [LE BOT A FINI] ============================\n");
+	if(debug_mode == 'c'){printf("\n TOUR : %d \n",turn);
+	printf("\n================================= [LE BOT A FINI] ============================\n");}
 }
 
 /**
@@ -182,7 +186,6 @@ void draw_player_turn(){
 	filled_rectangle(width_win()+cell_size+5,0,300,30);
 	// -- Marquage du joueur
 	color(0,0,0);
-	printf("\n\nTour du joueur : %d\n\n",turn);
 	if(turn == 0){
 		string(width_win()+cell_size+20,20,"Tour du joueur 1");
 	}else{
@@ -197,7 +200,7 @@ void draw_player_turn(){
 void draw_win(){
 	// - Vide la fenetre
 	clear_win();
-	printf("\nDRAW WIN\n");
+	if(debug_mode == 'c'){printf("\n[DRAW WIN]\n"); }
 	// -- Initialisation
 	int i;
 
@@ -291,20 +294,19 @@ void draw_menu_handicap(){
 	filled_rectangle(50,50,200,30);
 	color(0,0,0);
 	rectangle(50,50,200,30);
-	string(70,70,"9 tours de handicap");
+	string(70,70,"6 tours de handicap");
 	// -- Bouton joueur contre bot
 	color(255,178,102);
 	filled_rectangle(50,100,200,30);
 	color(0,0,0);
 	rectangle(50,100,200,30);
-	string(70,120,"6 tours de handicap");
+	string(70,120,"3 tours de handicap");
 	// -- Charger une partie
 	color(255,178,102);
 	filled_rectangle(50,150,200,30);
 	color(0,0,0);
 	rectangle(50,150,200,30);
-	string(70,170,"3 tours de handicap");
-
+	string(70,170,"0 tours de handicap");
 }
 
 /**
@@ -359,18 +361,37 @@ int test_clicked(int coord){
  * Pose le point de la pierre sur le board
  *
  */
+
  void drop_stone(int x, int y){
 	// -- Couleur du point en fonction du tour du joueur
 	if(turn == 0){
 		turn = 1;
 		color(0,0,0);
-		printf("\nturn 0 to turn 1\n");
+		if(debug_mode == 'c'){printf("\n[Drop stone] pose d'une pierre noire, le tour est à 0->1\n");}
 	}else{
 		turn = 0;
 		color(1.0,1.0,1.0);
-		printf("\nturn 1 to turn 0\n");
+		if(debug_mode == 'c'){printf("\n[Drop stone] pose d'une pierre blanche, le tour est à 1->0\n");}
 	}
 	// -- Pose le point
+	filled_circle(x,y,cell_size/3);
+}
+
+/**
+ * Pose le point de la pierre sur le board
+ *
+ */
+ void drop_white_stone(int x, int y){
+	color(1.0,1.0,1.0);
+	filled_circle(x,y,cell_size/3);
+}
+
+/**
+ * Pose le point de la pierre sur le board
+ *
+ */
+ void drop_black_stone(int x, int y){
+	color(0,0,0);
 	filled_circle(x,y,cell_size/3);
 }
 
@@ -380,49 +401,106 @@ int test_clicked(int coord){
  * x,y position
  */
 void mouse_clicked(int bouton, int x, int y){
+	if(debug_mode == 'c'){printf("[MOUSE CLICKED - %d]",turn);}
+	// -- Si tout a été pick, on joue
+	if(size_picked && mode_picked && handicap_picked && game_launched){
+		if(debug_mode == 'c'){printf("[ENTER CLICK PLAY]");}
+		player_play(x,y);
 
-	if(!size_picked){
+		if(bot_activated){bot_play();}
+
+		if(!bot_activated && handicap_picked && handicap_number > 0){
+			if(debug_mode == 'c'){printf("[ENTER PASS]");}
+			handicap_number--;
+			pass();
+		}
+
+	}
+
+	// -- Handicap
+	if(size_picked && mode_picked && !handicap_picked){
+		// -- On met un handicap de moins car les noir jouerons 3 fois puis le blanc jouera
+		if(debug_mode == 'c'){printf("[ENTER CLICK HANDICAP]");}
+		// -- 6 handicap
 		if( (x > 50 && x < 250) && (y>50 && y<80) ){
-			init_board(19);
+			handicap_picked = true;
+			game_launched = true;
+			handicap_number = 5;
+			draw_win();
 		}
 
+		// -- 3 handicap
 		if( (x > 50 && x < 250) && (y>100 && y<130) ){
-			init_board(13);
+			handicap_picked = true;
+			game_launched = true;
+			handicap_number = 2;
+			draw_win();
+
 		}
 
+		// -- 0 handicap
 		if( (x > 50 && x < 250) && (y>150 && y<180) ){
-			init_board(9);
+			handicap_picked = true;
+			game_launched = true;
+			handicap_number = 0;
+			draw_win();
 		}
-		draw_win_menu();
-		size_picked = true;
-	}else{
-		if(game_launched){
-			player_play(x,y);
-			if(bot_activated){bot_play();}
-		}else{
-			// -- Clic boutton jcj
-			if( (x > 50 && x < 250) && (y>50 && y<80) ){
-				bot_activated = false;
-				game_launched = true;
-				draw_win();
-			}
 
-			// -- Clic boutton bot
-			if( (x > 50 && x < 250) && (y>100 && y<130) ){
-				bot_activated = true;
-				game_launched = true;
-				draw_win();
-			}
-
-			// -- Clic boutton charger
-			if( (x > 50 && x < 250) && (y>150 && y<180) ){
-				printf("Boutton charger");
+		if(bot_activated && handicap_number > 0){
+			for(int i = 0; i < handicap_number+1; i++){
+				turn = 1;
+				bot_play();
 			}
 		}
 	}
 
+	// -- Mode de jeu
+	if(size_picked && !mode_picked){
+
+		if(debug_mode == 'c'){printf("[ENTER CLICK MODE DE JEU]");}
+
+		// -- Clic boutton jcj
+		if( (x > 50 && x < 250) && (y>50 && y<80) ){
+			bot_activated = false;
+			game_launched = true;
+			draw_menu_handicap();
+		}
+
+		// -- Clic boutton bot
+		if( (x > 50 && x < 250) && (y>100 && y<130) ){
+			bot_activated = true;
+			game_launched = true;
+			draw_menu_handicap();
+		}
+
+		// -- Clic boutton charger
+		if( (x > 50 && x < 250) && (y>150 && y<180) ){
+			if(debug_mode == 'c'){printf("Boutton charger"); }
+			draw_menu_handicap();
+		}
+		mode_picked = true;
+	}
 
 
+	// -- Size du board
+	if(!size_picked){
+		if(debug_mode == 'c'){ printf("[ENTER CLICK SIZE BOARD]"); }
+		if( (x > 50 && x < 250) && (y>50 && y<80) ){
+			init_board(19);
+			size_picked = true;
+		}
+
+		if( (x > 50 && x < 250) && (y>100 && y<130) ){
+			init_board(13);
+			size_picked = true;
+		}
+
+		if( (x > 50 && x < 250) && (y>150 && y<180) ){
+			init_board(9);
+			size_picked = true;
+		}
+		if(size_picked){draw_win_menu();}
+	}
 
 }
 
@@ -550,9 +628,9 @@ int play_stone(int x, int y, char color){
  	stone->visible = true;
 
 	// -- Ajout dans les chaines
-	/*add_in_chain(stone);
+	add_in_chain(stone);
 	modify_freedoms(stone);
-	print_chains();*/
+
 	// -- Affichage des chaines
 	//print_chains();
 
@@ -686,21 +764,21 @@ int add_in_chain(Stone* stone){
  *
  */
 void modify_freedoms(Stone* stone){
-	printf("\n--------------------------------[MODIFY FREEDOM]--------------------------------\n");
+	//printf("\n--------------------------------[MODIFY FREEDOM]--------------------------------\n");
 	Chain* stone_parameter_chain = find_chain(stone);
 	bool check_is_in_same_chain = false;
 
 	// -- CHECK PIERRE A DROITE
-	printf("\n -- Je cherche la pierre a droite\n");
+	//printf("\n -- Je cherche la pierre a droite\n");
 	Stone* getStone = get_stone(stone->x+1,stone->y);
 	if(getStone != NULL){
 		Chain* getChain = find_chain(getStone);
 
-		printf("\nils sont dans la meme chaine ? \n");
-		printf("\n%d\n",is_in_same_chain(stone,getStone));
+		//printf("\nils sont dans la meme chaine ? \n");
+		//printf("\n%d\n",is_in_same_chain(stone,getStone));
 
-		printf("\nLibertés de sa chaine : %d\n",getChain->number_of_freedoms);
-		printf("\n-1\n");
+		//printf("\nLibertés de sa chaine : %d\n",getChain->number_of_freedoms);
+		//printf("\n-1\n");
 		check_is_in_same_chain = is_in_same_chain(stone,getStone);
 		getChain->number_of_freedoms =  getChain->number_of_freedoms - 1;
 		if(!check_is_in_same_chain){stone_parameter_chain->number_of_freedoms =  stone_parameter_chain->number_of_freedoms - 1; }
@@ -709,18 +787,18 @@ void modify_freedoms(Stone* stone){
 			chain_captured(getChain);
 		}
 
-		printf("\nNouvelle liberetés de sa chaine : %d\n",getChain->number_of_freedoms);
+		//printf("\nNouvelle liberetés de sa chaine : %d\n",getChain->number_of_freedoms);
 	}
 
 	// -- CHECK PIERRE A GAUCHE
 
-	printf("\n -- Je cherche la pierre a gauche\n");
+	//printf("\n -- Je cherche la pierre a gauche\n");
 	getStone = get_stone(stone->x-1,stone->y);
 	if(getStone != NULL){
-		printf("la pierre n'est pas nulle");
+		//printf("la pierre n'est pas nulle");
 		Chain* getChain = find_chain(getStone);
-		printf("\nLibertés de sa chaine : %d\n",getChain->number_of_freedoms);
-		printf("\n-1\n");
+		//printf("\nLibertés de sa chaine : %d\n",getChain->number_of_freedoms);
+		//printf("\n-1\n");
 		check_is_in_same_chain = is_in_same_chain(stone,getStone);
 		getChain->number_of_freedoms =  getChain->number_of_freedoms - 1;
 		if(!check_is_in_same_chain){stone_parameter_chain->number_of_freedoms =  stone_parameter_chain->number_of_freedoms - 1; }
@@ -728,17 +806,17 @@ void modify_freedoms(Stone* stone){
 		if(getChain->number_of_freedoms == 0){
 			chain_captured(getChain);
 		}
-		printf("\nNouvelle liberetés de sa chaine : %d\n",getChain->number_of_freedoms);
+		//printf("\nNouvelle liberetés de sa chaine : %d\n",getChain->number_of_freedoms);
 	}
 
 	// -- CHECK PIERRE AU DESSUS
-	printf("\n -- Je cherche la pierre au dessus\n");
+	//printf("\n -- Je cherche la pierre au dessus\n");
 	getStone = get_stone(stone->x,stone->y-1);
 	if(getStone != NULL){
 		print_chains();
 		Chain* getChain = find_chain(getStone);
-		printf("\nLibertés de sa chaine : %d\n",getChain->number_of_freedoms);
-		printf("\n-1\n");
+		//printf("\nLibertés de sa chaine : %d\n",getChain->number_of_freedoms);
+		//printf("\n-1\n");
 		check_is_in_same_chain = is_in_same_chain(stone,getStone);
 		getChain->number_of_freedoms =  getChain->number_of_freedoms - 1;
 		if(!check_is_in_same_chain){stone_parameter_chain->number_of_freedoms =  stone_parameter_chain->number_of_freedoms - 1; }
@@ -746,11 +824,11 @@ void modify_freedoms(Stone* stone){
 		if(getChain->number_of_freedoms == 0){
 			chain_captured(getChain);
 		}
-		printf("\nNouvelle liberetés de sa chaine : %d\n",getChain->number_of_freedoms);
+		//printf("\nNouvelle liberetés de sa chaine : %d\n",getChain->number_of_freedoms);
 	}
 
 	// -- CHECK PIERRE EN DESSOUS
-	printf("\n -- Je cherche la pierre en dessous\n");
+	//printf("\n -- Je cherche la pierre en dessous\n");
 	getStone = get_stone(stone->x,stone->y+1);
 	if(getStone != NULL){
 		Chain* getChain = find_chain(getStone);
@@ -766,7 +844,7 @@ void modify_freedoms(Stone* stone){
 		printf("\nNouvelle liberetés de sa chaine : %d\n",getChain->number_of_freedoms);
 	}
 
-	printf("\n--------------------------------[MODIFY FREEDOM END]--------------------------------\n");
+	//printf("\n--------------------------------[MODIFY FREEDOM END]--------------------------------\n");
 }
 
 /*
@@ -823,20 +901,19 @@ void redraw_win(){
 	draw_win();
 	Stone* stone = NULL;
 	int actualTurn = turn;
-	printf("\nRedraw win : %lu\n",(BOARD->size*BOARD->size*sizeof(Stone)));
+	//printf("\nRedraw win : %lu\n",(BOARD->size*BOARD->size*sizeof(Stone)));
     for(int i = 0; i < BOARD->size; i++){
       for(int j = 0; j < BOARD->size; j++){
 		if(get_stone(i,j)!=NULL){
 			stone = get_stone(i,j);
-			printf("\nboard[%i][%i][%d] = %c\n", i, j, stone->visible, (get_stone(i,j)!=NULL)?(get_stone(i,j)->color):(' '));
+			printf("\n[Redraw win]board[%i][%i][%d] = %c\n", i, j, stone->visible, (get_stone(i,j)!=NULL)?(get_stone(i,j)->color):(' '));
 			if(stone->visible == 1){
 				if(stone->color == 'B'){
 					turn = 0;
 				}else{
 					turn = 1;
 				}
-				printf("Turn : %d",turn);
-
+				//printf("Turn : %d",turn);
 				drop_stone( (i+1) *cell_size, (j+1) *cell_size);
 			}
 		 }
