@@ -28,11 +28,20 @@ typedef struct Structure_Chain{
 typedef struct Structure_Territory{
     int size; //Taille du territoire
     int min_x;
-    int min_y;
     int max_x;
+    int min_y;
     int max_y; // Coordonnées pour la recherche
     Stone** stones; // Tableau des cases
+    Stone** stones_in_territry; // Tableau des stones présentes dans le territoire
 }Territory;
+
+//Structure des lines du board
+typedef struct Structure_Line{
+    int min_x;
+    int max_x;
+    int y;
+    char color;
+}Line;
 
 typedef struct Structure_Chains{
   int number_of_chain;
@@ -58,7 +67,9 @@ void print_board();
 void print_territory();
 void init_board(int size);
 Stone* get_stone(int x, int y);
-void set_stone(int x, int y, Stone* stone);
+void set_stone(Stone* stone);
+Stone* get_stone_territory(int x, int y);
+void set_stone_territory(Stone* stone);
 int play_white_stone(int x, int y);
 int play_black_stone(int x, int y);
 int play_stone(int x, int y, char color);
@@ -72,5 +83,10 @@ int find_in_chain(Stone* stone);
 int check_play(int x, int y);
 bool is_in_same_chain(Stone* stone1, Stone* stone2);
 int check_chain_liberties(int size, Stone** stones);
-void check_stone_territory(Stone* stone);
+void do_territory(Stone* stone);
+void do_stone_territory(Stone* stone);
 void create_territory();
+void adjust_territory(Stone* stone);
+void fill_board(int color);
+void fill_board_line(Line* line);
+void reset_line(Line* line);
