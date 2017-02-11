@@ -32,14 +32,14 @@ typedef struct Structure_Territory{
     int min_y;
     int max_y; // Coordonnées pour la recherche
     Stone** stones; // Tableau des cases
-    Stone** stones_in_territry; // Tableau des stones présentes dans le territoire
+    Stone** stones_in_territory; // Tableau des stones présentes dans le territoire
 }Territory;
 
 //Structure des lines du board
 typedef struct Structure_Line{
-    int min_x;
-    int max_x;
-    int y;
+    int x;
+    int min_y;
+    int max_y;
     char color;
 }Line;
 
@@ -89,4 +89,4 @@ void create_territory();
 void adjust_territory(Stone* stone);
 void fill_board(int color);
 void fill_board_line(Line* line);
-void reset_line(Line* line);
+void init_line(Line* line);
