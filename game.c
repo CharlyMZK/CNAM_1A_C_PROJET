@@ -571,7 +571,7 @@ void print_territory(){
  */
 void init_board(int size){
 	// -- Initialisation du board
-  BOARD = malloc(sizeof(Board));
+  	BOARD = malloc(sizeof(Board));
 	BOARD->size = size;
 	BOARD->intersections = malloc(size*size*sizeof(Stone));
 	// -- Initialisation des chaines
@@ -643,6 +643,7 @@ int play_black_stone(int x, int y){
  */
 int play_stone(int x, int y, char color){
 	int played = 0;
+	int save_turn = turn;
   	Stone* stone = malloc(sizeof(Stone));
 	stone->color = color;
 	stone->x = x;
@@ -651,11 +652,19 @@ int play_stone(int x, int y, char color){
 
 	// -- Ajout dans les chaines
 	add_in_chain(stone);
-	modify_freedoms(stone);
-
+	if(debug_mode == 'c'){printf("Avant modify freedom \n");}
+	modify_freedoms(stone); // -- Modify freedom redessine le plateau en fonction des turns, il est possible qu'il revienne avec un turn pas exact
+	if(debug_mode == 'c'){printf("Apres modify freedom \n");}
+	turn = save_turn;
 	// -- Affichage des chaines
 	//print_chains();
 
+	// -- Check si la pierre peut former un territoire
+	if(debug_mode == 'c'){printf("Avant create territory \n");}
+	create_territory();
+	check_stone_territory(stone);
+	free(TERRITORY);
+	if(debug_mode == 'c'){printf("apres create territory \n");}
 	if((played = check_play(x,y)) == 1){ // on vérifie si le joueur peut jouer
 	  	set_stone(stone); // Sinon hors du tableau
 			// -- Check si la pierre posé peut former un territoire
