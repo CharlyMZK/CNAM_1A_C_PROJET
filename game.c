@@ -660,11 +660,9 @@ int play_stone(int x, int y, char color){
 	//print_chains();
 
 	// -- Check si la pierre peut former un territoire
-	if(debug_mode == 'c'){printf("Avant create territory \n");}
-	create_territory();
-	check_stone_territory(stone);
-	free(TERRITORY);
-	if(debug_mode == 'c'){printf("apres create territory \n");}
+	if(debug_mode == 'c'){printf("Avant do territory \n");}
+	do_territory(stone);
+	if(debug_mode == 'c'){printf("Apres do territory \n");}
 	if((played = check_play(x,y)) == 1){ // on vérifie si le joueur peut jouer
 	  	set_stone(stone); // Sinon hors du tableau
 			// -- Check si la pierre posé peut former un territoire
@@ -1074,6 +1072,7 @@ void do_stone_territory(Stone* stone){
 			fill_board(stone->color);
 	}
 	print_board();
+	//print_territory();
 	free(stones_around);
 }
 
