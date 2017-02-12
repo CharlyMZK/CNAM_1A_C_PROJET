@@ -224,14 +224,14 @@ void create_territory();
 void adjust_territory(Stone* stone);
 
 /*
- * Permet de remplir le board avec des pierres invisibles, qui représentent le territoire
+ * Permet de remplir les lignes et colonnes pour ensuite mettre les pierres sur la board
  */
-void fill_board(int color);
+void seek_intersetion_territory(int color);
 
 /*
- * Permet de remplir une colonne de pierre invisible dans le tableau du plateau
- */
-void fill_board_column(Column* column);
+* Permet de remplir une ligne de pierre invisible dans le tableau du plateau
+*/
+void fill_board(Line* line, Column* column);
 
 /*
  * Permet de remettre à 0 toutes la variables de la ligne passé en paramètre

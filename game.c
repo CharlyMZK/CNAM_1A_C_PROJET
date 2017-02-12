@@ -916,7 +916,7 @@ void do_stone_territory(Stone* stone){
 			}
 		}
 		if(found_starting_stone)
-			fill_board(stone->color);
+			seek_intersetion_territory(stone->color);
 	}
 	print_board();
 	//print_territory();
@@ -952,30 +952,42 @@ void adjust_territory(Stone* stone){
 }
 
 /*
- * Permet de remplir le board avec des pierres invisibles, qui représentent le territoire
+ * Permet de remplir les lignes et colonnes pour ensuite mettre les pierres sur la board
  */
-void fill_board(int color){
+void seek_intersetion_territory(int color){
+	Line* line = malloc(sizeof(Line));
 	Column* column = malloc(sizeof(Column));
 	int i,j ;
 
+	init_line(line);
+	line->color = color;
 	init_column(column);
 	column->color = color;
-	Stone* stone_cheked = malloc(sizeof(Stone));
-	printf("min x %i, max %i, min y %i, max %i\n", TERRITORY->min_x, TERRITORY->max_x, TERRITORY->min_y, TERRITORY->max_y);
-	for(i = TERRITORY->min_x; i <= TERRITORY->max_x; i++){
+	Stone* stone_cheked_line = malloc(sizeof(Stone));
+	Stone* stone_cheked_column = malloc(sizeof(Stone));
+
+	for(i = TERRITORY->min_x; i <= TERRITORY->max_x; i++){ // Pour tout le territoire, on cherche quelles sont les lignes et colonnes où l'on doit mettre des pierres
 		for(j = TERRITORY->min_y; j <= TERRITORY->max_y; j++){
-			stone_cheked = get_stone_territory(i,j);
-			if(stone_cheked != NULL && stone_cheked->color == column->color){
+			stone_cheked_line = get_stone_territory(j,i);
+			stone_cheked_column = get_stone_territory(i,j);
+			if(stone_cheked_line != NULL && stone_cheked_line->color == column->color){
+				line->y = i;
+				if(line->min_x > stone_cheked_line->x)
+					line->min_x = stone_cheked_line->x;
+				if(line->max_x < stone_cheked_line->x)
+					line->max_x = stone_cheked_line->x;
+				}
+				if(stone_cheked_column != NULL && stone_cheked_column->color == column->color){
 				column->x = i;
-				if(column->min_y > stone_cheked->y)
-					column->min_y = stone_cheked->y;
-				if(column->max_y < stone_cheked->y)
-					column->max_y = stone_cheked->y;
+				if(column->min_y > stone_cheked_column->y)
+					column->min_y = stone_cheked_column->y;
+				if(column->max_y < stone_cheked_column->y)
+					column->max_y = stone_cheked_column->y;
 			}
 		}
-					printf("\n ALLER une pierre en plus  : %i/%i\n", column->min_y, column->max_y);
-		if(column->min_y <= column->max_y)
-			fill_board_column(column);
+		if(line->min_x <= line->max_x && column->min_y <= column->max_y)
+			fill_board(line, column);
+		init_line(line);
 		init_column(column);
 	}
 }
@@ -983,16 +995,19 @@ void fill_board(int color){
 /*
 * Permet de remplir une ligne de pierre invisible dans le tableau du plateau
 */
-void fill_board_column(Column* column){
+void fill_board(Line* line, Column* column){
 	int i;
 	Stone* stone_to_place = malloc(sizeof(Stone));
 	stone_to_place->color = column->color;
 	stone_to_place->visible = false;
-	for(i = column->min_y; i <= column->max_y; i++){
-		if(get_stone(column->x, i) == NULL || get_stone(column->x, i)->visible == false){
-			stone_to_place->x = column->x;
-			stone_to_place->y = i;
-			set_stone(stone_to_place);
+	printf("Line : %i/%i/%i Column : %i/%i/%i", line->min_x, line->max_x, line->y, column->x, column->min_y, column->max_y);
+	for(i = line->min_x; i <= line->max_x; i++){
+		if(line->y >= column->min_y && line->y <= column->max_y){ // Si la line et la colonne sont dans le territoire
+			if(get_stone(i, line->y) == NULL || get_stone(i, line->y)->visible == false){
+				stone_to_place->x = i;
+				stone_to_place->y = line->y;
+				set_stone(stone_to_place);
+			}
 		}
 	}
 }
