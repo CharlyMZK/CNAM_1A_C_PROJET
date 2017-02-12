@@ -1,15 +1,17 @@
 #include "dessine.h"
 #include <string.h>
 
-
-int largeur_fenetre;
-int hauteur_fenetre;
-
+// -- Struct init
 GC      gc;
 Display *display;
-int     screen;
 Window  win, root;
 
+// -- Params init
+int largeur_fenetre;
+int hauteur_fenetre;
+int     screen;
+ 
+// -- Externs definition
 extern void player_play(int x, int y);
 extern void draw_win();
 extern void draw_win_menu();
@@ -19,17 +21,29 @@ extern void test_clicked(int coord,float taille_case);
 extern void mouse_clicked(int bouton, int x, int y);
 extern void key_pressed(KeySym code, char c, int x_souris, int y_souris);
 
-
+/**
+ * largeur fenetre
+ */
 double width_win()
 {
 	return largeur_fenetre;
 }
 
+/**
+ * hauteur fenetre
+ */
 double height_win()
 {
 	return hauteur_fenetre;
 }
 
+/**
+ * initialisation fenetre
+ * w: largeur
+ * h:  hauteur
+ * titre: titre fenetre
+ * r,g,b couleur de fond
+ */
 void init_win(int w, int h, char* message)
 {
 	if ((display = XOpenDisplay ("")) == NULL)
@@ -58,6 +72,9 @@ void init_win(int w, int h, char* message)
 	XMapWindow (display, win);
 }
 
+/**
+ * boucle evenementielle
+ */
 void event_loop()
 {
 	char buffer[8];
@@ -90,11 +107,20 @@ void event_loop()
 	}
 }
 
+/**
+ * vide fenetre
+ */
 void clear_win()
 {
 	XClearWindow(display, win);
 }
 
+/**
+ *  change couleur de trace en RVB
+ *  r: %rouge [0,1]
+ *  v: %vert [0,1]
+ *  b: %bleu [0,1]
+ */
 void color(float r, float v, float b)
 {
 	int rr = 255*r;
@@ -103,39 +129,67 @@ void color(float r, float v, float b)
 	XSetForeground (display, gc, 256*256*rr+256*vv+bb);
 }
 
-
-void filled_rectangle(int x, int y, int w, int h)
-{
-	XFillRectangle(display,win,gc,x,y,w,h);
-}
-
-void rectangle(int x, int y, int w, int h)
-{
-	XDrawRectangle(display,win,gc,x,y,w,h);
-}
-
-void filled_circle(int x, int y, int r)
-{
-	XFillArc(display,win,gc,x-r,y-r,2*r,2*r,0,360*64);
-}
-
-void circle(int x, int y, int r)
-{
-	XDrawArc(display,win,gc,x-r,y-r,2*r,2*r,0,360*64);
-}
-
-
+/**
+ * trace une ligne
+ * x0,y0 point depart
+ * x1,y1 point arrivee
+ */
 void line(int x0, int y0, int x1, int y1)
 {
 	XDrawLine(display,win,gc,x0,y0,x1,y1);
 }
 
+/**
+ * trace un rectangle
+ * x,y position
+ * w,h taille
+ */
+void rectangle(int x, int y, int w, int h)
+{
+	XDrawRectangle(display,win,gc,x,y,w,h);
+}
 
+/**
+ * trace un rectangle plein
+ * x,y position
+ * w,h taille
+ */
+void filled_rectangle(int x, int y, int w, int h)
+{
+	XFillRectangle(display,win,gc,x,y,w,h);
+}
+
+/**
+ * trace un cercle
+ * x,y position
+ * r rayon
+ */
+void circle(int x, int y, int r)
+{
+	XDrawArc(display,win,gc,x-r,y-r,2*r,2*r,0,360*64);
+}
+
+/**
+ * trace un disque
+ * x,y position
+ * r rayon
+ */
+void filled_circle(int x, int y, int r)
+{
+	XFillArc(display,win,gc,x-r,y-r,2*r,2*r,0,360*64);
+}
+
+/**
+ * trace un pixel a la position x,y
+ */
 void pixel(int x, int y)
 {
 	XDrawPoint(display,win,gc,x,y);
 }
 
+/**
+ * affiche une chaine de caractere
+ */
 void string(int x, int y, char* chaine)
 {
 	XDrawString(display,win,gc,x,y, chaine, strlen(chaine));
@@ -158,8 +212,7 @@ void draw_player_turn(int cell_size, int turn){
 }
 
 /**
- * Mettre ici son code pour dessiner dans la fenetre
- * 1er affichage + redessine si resize
+ * Dessine le menu permettant de choisir le mode de jeu
  */
 void draw_win_menu(){
 	// - Vide la fenetre
@@ -186,8 +239,7 @@ void draw_win_menu(){
 }
 
 /**
- * Mettre ici son code pour dessiner dans la fenetre
- * 1er affichage + redessine si resize
+ * Dessine le menu permettant de choisir la taille du plateau
  */
 void draw_win_board_size(){
 	// - Vide la fenetre
@@ -214,8 +266,7 @@ void draw_win_board_size(){
 }
 
 /**
- * Mettre ici son code pour dessiner dans la fenetre
- * 1er affichage + redessine si resize
+ * Dessine le menu permettant de choisir le handicap du joueur 2
  */
 void draw_menu_handicap(){
 	// - Vide la fenetre
@@ -240,10 +291,10 @@ void draw_menu_handicap(){
 	string(70,170,"0 tours de handicap");
 }
 
- /*
-  * Permet de dessiner les hoshis sur le plateau
-  */
- void draw_hoshi(int board_size,int cell_size) {
+/**
+ * Dessine les hoshis
+ */
+void draw_hoshi(int board_size,int cell_size) {
  	int i,j;
 	color(0,0,0);
 	switch(board_size){
@@ -275,6 +326,6 @@ void draw_menu_handicap(){
 			}
 			break;
 	}
- }
+}
 
  

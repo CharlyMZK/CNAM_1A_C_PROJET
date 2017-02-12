@@ -6,7 +6,15 @@
 #include <X11/Xutil.h>
 #include <X11/keysym.h>
 
+/**
+ * largeur fenetre
+ */
+double width_win();
 
+/**
+ * hauteur fenetre
+ */
+double height_win();
 
 /**
  * initialisation fenetre
@@ -28,23 +36,12 @@ void event_loop();
 void clear_win();
 
 /**
- * largeur fenetre
- */
-double width_win();
-
-/**
- * hauteur fenetre
- */
-double height_win();
-
-/**
  *  change couleur de trace en RVB
  *  r: %rouge [0,1]
  *  v: %vert [0,1]
  *  b: %bleu [0,1]
  */
 void color(float r, float v, float b);
-
 
 /**
  * trace une ligne
@@ -53,14 +50,12 @@ void color(float r, float v, float b);
  */
 void line(int x0, int y0, int x1, int y1);
 
-
 /**
  * trace un rectangle
  * x,y position
  * w,h taille
  */
 void rectangle(int x, int y, int w, int h);
-
 
 /**
  * trace un rectangle plein
@@ -93,12 +88,27 @@ void pixel(int x, int y);
  */
 void string(int x, int y, char* chaine);
 
+/**
+ * Dessine le tour du joueur
+ */
 void draw_player_turn(int cell_size, int turn);
 
+/**
+ * Dessine le menu permettant de choisir le mode de jeu
+ */
 void draw_win_menu();
 
+/**
+ * Dessine le menu permettant de choisir la taille du plateau
+ */
 void draw_win_board_size(); 
 
+/**
+ * Dessine le menu permettant de choisir le handicap du joueur 2
+ */
 void draw_menu_handicap();
 
+/**
+ * Dessine les hoshis
+ */
 void draw_hoshi(int board_size,int cell_size);
