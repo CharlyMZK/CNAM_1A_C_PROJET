@@ -35,13 +35,22 @@ typedef struct Structure_Territory{
     Stone** stones_in_territory; // Tableau des stones présentes dans le territoire
 }Territory;
 
-//Structure des lines du board
+//Structure des lignes du plateau
 typedef struct Structure_Line{
+    int min_x;
+    int max_x;
+    int y;
+    char color;
+}Line;
+
+// Structure des colonne du plateau
+typedef struct Structure_Column{
     int x;
     int min_y;
     int max_y;
     char color;
-}Line;
+}Column;
+
 
 typedef struct Structure_Chains{
   int number_of_chain;
@@ -88,5 +97,5 @@ void do_stone_territory(Stone* stone);
 void create_territory();
 void adjust_territory(Stone* stone);
 void fill_board(int color);
-void fill_board_line(Line* line);
-void init_line(Line* line);
+void fill_board_column(Column* column);
+void init_column(Column* column);

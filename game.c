@@ -204,7 +204,7 @@ void draw_win(){
 	// -- Initialisation
 	int i;
 
-	// -- Lines color
+	// -- Columns color
 	color(0,0,0);
 
 	// -- Taille de la cellule
@@ -1107,42 +1107,42 @@ void adjust_territory(Stone* stone){
 * Permet de remplir le board avec des pierres invisibles, qui représentent le territoire
 */
 void fill_board(int color){
-	Line* line = malloc(sizeof(Line));
+	Column* column = malloc(sizeof(Column));
 	int i,j ;
 
-	init_line(line);
-	line->color = color;
+	init_column(column);
+	column->color = color;
 	Stone* stone_cheked = malloc(sizeof(Stone));
 	printf("min x %i, max %i, min y %i, max %i\n", TERRITORY->min_x, TERRITORY->max_x, TERRITORY->min_y, TERRITORY->max_y);
 	for(i = TERRITORY->min_x; i <= TERRITORY->max_x; i++){
 		for(j = TERRITORY->min_y; j <= TERRITORY->max_y; j++){
 			stone_cheked = get_stone_territory(i,j);
-			if(stone_cheked != NULL && stone_cheked->color == line->color){
-				line->x = i;
-				if(line->min_y > stone_cheked->y)
-					line->min_y = stone_cheked->y;
-				if(line->max_y < stone_cheked->y)
-					line->max_y = stone_cheked->y;
+			if(stone_cheked != NULL && stone_cheked->color == column->color){
+				column->x = i;
+				if(column->min_y > stone_cheked->y)
+					column->min_y = stone_cheked->y;
+				if(column->max_y < stone_cheked->y)
+					column->max_y = stone_cheked->y;
 			}
 		}
-					printf("\n ALLER une pierre en plus  : %i/%i\n", line->min_y, line->max_y);
-		if(line->min_y <= line->max_y)
-			fill_board_line(line);
-		init_line(line);
+					printf("\n ALLER une pierre en plus  : %i/%i\n", column->min_y, column->max_y);
+		if(column->min_y <= column->max_y)
+			fill_board_column(column);
+		init_column(column);
 	}
 }
 
 /*
 * Permet de remplir une ligne de pierre invisible dans le tableau du plateau
 */
-void fill_board_line(Line* line){
+void fill_board_column(Column* column){
 	int i;
 	Stone* stone_to_place = malloc(sizeof(Stone));
-	stone_to_place->color = line->color;
+	stone_to_place->color = column->color;
 	stone_to_place->visible = false;
-	for(i = line->min_y; i <= line->max_y; i++){
-		if(get_stone(line->x, i) == NULL || get_stone(line->x, i)->visible == false){
-			stone_to_place->x = line->x;
+	for(i = column->min_y; i <= column->max_y; i++){
+		if(get_stone(column->x, i) == NULL || get_stone(column->x, i)->visible == false){
+			stone_to_place->x = column->x;
 			stone_to_place->y = i;
 			set_stone(stone_to_place);
 		}
@@ -1154,8 +1154,19 @@ void fill_board_line(Line* line){
 */
 void init_line(Line* line){
 	if(line != NULL){
-		line->x = 0;
-		line->min_y = 18;
-		line->max_y = 0;
+		line->min_x = 18;
+		line->max_x = 0;
+		line->y = 0;
+	}
+}
+
+/*
+* Permet de remettre à 0 toutes la variables de la colonne passé en paramètre
+*/
+void init_column(Column* column){
+	if(column != NULL){
+		column->x = 0;
+		column->min_y = 18;
+		column->max_y = 0;
 	}
 }
