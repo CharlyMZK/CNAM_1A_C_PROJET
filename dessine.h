@@ -92,3 +92,13 @@ void pixel(int x, int y);
  * affiche une chaine de caractere
  */
 void string(int x, int y, char* chaine);
+
+void draw_player_turn(int cell_size, int turn);
+
+void draw_win_menu();
+
+void draw_win_board_size(); 
+
+void draw_menu_handicap();
+
+void draw_hoshi(int board_size,int cell_size);
