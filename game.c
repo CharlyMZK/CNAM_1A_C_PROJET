@@ -6,102 +6,30 @@
 #include <string.h>
 #include "game.h"
 
-Board* BOARD;
-Chains* CHAINS;
-Territory* TERRITORY;
+// -- Struct init
+Board* BOARD;					// -- Structure du plateau de jeu
+Chains* CHAINS;					// -- Structure contenant les chaines crées
+Territory* TERRITORY;			// -- Structure contenant les territoires
 
-int cell_size;
-int turn = 0;
-int pass_counter = 0;
-bool bot_activated = false;
-bool game_launched = false;
-bool size_picked = false;
-bool handicap_picked = false;
-int handicap_number = 0;
-bool mode_picked = false;
-char debug_mode = 'c';
-/*
- * Passe le tour du joueur
- *
- */
-void pass(){
-	pass_counter++;
-	if(pass_counter == 2){
-		game_finished();
-	}
-	if(turn == 0){
-		turn = 1;
-		draw_player_turn();
-	}else{
-		turn = 0;
-		draw_player_turn();
-	}
-}
-
-/**
- * Check si la partie est terminée
- *
- */
-void check_game_finished(){
-	int stone_counter = 0;
-	bool finished = false;
-    for(int i = 0; i < BOARD->size; i++){
-      for(int j = 0; j < BOARD->size; j++){
-		if(get_stone(i,j) != NULL){
-			stone_counter++;
-		}
-      }
-    }
-	Stone* checked_stone = NULL;
-	if(stone_counter >= 1){
-		game_finished();
-	}
-	//printf("\n Dans le jeu il y a %d pierres sur %d",stone_counter,BOARD->size*BOARD->size);
-}
-
-/**
- * Finis la partie
- *
- */
-void game_finished(){
-	Stone* checked_stone = NULL;
-	int points_player_1 = 0;
-	int points_player_2 = 0;
-	for(int i = 0; i < BOARD->size; i++){
-		for(int j = 0; j < BOARD->size; j++){
-			checked_stone = get_stone(i,j);
-			if(checked_stone != NULL){
-				if(checked_stone->color == 'B'){					points_player_1++;
-				}else{
-					points_player_2++;
-				}
-			}
-		}
-	}
-
-	// -- Refresh du rectange
-	color(255,178,102);
-	filled_rectangle(width_win()+cell_size+5,50,300,30);
-	// -- Marquage du joueur
-	color(0,0,0);
-	string(width_win()+cell_size+20,70,"La partie est terminee");
+// -- Params init
+int cell_size; 					// -- Taille de la cellule
+int turn = 0;					// -- Tour du joueur ( 0 ou 1 )
+int pass_counter = 0;			// -- Compteur de tour passé ( si 2 la partie est finie)
+bool bot_activated = false; 	// -- Activation du bot ou non
+bool game_launched = false;		// -- Jeu lancé ou non ( Si non on affichera les menus )
+bool size_picked = false;		// -- Size du board choisie ou non
+bool handicap_picked = false;	// -- Handicap choisis ou non
+int handicap_number = 0;		// -- Nombre de handicap qui a été choisis
+bool mode_picked = false;		// -- Mode de jeu choisis ou non ( J vs Bot ou J V J ou Partie chargée)
+char debug_mode = 'c';			// -- Debug mode ( Prints de charly = 'c' Prints de quentin = 'q' )
 
 
-	// -- Refresh du rectange
-	color(255,178,102);
-	filled_rectangle(width_win()+cell_size+5,100,300,30);
-	// -- Marquage du joueur
-	color(0,0,0);
-	if(points_player_1 > points_player_2){
-		string(width_win()+cell_size+20,120,"Le joueur 1 gagne");
-	}else{
-		string(width_win()+cell_size+20,120,"Le joueur 2 gagne");
-	}
-}
+// --
+// -- PLAY FUNCTIONS
+// --
 
 /**
  * Indique dans la textbox quel joueur joue
- *
  */
 void player_play(int x, int y){
 	int placement_x;
@@ -135,7 +63,7 @@ void player_play(int x, int y){
 				}
 			}
 		}
-		draw_player_turn();
+		draw_player_turn(cell_size,turn);
 		check_game_finished();
 		if(debug_mode == 'c'){printf("\n TOUR : %d \n",turn);
 		printf("\n\n===============================FIN PIERRE POSEE  [%d, %d] ]===============================\n\n\n\n",x,y);}
@@ -146,7 +74,6 @@ void player_play(int x, int y){
 
 /**
  * Le bot joue
- *
  */
 void bot_play(){
 	if(debug_mode == 'c'){printf("================================= [LE BOT JOUE] ============================");
@@ -178,190 +105,8 @@ void bot_play(){
 }
 
 /**
- * Affiche le tour du joueur
- */
-void draw_player_turn(){
-	// -- Refresh du rectange
-	color(255,178,102);
-	filled_rectangle(width_win()+cell_size+5,0,300,30);
-	// -- Marquage du joueur
-	color(0,0,0);
-	if(turn == 0){
-		string(width_win()+cell_size+20,20,"Tour du joueur 1");
-	}else{
-		string(width_win()+cell_size+20,20,"Tour du joueur 2");
-	}
-}
-
-/**
- * Mettre ici son code pour dessiner dans la fenetre
- * 1er affichage + redessine si resize
- */
-void draw_win(){
-	// - Vide la fenetre
-	clear_win();
-	if(debug_mode == 'c'){printf("\n[DRAW WIN]\n"); }
-	// -- Initialisation
-	int i;
-
-	// -- Columns color
-	color(0,0,0);
-
-	// -- Taille de la cellule
-	cell_size = round(height_win() / BOARD->size);
-
-	// -- Dessin des lignes horizontales
-	for(i=cell_size; i<=cell_size*BOARD->size; i+=cell_size) // On prend la taille d'une cellule - la taille du board - 1 car sinon on a une case de trop
-		line(i,cell_size,i, width_win());
-
- 	// -- Dessin des lignes verticales
-	for(i=cell_size; i<=cell_size*BOARD->size; i+=cell_size)// On prend la taille d'une cellule - la taille du board - 1 car sinon on a une case de trop
-		line(cell_size,i,height_win(),i);
-
-	// On dessine les hoshis
-	draw_hoshi();
-
-	// -- On défini le tour du joueur
-	draw_player_turn();
-
-}
-
-/**
- * Mettre ici son code pour dessiner dans la fenetre
- * 1er affichage + redessine si resize
- */
-void draw_win_menu(){
-	// - Vide la fenetre
-	clear_win();
-	// -- Bouton joueur contre joueur
-	color(255,178,102);
-	filled_rectangle(50,50,200,30);
-	color(0,0,0);
-	rectangle(50,50,200,30);
-	string(70,70,"Joueur vs joueur");
-	// -- Bouton joueur contre bot
-	color(255,178,102);
-	filled_rectangle(50,100,200,30);
-	color(0,0,0);
-	rectangle(50,100,200,30);
-	string(70,120,"Joueur vs bot");
-	// -- Charger une partie
-	color(255,178,102);
-	filled_rectangle(50,150,200,30);
-	color(0,0,0);
-	rectangle(50,150,200,30);
-	string(70,170,"Charger une partie");
-
-}
-
-/**
- * Mettre ici son code pour dessiner dans la fenetre
- * 1er affichage + redessine si resize
- */
-void draw_win_board_size(){
-	// - Vide la fenetre
-	clear_win();
-	// -- 19x19
-	color(255,178,102);
-	filled_rectangle(50,50,200,30);
-	color(0,0,0);
-	rectangle(50,50,200,30);
-	string(70,70,"19x19");
-	// -- 13x13
-	color(255,178,102);
-	filled_rectangle(50,100,200,30);
-	color(0,0,0);
-	rectangle(50,100,200,30);
-	string(70,120,"13x13");
-	// -- 9x9
-	color(255,178,102);
-	filled_rectangle(50,150,200,30);
-	color(0,0,0);
-	rectangle(50,150,200,30);
-	string(70,170,"9x9");
-
-}
-
-/**
- * Mettre ici son code pour dessiner dans la fenetre
- * 1er affichage + redessine si resize
- */
-void draw_menu_handicap(){
-	// - Vide la fenetre
-	clear_win();
-	// -- Bouton joueur contre joueur
-	color(255,178,102);
-	filled_rectangle(50,50,200,30);
-	color(0,0,0);
-	rectangle(50,50,200,30);
-	string(70,70,"6 tours de handicap");
-	// -- Bouton joueur contre bot
-	color(255,178,102);
-	filled_rectangle(50,100,200,30);
-	color(0,0,0);
-	rectangle(50,100,200,30);
-	string(70,120,"3 tours de handicap");
-	// -- Charger une partie
-	color(255,178,102);
-	filled_rectangle(50,150,200,30);
-	color(0,0,0);
-	rectangle(50,150,200,30);
-	string(70,170,"0 tours de handicap");
-}
-
-/**
- * Test si le point est posé au milieu d'un carré et le remet correctement a l'intersection
- *
- */
-int test_clicked(int coord){
- 	float res = (float)coord/cell_size; // on prend la cellule avec une virgule
- 	res = round(res) * cell_size; // On arroundi et on multiplie par la taille d'une cellule
- 	return (int) res;
- }
-
- /*
-  * Permet de dessiner les hoshis sur le plateau
-  */
- void draw_hoshi() {
- 	int i,j;
-	color(0,0,0);
-	switch(BOARD->size){
-		case 9:
-			for(i=2; i <= 6; i+=4){
-				for(j=2; j <= 6; j+=4){
-					int x = cell_size + (j * cell_size);
-					int y = cell_size + (i * cell_size);
-					filled_circle(x,y,cell_size/6);
-				}
-			}
-			break;
-		case 13:
-			for(i=3; i <= 9; i+=3){
-				for(j=3; j <= 9; j+=3){
-					int x = cell_size + (j * cell_size);
-					int y = cell_size + (i * cell_size);
-					filled_circle(x,y,cell_size/6);
-				}
-			}
-		break;
-		case 19:
-			for(i=3; i <= 15; i+=6){
-				for(j=3; j <= 15; j+=6){
-					int x = cell_size + (j * cell_size);
-					int y = cell_size + (i * cell_size);
-					filled_circle(x,y,cell_size/6);
-				}
-			}
-			break;
-	}
- }
-
-
-/**
  * Pose le point de la pierre sur le board
- *
  */
-
  void drop_stone(int x, int y){
 	// -- Couleur du point en fonction du tour du joueur
 	if(turn == 0){
@@ -377,22 +122,99 @@ int test_clicked(int coord){
 	filled_circle(x,y,cell_size/3);
 }
 
-/**
- * Pose le point de la pierre sur le board
- *
+/*
+ * Permet au joueur dont la couleur est passé en parametre de jouer un caillou
+ * Retourne 1 si le jeu a pu jouer, 0 sinon
  */
- void drop_white_stone(int x, int y){
-	color(1.0,1.0,1.0);
-	filled_circle(x,y,cell_size/3);
+int play_stone(int x, int y, char color){
+	int played = 0;
+	int save_turn = turn;
+  	Stone* stone = malloc(sizeof(Stone));
+	stone->color = color;
+	stone->x = x;
+	stone->y = y;
+ 	stone->visible = true;
+
+	// -- Ajout dans les chaines
+	add_in_chain(stone);
+	if(debug_mode == 'c'){printf("Avant modify freedom \n");}
+	modify_freedoms(stone); // -- Modify freedom redessine le plateau en fonction des turns, il est possible qu'il revienne avec un turn pas exact
+	if(debug_mode == 'c'){printf("Apres modify freedom \n");}
+	turn = save_turn;
+	// -- Affichage des chaines
+	//print_chains();
+
+	// -- Check si la pierre peut former un territoire
+	if(debug_mode == 'c'){printf("Avant do territory \n");}
+	do_territory(stone);
+	if(debug_mode == 'c'){printf("Apres do territory \n");}
+	if((played = check_play(x,y)) == 1){ // on vérifie si le joueur peut jouer
+	  	set_stone(stone); // Sinon hors du tableau
+			// -- Check si la pierre posé peut former un territoire
+			do_territory(stone);
+	}
+
+	return played;
+}
+
+/*
+ * Permet de savoir si le joueur peut jouer
+ * Retourne 1 si la pierre peut etre placée sur cette case
+ */
+int check_play(int x, int y){
+	int can_play = 0;
+	if(get_stone(x,y) == NULL) // s'il n'y a pas de pierre sur la case
+		can_play = 1;
+	return can_play;
 }
 
 /**
- * Pose le point de la pierre sur le board
- *
+ * Test si le point est posé au milieu d'un carré et le remet correctement a l'intersection
  */
- void drop_black_stone(int x, int y){
-	color(0,0,0);
-	filled_circle(x,y,cell_size/3);
+int test_clicked(int coord){
+ 	float res = (float)coord/cell_size; // on prend la cellule avec une virgule
+ 	res = round(res) * cell_size; // On arroundi et on multiplie par la taille d'une cellule
+ 	return (int) res;
+}
+
+/**
+ * on a appuyé sur une touche
+ * code: code touche x11 (XK_...)
+ * c caractère correspondant si caractere
+ * x_souris,y_souris position de la souris
+ */
+void key_pressed(KeySym code, char c, int x_souris, int y_souris){
+	switch(code)
+	{
+		case XK_Down:
+			printf("bas\n");
+			break;
+		case XK_Up:
+			printf("haut\n");
+			break;
+		case XK_Left:
+			printf("gauche\n");
+			break;
+		case XK_Right:
+			printf("droite\n");
+			break;
+	//~ case XK_Return:
+	//~ case XK_Shift_L:
+	//~ case XK_Control_R:
+	//~ ....
+		default:
+			break;
+	}
+
+	if (c>' ' && c<'z')
+		printf("char: %c \n",c);
+
+	printf(" avec pos souris: %d,%d \n",x_souris,y_souris);
+
+	if(c == 'p'){
+		printf("\n tour passé \n");
+		pass();
+	}
 }
 
 /**
@@ -504,45 +326,158 @@ void mouse_clicked(int bouton, int x, int y){
 
 }
 
-/**
- * on a appuyé sur une touche
- * code: code touche x11 (XK_...)
- * c caractère correspondant si caractere
- * x_souris,y_souris position de la souris
+// --
+// -- GAME FUNCTIONS
+// --
+
+
+/*
+ * Passe le tour du joueur
  */
-void key_pressed(KeySym code, char c, int x_souris, int y_souris){
-	switch(code)
-	{
-		case XK_Down:
-			printf("bas\n");
-			break;
-		case XK_Up:
-			printf("haut\n");
-			break;
-		case XK_Left:
-			printf("gauche\n");
-			break;
-		case XK_Right:
-			printf("droite\n");
-			break;
-	//~ case XK_Return:
-	//~ case XK_Shift_L:
-	//~ case XK_Control_R:
-	//~ ....
-		default:
-			break;
+void pass(){
+	pass_counter++;
+	if(pass_counter == 2){
+		game_finished();
 	}
-
-	if (c>' ' && c<'z')
-		printf("char: %c \n",c);
-
-	printf(" avec pos souris: %d,%d \n",x_souris,y_souris);
-
-	if(c == 'p'){
-		printf("\n tour passé \n");
-		pass();
+	if(turn == 0){
+		turn = 1;
+		draw_player_turn(cell_size,turn);
+	}else{
+		turn = 0;
+		draw_player_turn(cell_size,turn);
 	}
 }
+
+/**
+ * Check si la partie est terminée
+ */
+void check_game_finished(){
+	int stone_counter = 0;
+	bool finished = false;
+    for(int i = 0; i < BOARD->size; i++){
+      for(int j = 0; j < BOARD->size; j++){
+		if(get_stone(i,j) != NULL){
+			stone_counter++;
+		}
+      }
+    }
+	Stone* checked_stone = NULL;
+	if(stone_counter >= 1){
+		game_finished();
+	}
+	//printf("\n Dans le jeu il y a %d pierres sur %d",stone_counter,BOARD->size*BOARD->size);
+}
+
+/**
+ * Finis la partie
+ */
+void game_finished(){
+	Stone* checked_stone = NULL;
+	int points_player_1 = 0;
+	int points_player_2 = 0;
+	for(int i = 0; i < BOARD->size; i++){
+		for(int j = 0; j < BOARD->size; j++){
+			checked_stone = get_stone(i,j);
+			if(checked_stone != NULL){
+				if(checked_stone->color == 'B'){					points_player_1++;
+				}else{
+					points_player_2++;
+				}
+			}
+		}
+	}
+
+	// -- Refresh du rectange
+	color(255,178,102);
+	filled_rectangle(width_win()+cell_size+5,50,300,30);
+	// -- Marquage du joueur
+	color(0,0,0);
+	string(width_win()+cell_size+20,70,"La partie est terminee");
+
+
+	// -- Refresh du rectange
+	color(255,178,102);
+	filled_rectangle(width_win()+cell_size+5,100,300,30);
+	// -- Marquage du joueur
+	color(0,0,0);
+	if(points_player_1 > points_player_2){
+		string(width_win()+cell_size+20,120,"Le joueur 1 gagne");
+	}else{
+		string(width_win()+cell_size+20,120,"Le joueur 2 gagne");
+	}
+}
+
+// --
+// -- WIN DRAW FUNCTIONS
+// --
+
+/**
+ * Mettre ici son code pour dessiner dans la fenetre
+ * 1er affichage + redessine si resize
+ */
+void draw_win(){
+	// - Vide la fenetre
+	clear_win();
+	if(debug_mode == 'c'){printf("\n[DRAW WIN]\n"); }
+	// -- Initialisation
+	int i;
+
+	// -- Lines color
+	color(0,0,0);
+
+	// -- Taille de la cellule
+	cell_size = round(height_win() / BOARD->size);
+
+	// -- Dessin des lignes horizontales
+	for(i=cell_size; i<=cell_size*BOARD->size; i+=cell_size) // On prend la taille d'une cellule - la taille du board - 1 car sinon on a une case de trop
+		line(i,cell_size,i, width_win());
+
+ 	// -- Dessin des lignes verticales
+	for(i=cell_size; i<=cell_size*BOARD->size; i+=cell_size)// On prend la taille d'une cellule - la taille du board - 1 car sinon on a une case de trop
+		line(cell_size,i,height_win(),i);
+
+	// On dessine les hoshis
+	draw_hoshi(BOARD->size,cell_size);
+
+	// -- On défini le tour du joueur
+	draw_player_turn(cell_size,turn);
+
+}
+
+/*
+ * Redessine la fenêtre
+ */
+void redraw_win(){
+	draw_win();
+	Stone* stone = NULL;
+	int actualTurn = turn;
+	//printf("\nRedraw win : %lu\n",(BOARD->size*BOARD->size*sizeof(Stone)));
+    for(int i = 0; i < BOARD->size; i++){
+      for(int j = 0; j < BOARD->size; j++){
+		if(get_stone(i,j)!=NULL){
+			stone = get_stone(i,j);
+			printf("\n[Redraw win]board[%i][%i][%d] = %c\n", i, j, stone->visible, (get_stone(i,j)!=NULL)?(get_stone(i,j)->color):(' '));
+			if(stone->visible == 1){
+				if(stone->color == 'B'){
+					turn = 0;
+				}else{
+					turn = 1;
+				}
+				//printf("Turn : %d",turn);
+				drop_stone( (i+1) *cell_size, (j+1) *cell_size);
+			}
+		 }
+      }
+    }
+	actualTurn = turn;
+
+}
+
+
+// --
+// -- BOARD FUNCTIONS
+// --
+
 
 /*
  * Permet d'afficher ce qui est présent sur le plateau
@@ -599,78 +534,9 @@ void set_stone(Stone* stone){
 		BOARD->intersections[stone->x*BOARD->size+stone->y] = stone;
 }
 
-/*
- * Permet de récupérer la pierre a x et y du territoire
- * Retourne NULL s'il n'y pas de pierre, la pierre si elle est bonne et une pierre avec color = "O" si elle est hors case
- */
-Stone* get_stone_territory(int x, int y){
-	Stone* stone = NULL;
-	if(x >= 0 && x < BOARD->size && y >= 0 && y < BOARD->size)
-		stone = TERRITORY->stones[x*BOARD->size+y];
-	return stone;
-}
-
-/*
- * Permet de mettre une pierre à la position x et y dans le territoire
- */
-void set_stone_territory(Stone* stone){
-	if(stone->x >= 0 && stone->x < BOARD->size && stone->y >= 0 && stone->y < BOARD->size) {
-		TERRITORY->stones[stone->x*BOARD->size+stone->y] = stone;
-		TERRITORY->stones_in_territory[TERRITORY->size] = stone;
-		TERRITORY->size++;
-	}
-}
-
-/*
- * Permet au joueur blanc de jouer une pierre
- * Retourne 1 si le jeu a pu jouer, 0 sinon
- */
-int play_white_stone(int x, int y){
-	return play_stone(x, y, 'W');
-}
-
-/*
- * Permet au joueur noir de placer une pierre
- * Retourne 1 si le jeu a pu jouer, 0 sinon
- */
-int play_black_stone(int x, int y){
-	return play_stone(x, y, 'B');
-}
-
-/*
- * Permet au joueur dont la couleur est passé en parametre de jouer un caillou
- * Retourne 1 si le jeu a pu jouer, 0 sinon
- */
-int play_stone(int x, int y, char color){
-	int played = 0;
-	int save_turn = turn;
-  	Stone* stone = malloc(sizeof(Stone));
-	stone->color = color;
-	stone->x = x;
-	stone->y = y;
- 	stone->visible = true;
-
-	// -- Ajout dans les chaines
-	add_in_chain(stone);
-	if(debug_mode == 'c'){printf("Avant modify freedom \n");}
-	modify_freedoms(stone); // -- Modify freedom redessine le plateau en fonction des turns, il est possible qu'il revienne avec un turn pas exact
-	if(debug_mode == 'c'){printf("Apres modify freedom \n");}
-	turn = save_turn;
-	// -- Affichage des chaines
-	//print_chains();
-
-	// -- Check si la pierre peut former un territoire
-	if(debug_mode == 'c'){printf("Avant do territory \n");}
-	do_territory(stone);
-	if(debug_mode == 'c'){printf("Apres do territory \n");}
-	if((played = check_play(x,y)) == 1){ // on vérifie si le joueur peut jouer
-	  	set_stone(stone); // Sinon hors du tableau
-			// -- Check si la pierre posé peut former un territoire
-			do_territory(stone);
-	}
-
-	return played;
-}
+// --
+// -- CHAINS FUNCTIONS
+// --
 
 /*
  * Affiche le tableau de chaines
@@ -693,9 +559,9 @@ void print_chains(){
 	printf("\n--------------------------------[PRINT CHAINS END]--------------------------------\n");
 }
 
+
 /*
  * Ajoute une pierre dans le tableau de chaines
- *
  */
 int add_in_chain(Stone* stone){
 	int checkx = 0;
@@ -786,8 +652,28 @@ int add_in_chain(Stone* stone){
 }
 
 /*
+ * Cherche si la pierre est dans une chaine
+ */
+Chain* find_chain(Stone* stone){
+	// -- On boucle sur la liste des chaines
+	Chain* returnedChain = NULL;
+	for(int chainsCounter = 0; chainsCounter < CHAINS->number_of_chain; chainsCounter++){
+			// -- On récupère la chaine
+			Chain* chain = CHAINS->chains[chainsCounter];
+			 // -- On boucle sur les pierres de la chaine
+			 for(int chainCounter = 0; chainCounter < chain->chain_size; chainCounter++){
+				Stone* stoneChecked = chain->stones[chainCounter];
+				if(stoneChecked->x == stone->x && stoneChecked->y == stone->y){
+					returnedChain = chain;
+				}
+			 }
+	}
+	return returnedChain;
+
+}
+
+/*
  * Modifie les libertés des chaines autour
- *
  */
 void modify_freedoms(Stone* stone){
 	//printf("\n--------------------------------[MODIFY FREEDOM]--------------------------------\n");
@@ -874,30 +760,7 @@ void modify_freedoms(Stone* stone){
 }
 
 /*
- * Cherche si la pierre est dans une chaine
- *
- */
-Chain* find_chain(Stone* stone){
-	// -- On boucle sur la liste des chaines
-	Chain* returnedChain = NULL;
-	for(int chainsCounter = 0; chainsCounter < CHAINS->number_of_chain; chainsCounter++){
-			// -- On récupère la chaine
-			Chain* chain = CHAINS->chains[chainsCounter];
-			 // -- On boucle sur les pierres de la chaine
-			 for(int chainCounter = 0; chainCounter < chain->chain_size; chainCounter++){
-				Stone* stoneChecked = chain->stones[chainCounter];
-				if(stoneChecked->x == stone->x && stoneChecked->y == stone->y){
-					returnedChain = chain;
-				}
-			 }
-	}
-	return returnedChain;
-
-}
-
-/*
  * Gère la capture des chaines
- *
  */
 void chain_captured(Chain* chain){
 	printf("============================[ CHAIN CAPUTRES ]========================================");
@@ -918,40 +781,8 @@ void chain_captured(Chain* chain){
 	redraw_win();
 }
 
-
-/*
- * Redessine la fenêtre
- *
- */
-void redraw_win(){
-	draw_win();
-	Stone* stone = NULL;
-	int actualTurn = turn;
-	//printf("\nRedraw win : %lu\n",(BOARD->size*BOARD->size*sizeof(Stone)));
-    for(int i = 0; i < BOARD->size; i++){
-      for(int j = 0; j < BOARD->size; j++){
-		if(get_stone(i,j)!=NULL){
-			stone = get_stone(i,j);
-			printf("\n[Redraw win]board[%i][%i][%d] = %c\n", i, j, stone->visible, (get_stone(i,j)!=NULL)?(get_stone(i,j)->color):(' '));
-			if(stone->visible == 1){
-				if(stone->color == 'B'){
-					turn = 0;
-				}else{
-					turn = 1;
-				}
-				//printf("Turn : %d",turn);
-				drop_stone( (i+1) *cell_size, (j+1) *cell_size);
-			}
-		 }
-      }
-    }
-	actualTurn = turn;
-
-}
-
 /*
  * Verifie si la chaine de la stone1 est dans la même chaine que la chaine de la stone2
- *
  */
 bool is_in_same_chain(Stone* stone1, Stone* stone2){
 	bool is_in_his_chain = false;
@@ -964,17 +795,6 @@ bool is_in_same_chain(Stone* stone1, Stone* stone2){
 		}
 	}
 	return is_in_his_chain;
-}
-
-/*
- * Permet de savoir si le joueur peut jouer
- * Retourne 1 si la pierre peut etre placée sur cette case
- */
-int check_play(int x, int y){
-	int can_play = 0;
-	if(get_stone(x,y) == NULL) // s'il n'y a pas de pierre sur la case
-		can_play = 1;
-	return can_play;
 }
 
 /*
@@ -992,6 +812,33 @@ int check_chain_liberties(int size, Stone** stones){
 			result = 0;
 	}
 	return result;
+}
+
+// --
+// -- TERRITORY FUNCTIONS
+// --
+
+/*
+ * Permet de récupérer la pierre a x et y du territoire
+ * Retourne NULL s'il n'y pas de pierre, la pierre si elle est bonne et une pierre avec color = "O" si elle est hors case
+ */
+Stone* get_stone_territory(int x, int y){
+	Stone* stone = NULL;
+	if(x >= 0 && x < BOARD->size && y >= 0 && y < BOARD->size)
+		stone = TERRITORY->stones[x*BOARD->size+y];
+	return stone;
+}
+
+
+/*
+ * Permet de mettre une pierre à la position x et y dans le territoire
+ */
+void set_stone_territory(Stone* stone){
+	if(stone->x >= 0 && stone->x < BOARD->size && stone->y >= 0 && stone->y < BOARD->size) {
+		TERRITORY->stones[stone->x*BOARD->size+stone->y] = stone;
+		TERRITORY->stones_in_territory[TERRITORY->size] = stone;
+		TERRITORY->size++;
+	}
 }
 
 /*
@@ -1091,8 +938,8 @@ void create_territory(){
 }
 
 /*
-* Permet d'ajuste les x et y du territoire
-*/
+ * Permet d'ajuste les x et y du territoire
+ */
 void adjust_territory(Stone* stone){
 	if(TERRITORY->min_x > stone->x)
 		TERRITORY->min_x = stone->x;
@@ -1103,9 +950,10 @@ void adjust_territory(Stone* stone){
 	if(TERRITORY->max_y < stone->y)
 		TERRITORY->max_y = stone->y;
 }
+
 /*
-* Permet de remplir le board avec des pierres invisibles, qui représentent le territoire
-*/
+ * Permet de remplir le board avec des pierres invisibles, qui représentent le territoire
+ */
 void fill_board(int color){
 	Column* column = malloc(sizeof(Column));
 	int i,j ;
@@ -1150,8 +998,8 @@ void fill_board_column(Column* column){
 }
 
 /*
-* Permet de remettre à 0 toutes la variables de la ligne passé en paramètre
-*/
+ * Permet de remettre à 0 toutes la variables de la ligne passé en paramètre
+ */
 void init_line(Line* line){
 	if(line != NULL){
 		line->min_x = 18;

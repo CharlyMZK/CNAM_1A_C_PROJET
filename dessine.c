@@ -140,3 +140,141 @@ void string(int x, int y, char* chaine)
 {
 	XDrawString(display,win,gc,x,y, chaine, strlen(chaine));
 }
+
+/**
+ * Affiche le tour du joueur
+ */
+void draw_player_turn(int cell_size, int turn){
+	// -- Refresh du rectange
+	color(255,178,102);
+	filled_rectangle(width_win()+cell_size+5,0,300,30);
+	// -- Marquage du joueur
+	color(0,0,0);
+	if(turn == 0){
+		string(width_win()+cell_size+20,20,"Tour du joueur 1");
+	}else{
+		string(width_win()+cell_size+20,20,"Tour du joueur 2");
+	}
+}
+
+/**
+ * Mettre ici son code pour dessiner dans la fenetre
+ * 1er affichage + redessine si resize
+ */
+void draw_win_menu(){
+	// - Vide la fenetre
+	clear_win();
+	// -- Bouton joueur contre joueur
+	color(255,178,102);
+	filled_rectangle(50,50,200,30);
+	color(0,0,0);
+	rectangle(50,50,200,30);
+	string(70,70,"Joueur vs joueur");
+	// -- Bouton joueur contre bot
+	color(255,178,102);
+	filled_rectangle(50,100,200,30);
+	color(0,0,0);
+	rectangle(50,100,200,30);
+	string(70,120,"Joueur vs bot");
+	// -- Charger une partie
+	color(255,178,102);
+	filled_rectangle(50,150,200,30);
+	color(0,0,0);
+	rectangle(50,150,200,30);
+	string(70,170,"Charger une partie");
+
+}
+
+/**
+ * Mettre ici son code pour dessiner dans la fenetre
+ * 1er affichage + redessine si resize
+ */
+void draw_win_board_size(){
+	// - Vide la fenetre
+	clear_win();
+	// -- 19x19
+	color(255,178,102);
+	filled_rectangle(50,50,200,30);
+	color(0,0,0);
+	rectangle(50,50,200,30);
+	string(70,70,"19x19");
+	// -- 13x13
+	color(255,178,102);
+	filled_rectangle(50,100,200,30);
+	color(0,0,0);
+	rectangle(50,100,200,30);
+	string(70,120,"13x13");
+	// -- 9x9
+	color(255,178,102);
+	filled_rectangle(50,150,200,30);
+	color(0,0,0);
+	rectangle(50,150,200,30);
+	string(70,170,"9x9");
+
+}
+
+/**
+ * Mettre ici son code pour dessiner dans la fenetre
+ * 1er affichage + redessine si resize
+ */
+void draw_menu_handicap(){
+	// - Vide la fenetre
+	clear_win();
+	// -- Bouton joueur contre joueur
+	color(255,178,102);
+	filled_rectangle(50,50,200,30);
+	color(0,0,0);
+	rectangle(50,50,200,30);
+	string(70,70,"6 tours de handicap");
+	// -- Bouton joueur contre bot
+	color(255,178,102);
+	filled_rectangle(50,100,200,30);
+	color(0,0,0);
+	rectangle(50,100,200,30);
+	string(70,120,"3 tours de handicap");
+	// -- Charger une partie
+	color(255,178,102);
+	filled_rectangle(50,150,200,30);
+	color(0,0,0);
+	rectangle(50,150,200,30);
+	string(70,170,"0 tours de handicap");
+}
+
+ /*
+  * Permet de dessiner les hoshis sur le plateau
+  */
+ void draw_hoshi(int board_size,int cell_size) {
+ 	int i,j;
+	color(0,0,0);
+	switch(board_size){
+		case 9: 
+			for(i=2; i <= 6; i+=4){
+				for(j=2; j <= 6; j+=4){
+					int x = cell_size + (j * cell_size);
+					int y = cell_size + (i * cell_size);
+					filled_circle(x,y,cell_size/6);
+				}
+			}
+			break;
+		case 13:
+			for(i=3; i <= 9; i+=3){
+				for(j=3; j <= 9; j+=3){
+					int x = cell_size + (j * cell_size);
+					int y = cell_size + (i * cell_size);
+					filled_circle(x,y,cell_size/6);
+				}
+			}
+		break;
+		case 19:
+			for(i=3; i <= 15; i+=6){
+				for(j=3; j <= 15; j+=6){
+					int x = cell_size + (j * cell_size);
+					int y = cell_size + (i * cell_size);
+					filled_circle(x,y,cell_size/6);
+				}
+			}
+			break;
+	}
+ }
+
+ 
