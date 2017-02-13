@@ -52,7 +52,6 @@ void player_play(int x, int y){
 		if(turn == 0){
 			if(debug_mode == 'c'){printf("[Player play] La pierre jouée est noire");}
 			if(play_stone(placement_x,placement_y,'B')){
-				printf("Oui bonsoir");
 				turn = 1;
 				drop_stone(x,y,'B');
 			}
@@ -88,10 +87,12 @@ void bot_play(){
 	if(get_stone(x,y)==NULL){
 		if(turn == 0){
 			if(play_stone(x,y,'B')){
+				turn = 1;
 				drop_stone(x,y,'B');
 			}
 		}else{
 			if(play_stone(x,y,'W')){
+				turn = 0;
 				drop_stone(x,y,'W');
 			}
 		}
@@ -252,7 +253,7 @@ void mouse_clicked(int bouton, int x, int y){
 
 		if(bot_activated && handicap_number > 0){
 			for(int i = 0; i < handicap_number+1; i++){
-				turn = 1;
+				turn = 0;
 				bot_play();
 			}
 		}
