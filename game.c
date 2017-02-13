@@ -12,15 +12,15 @@ Chains* CHAINS;					// -- Structure contenant les chaines crées
 Territory* TERRITORY;			// -- Structure contenant les territoires
 
 // -- Params init
-int cell_size; 					// -- Taille de la cellule
-int turn = 0;					// -- Tour du joueur ( 0 ou 1 )
-int pass_counter = 0;			// -- Compteur de tour passé ( si 2 la partie est finie)
 bool bot_activated = false; 	// -- Activation du bot ou non
 bool game_launched = false;		// -- Jeu lancé ou non ( Si non on affichera les menus )
 bool size_picked = false;		// -- Size du board choisie ou non
 bool handicap_picked = false;	// -- Handicap choisis ou non
-int handicap_number = 0;		// -- Nombre de handicap qui a été choisis
 bool mode_picked = false;		// -- Mode de jeu choisis ou non ( J vs Bot ou J V J ou Partie chargée)
+int cell_size; 					// -- Taille de la cellule
+int turn = 0;					// -- Tour du joueur ( 0 ou 1 )
+int pass_counter = 0;			// -- Compteur de tour passé ( si 2 la partie est finie)
+int handicap_number = 0;		// -- Nombre de handicap qui a été choisis
 char debug_mode = 'c';			// -- Debug mode ( Prints de charly = 'c' Prints de quentin = 'q' )
 
 
@@ -52,14 +52,15 @@ void player_play(int x, int y){
 		if(get_stone(placement_x,placement_y) == NULL){
 			if(turn == 0){
 				if(debug_mode == 'c'){printf("[Player play] La pierre jouée est noire");}
-
 				if(play_stone(placement_x,placement_y,'B')){
-					drop_stone(x,y);
+					turn = 1;
+					drop_stone(x,y,'B');
 				}
 			}else{
 				if(debug_mode == 'c'){printf("[Player play] La pierre jouée est blanche");}
 				if(play_stone(placement_x,placement_y,'W')){
-					drop_stone(x,y);
+					turn = 0;
+					drop_stone(x,y,'W');
 				}
 			}
 		}
@@ -88,11 +89,11 @@ void bot_play(){
 	if(get_stone(x,y)==NULL){
 		if(turn == 0){
 			if(play_stone(x,y,'B')){
-				drop_stone(x,y);
+				drop_stone(x,y,'B');
 			}
 		}else{
 			if(play_stone(x,y,'W')){
-				drop_stone(x,y);
+				drop_stone(x,y,'W');
 			}
 		}
 		redraw_win();
@@ -105,16 +106,13 @@ void bot_play(){
 }
 
 /**
- * Pose le point de la pierre sur le board
+ * Pose la pierre sur le board de façon graphique
  */
- void drop_stone(int x, int y){
-	// -- Couleur du point en fonction du tour du joueur
-	if(turn == 0){
-		turn = 1;
+ void drop_stone(int x, int y, char stone_color){
+	if(stone_color == 'B'){
 		color(0,0,0);
 		if(debug_mode == 'c'){printf("\n[Drop stone] pose d'une pierre noire, le tour est à 0->1\n");}
 	}else{
-		turn = 0;
 		color(1.0,1.0,1.0);
 		if(debug_mode == 'c'){printf("\n[Drop stone] pose d'une pierre blanche, le tour est à 1->0\n");}
 	}
@@ -128,34 +126,22 @@ void bot_play(){
  */
 int play_stone(int x, int y, char color){
 	int played = 0;
-	int save_turn = turn;
-  	Stone* stone = malloc(sizeof(Stone));
+  Stone* stone = malloc(sizeof(Stone));
 	stone->color = color;
 	stone->x = x;
 	stone->y = y;
  	stone->visible = true;
-
-	// -- Ajout dans les chaines
-	add_in_chain(stone);
-
-	turn = save_turn;
-	// -- Affichage des chaines
-	//print_chains();
-
-
-
 	if((played = check_play(x,y)) == 1){ // on vérifie si le joueur peut jouer
-	  	set_stone(stone); // Sinon hors du tableau
-
+  	set_stone(stone); // Sinon hors du tableau
+		// -- Ajout dans les chaines
+		add_in_chain(stone);
 		if(debug_mode == 'c'){printf("Avant modify freedom \n");}
 		modify_freedoms(stone); // -- Modify freedom redessine le plateau en fonction des turns, il est possible qu'il revienne avec un turn pas exact
 		if(debug_mode == 'c'){printf("Apres modify freedom \n");}
 
-			
 		// -- Check si la pierre posé peut former un territoire
 		do_territory(stone);
 	}
-
 	return played;
 }
 
@@ -459,26 +445,21 @@ void draw_win(){
 void redraw_win(){
 	draw_win();
 	Stone* stone = NULL;
-	int actualTurn = turn;
-	//printf("\nRedraw win : %lu\n",(BOARD->size*BOARD->size*sizeof(Stone)));
-    for(int i = 0; i < BOARD->size; i++){
-      for(int j = 0; j < BOARD->size; j++){
-		if(get_stone(i,j)!=NULL){
-			stone = get_stone(i,j);
-			printf("\n[Redraw win]board[%i][%i][%d] = %c\n", i, j, stone->visible, (get_stone(i,j)!=NULL)?(get_stone(i,j)->color):(' '));
-			if(stone->visible == 1){
-				if(stone->color == 'B'){
-					turn = 0;
-				}else{
-					turn = 1;
+  for(int i = 0; i < BOARD->size; i++){
+    for(int j = 0; j < BOARD->size; j++){
+			if(get_stone(i,j)!=NULL){
+				stone = get_stone(i,j);
+				printf("\n[Redraw win]board[%i][%i][%d] = %c\n", i, j, stone->visible, (get_stone(i,j)!=NULL)?(get_stone(i,j)->color):(' '));
+				if(stone->visible == 1){
+					if(stone->color == 'B'){
+						drop_stone( (i+1) *cell_size, (j+1) *cell_size, 'B');
+					}else{
+						drop_stone( (i+1) *cell_size, (j+1) *cell_size, 'W');
+					}
 				}
-				//printf("Turn : %d",turn);
-				drop_stone( (i+1) *cell_size, (j+1) *cell_size);
 			}
-		 }
-      }
     }
-	actualTurn = turn;
+  }
 
 }
 
@@ -522,7 +503,7 @@ void print_stone(Stone* stone){
  */
 void init_board(int size){
 	// -- Initialisation du board
-  	BOARD = malloc(sizeof(Board));
+	BOARD = malloc(sizeof(Board));
 	BOARD->size = size;
 	BOARD->intersections = malloc(size*size*sizeof(Stone));
 	BOARD->handicap = 0;
@@ -1076,10 +1057,11 @@ void fill_board(Lines* lines, Columns* columns){
 			for(k = 0; k < columns->size; k++){
 				if(columns->columns[k]->x == j){
 					if(lines->lines[i]->y >= columns->columns[k]->min_y && lines->lines[i]->y <= columns->columns[k]->max_y){ // Si la line et la colonne sont dans le territoire
-						if(get_stone(j, lines->lines[i]->y) == NULL || get_stone(j, lines->lines[i]->y)->visible == false){
+						if(get_stone(j, lines->lines[i]->y) == NULL || get_stone(j, lines->lines[i]->y)->visible == false || get_stone(j, lines->lines[i]->y)->color != lines->color ){ // S'il n'y a pas de pierre, ou que la pierre est invisible ou blanche
 							stone_to_place->x = j;
 							stone_to_place->y = lines->lines[i]->y;
 							set_stone(stone_to_place);
+							redraw_win(); // On mets à jour le plateau graphique
 						}
 					}
 				}

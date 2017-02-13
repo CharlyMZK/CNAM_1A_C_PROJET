@@ -82,9 +82,9 @@ void player_play(int x, int y);
 void bot_play();
 
 /**
- * Pose le point de la pierre sur le board
+ * Pose la pierre sur le board de façon graphique
  */
-void drop_stone(int x, int y);
+void drop_stone(int x, int y, char color);
 
 /*
  * Permet au joueur dont la couleur est passé en parametre de jouer un caillou
