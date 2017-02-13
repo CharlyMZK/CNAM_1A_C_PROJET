@@ -81,7 +81,7 @@ void event_loop()
 	KeySym touche;
 	int nb;   
 	XEvent ev;
-	draw_win_board_size();
+	draw_win_menu();
 	//draw_win_menu();
 	while(1)
 	{
@@ -89,7 +89,7 @@ void event_loop()
 		switch (ev.type)
 		{
 		case Expose :
-			draw_win_board_size();
+			draw_win_menu();
 			break;
 		case ButtonPress:
 			mouse_clicked(ev.xbutton.button,ev.xbutton.x,ev.xbutton.y);

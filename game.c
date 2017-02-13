@@ -213,8 +213,7 @@ void key_pressed(KeySym code, char c, int x_souris, int y_souris){
 void mouse_clicked(int bouton, int x, int y){
 	printf("\nSELECTED\n"); 
 
-	 
-
+	
 	if(debug_mode == 'c'){printf("[MOUSE CLICKED - %d]",turn);}
 	// -- Si tout a été pick, on joue
 	if(size_picked && mode_picked && handicap_picked && game_launched){
@@ -270,37 +269,8 @@ void mouse_clicked(int bouton, int x, int y){
 		BOARD->handicap = handicap_number+1;
 	}
 
-	// -- Mode de jeu
-	if(size_picked && !mode_picked){
-
-		if(debug_mode == 'c'){printf("[ENTER CLICK MODE DE JEU]");}
-
-		// -- Clic boutton jcj
-		if( (x > 50 && x < 250) && (y>50 && y<80) ){
-			bot_activated = false;
-			game_launched = true;
-			draw_menu_handicap();
-		}
-
-		// -- Clic boutton bot
-		if( (x > 50 && x < 250) && (y>100 && y<130) ){
-			bot_activated = true;
-			game_launched = true;
-			draw_menu_handicap();
-		}
-
-		// -- Clic boutton charger
-		if( (x > 50 && x < 250) && (y>150 && y<180) ){
-			if(debug_mode == 'c'){printf("Boutton charger"); } 
-			draw_win();
-			import_file("score.sgf");  
-		}
-		mode_picked = true;
-	}
-
-
 	// -- Size du board
-	if(!size_picked){
+	if(mode_picked && !size_picked){
 		if(debug_mode == 'c'){ printf("[ENTER CLICK SIZE BOARD]"); }
 		if( (x > 50 && x < 250) && (y>50 && y<80) ){
 			init_board(19);
@@ -316,8 +286,39 @@ void mouse_clicked(int bouton, int x, int y){
 			init_board(9);
 			size_picked = true;
 		}
-		if(size_picked){draw_win_menu();}
+		if(size_picked){draw_menu_handicap();}
 	}
+	
+	// -- Mode de jeu
+	if(!mode_picked){
+
+		if(debug_mode == 'c'){printf("[ENTER CLICK MODE DE JEU]");}
+
+		// -- Clic boutton jcj
+		if( (x > 50 && x < 250) && (y>50 && y<80) ){
+			bot_activated = false;
+			game_launched = true;
+			draw_win_board_size();
+		}
+
+		// -- Clic boutton bot
+		if( (x > 50 && x < 250) && (y>100 && y<130) ){
+			bot_activated = true;
+			game_launched = true;
+			draw_win_board_size();
+		}
+
+		// -- Clic boutton charger
+		if( (x > 50 && x < 250) && (y>150 && y<180) ){
+			if(debug_mode == 'c'){printf("Boutton charger"); } 
+			draw_win();
+			import_file("score.sgf");  
+		}
+		mode_picked = true;
+	}
+
+
+
 
 }
 
@@ -1262,8 +1263,10 @@ void import_game(){
 
 	  int cptB = 0;
 	  int cptW = 0;
+	  int cptSz = 0;
 
-	  
+	  char* total = malloc(10*sizeof(char)); 
+	  int size = 0;
 	  Stone* stone;
 
         while (fgets(file_string, 1000, FILE_GAME) != NULL) // On lit le fichier tant qu'on ne reçoit pas d'erreur (NULL)
@@ -1271,22 +1274,33 @@ void import_game(){
         	printf("\n%s\n", file_string); // On affiche la chaîne qu'on vient de lire
 			//print(chaine);
 			var_string = file_string;
-
+ 
+			while(var_string[cptSz] != '\0'){
+				if(var_string[cptSz] == 'S' && 	var_string[cptSz+1] == 'Z'){
+					printf("size : %c %c",var_string[cptSz+3],var_string[cptSz+4]); 
+					total[0] = var_string[cptSz+3];
+					total[1] = var_string[cptSz+4];
+				} 
+				cptSz++; 
+			}
+			size = atoi(total); 
+			printf("SIZE : %d",size); 
+			init_board(size);
 			if(var_string[1] == 'A'){
 				printf("\n\nSTOP\n\n"); 
 				if(var_string[2] == 'W'){
 					printf("\n\nWHITE\n\n");
-
+ 
 					cptW = 3;
 					while(var_string[cptW] != '\0'){
-						printf("| %c",var_string[cptW]);
+						printf("{%c}",var_string[cptW]); 
 						if(var_string[cptW] == '['){
-
+							printf("Entrée");
 							stone = malloc(sizeof(Stone));
 							stone->x = var_string[cptW+1] - 'a';
 							stone->y = var_string[cptW+2] - 'a';
 							stone->color = 'W';
-							stone->visible = 1;
+							stone->visible = 1; 
 							printf("\nSTONE WHITE : %d, %d\n",stone->x,stone->y);    	
 							set_stone(stone);
 						}   
@@ -1319,7 +1333,7 @@ void import_game(){
 				}
 			}
         }  
-
+		print_board();
 		redraw_win();
 }
  
