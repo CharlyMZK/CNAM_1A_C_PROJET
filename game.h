@@ -144,11 +144,6 @@ void redraw_win();
 void print_board();
 
 /*
- * Permet d'afficher ce qui est présent dans le territoire
- */
-void print_territory();
-
-/*
  * Permet d'afficher les informations d'une pierre
  */
 void print_stone(Stone* stone);
