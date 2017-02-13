@@ -88,15 +88,9 @@ void drop_stone(int x, int y, char color);
 
 /*
  * Permet au joueur dont la couleur est passé en parametre de jouer un caillou
- * Retourne 1 si le jeu a pu jouer, 0 sinon
+ * Retourne true si le joueur a pu jouer, false sinon
  */
-int play_stone(int x, int y, char color);
-
-/*
- * Permet de savoir si le joueur peut jouer
- * Retourne 1 si la pierre peut etre placée sur cette case
- */
-int check_play(int x, int y);
+bool play_stone(int x, int y, char color);
 
 /**
  * Test si le point est posé au milieu d'un carré et le remet correctement a l'intersection
@@ -206,10 +200,10 @@ void chain_captured(Chain* chain);
 bool is_in_same_chain(Stone* stone1, Stone* stone2);
 
 /*
- * Permet de savoir s'il reste des libertés a la chaine
- * Retourne 1 si oui, non sinon
+ * Permet de savoir si une pierre a des libertées
+ * Retourne true ou false
  */
-int check_chain_liberties(int size, Stone** stones);
+bool check_stone_liberties(Stone* stone);
 
 /*
  * Permet de récupérer la pierre a x et y du territoire

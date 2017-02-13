@@ -49,19 +49,18 @@ void player_play(int x, int y){
 
 		if(debug_mode == 'c'){printf("\n===============================PIERRE POSEE  [%d, %d]===============================\n",x,y);}
 		if(debug_mode == 'c'){printf("\n TOUR : %d \n",turn);}
-		if(get_stone(placement_x,placement_y) == NULL){
-			if(turn == 0){
-				if(debug_mode == 'c'){printf("[Player play] La pierre jouée est noire");}
-				if(play_stone(placement_x,placement_y,'B')){
-					turn = 1;
-					drop_stone(x,y,'B');
-				}
-			}else{
-				if(debug_mode == 'c'){printf("[Player play] La pierre jouée est blanche");}
-				if(play_stone(placement_x,placement_y,'W')){
-					turn = 0;
-					drop_stone(x,y,'W');
-				}
+		if(turn == 0){
+			if(debug_mode == 'c'){printf("[Player play] La pierre jouée est noire");}
+			if(play_stone(placement_x,placement_y,'B')){
+				printf("Oui bonsoir");
+				turn = 1;
+				drop_stone(x,y,'B');
+			}
+		}else{
+			if(debug_mode == 'c'){printf("[Player play] La pierre jouée est blanche");}
+			if(play_stone(placement_x,placement_y,'W')){
+				turn = 0;
+				drop_stone(x,y,'W');
 			}
 		}
 		draw_player_turn(cell_size,turn);
@@ -122,17 +121,18 @@ void bot_play(){
 
 /*
  * Permet au joueur dont la couleur est passé en parametre de jouer un caillou
- * Retourne 1 si le jeu a pu jouer, 0 sinon
+ * Retourne true si le joueur a pu jouer, false sinon
  */
-int play_stone(int x, int y, char color){
-	int played = 0;
+bool play_stone(int x, int y, char color){
+	bool play = false;
   Stone* stone = malloc(sizeof(Stone));
 	stone->color = color;
 	stone->x = x;
 	stone->y = y;
  	stone->visible = true;
-	if((played = check_play(x,y)) == 1){ // on vérifie si le joueur peut jouer
-  	set_stone(stone); // Sinon hors du tableau
+	if(get_stone(x,y) == NULL || !get_stone(x,y)->visible && check_stone_liberties(stone)){ // on vérifie si le joueur peut jouer
+		play = true;
+  	set_stone(stone);
 		// -- Ajout dans les chaines
 		add_in_chain(stone);
 		if(debug_mode == 'c'){printf("Avant modify freedom \n");}
@@ -142,18 +142,7 @@ int play_stone(int x, int y, char color){
 		// -- Check si la pierre posé peut former un territoire
 		do_territory(stone);
 	}
-	return played;
-}
-
-/*
- * Permet de savoir si le joueur peut jouer
- * Retourne 1 si la pierre peut etre placée sur cette case
- */
-int check_play(int x, int y){
-	int can_play = 0;
-	if(get_stone(x,y) == NULL) // s'il n'y a pas de pierre sur la case
-		can_play = 1;
-	return can_play;
+	return play;
 }
 
 /**
@@ -825,18 +814,17 @@ bool is_in_same_chain(Stone* stone1, Stone* stone2){
 }
 
 /*
- * Permet de savoir s'il reste des libertés a la chaine
- * Retourne 1 si oui, non sinon
+ * Permet de savoir si une pierre a des libertées
+ * Retourne true ou false
  */
-int check_chain_liberties(int size, Stone** stones){
-	int result = 1;
-	for(int stone = 0; stone < size; stone++){
-		if(get_stone(stones[stone]->x+1, stones[stone]->y) != NULL
-			&& get_stone(stones[stone]->x-1, stones[stone]->y) != NULL
-			&& get_stone(stones[stone]->x, stones[stone]->y+1) != NULL
-			&& get_stone(stones[stone]->x, stones[stone]->y-1) != NULL )
-			// Regarde si la pierre est entouré par une pierre ou qu'elle est sur la limite
-			result = 0;
+bool check_stone_liberties(Stone* stone){
+	bool result = true;
+	if(get_stone(stone->x+1, stone->y) != NULL && get_stone(stone->x+1, stone->y)->color != stone->color
+		&& get_stone(stone->x-1, stone->y) != NULL && get_stone(stone->x-1, stone->y)->color != stone->color
+		&& get_stone(stone->x, stone->y+1) != NULL && get_stone(stone->x, stone->y+1)->color != stone->color
+		&& get_stone(stone->x, stone->y-1) != NULL && get_stone(stone->x, stone->y-1)->color != stone->color){
+		// Regarde si la pierre est entouré par une pierre ou qu'elle est sur la limite
+		result = false;
 	}
 	return result;
 }
@@ -1057,11 +1045,10 @@ void fill_board(Lines* lines, Columns* columns){
 			for(k = 0; k < columns->size; k++){
 				if(columns->columns[k]->x == j){
 					if(lines->lines[i]->y >= columns->columns[k]->min_y && lines->lines[i]->y <= columns->columns[k]->max_y){ // Si la line et la colonne sont dans le territoire
-						if(get_stone(j, lines->lines[i]->y) == NULL || get_stone(j, lines->lines[i]->y)->visible == false || get_stone(j, lines->lines[i]->y)->color != lines->color ){ // S'il n'y a pas de pierre, ou que la pierre est invisible ou blanche
+						if(get_stone(j, lines->lines[i]->y) == NULL /*|| get_stone(j, lines->lines[i]->y)->visible == false*/){ // S'il n'y a pas de pierre, ou que la pierre est invisible ou blanche
 							stone_to_place->x = j;
 							stone_to_place->y = lines->lines[i]->y;
 							set_stone(stone_to_place);
-							redraw_win(); // On mets à jour le plateau graphique
 						}
 					}
 				}
