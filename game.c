@@ -112,11 +112,11 @@ void bot_play(){
 	if(turn == 0){
 		turn = 1;
 		color(0,0,0);
-		//if(debug_mode == 'c'){printf("\n[Drop stone] pose d'une pierre noire, le tour est à 0->1\n");}
+		if(debug_mode == 'c'){printf("\n[Drop stone] pose d'une pierre noire, le tour est à 0->1\n");}
 	}else{
 		turn = 0;
 		color(1.0,1.0,1.0);
-		//if(debug_mode == 'c'){printf("\n[Drop stone] pose d'une pierre blanche, le tour est à 1->0\n");}
+		if(debug_mode == 'c'){printf("\n[Drop stone] pose d'une pierre blanche, le tour est à 1->0\n");}
 	}
 	// -- Pose le point
 	filled_circle(x,y,cell_size/3);
@@ -137,24 +137,24 @@ int play_stone(int x, int y, char color){
 
 	// -- Ajout dans les chaines
 	add_in_chain(stone);
-	if(debug_mode == 'c'){printf("Avant modify freedom \n");}
 
-	if(debug_mode == 'c'){printf("Apres modify freedom \n");}
 	turn = save_turn;
 	// -- Affichage des chaines
-	print_chains();
+	//print_chains();
 
 	// -- Check si la pierre peut former un territoire
-	//if(debug_mode == 'c'){printf("Avant do territory \n");}
+	if(debug_mode == 'c'){printf("Avant do territory \n");}
 	do_territory(stone);
-	//if(debug_mode == 'c'){printf("Apres do territory \n");}
+	if(debug_mode == 'c'){printf("Apres do territory \n");}
 	if((played = check_play(x,y)) == 1){ // on vérifie si le joueur peut jouer
 	  	set_stone(stone); // Sinon hors du tableau
 			// -- Check si la pierre posé peut former un territoire
 			do_territory(stone);
 	}
-
+	if(debug_mode == 'c'){printf("Avant modify freedom \n");}
 	modify_freedoms(stone); // -- Modify freedom redessine le plateau en fonction des turns, il est possible qu'il revienne avec un turn pas exact
+	if(debug_mode == 'c'){printf("Apres modify freedom \n");}
+
 	return played;
 }
 
@@ -464,7 +464,7 @@ void redraw_win(){
       for(int j = 0; j < BOARD->size; j++){
 		if(get_stone(i,j)!=NULL){
 			stone = get_stone(i,j);
-			//printf("\n[Redraw win]board[%i][%i][%d] = %c\n", i, j, stone->visible, (get_stone(i,j)!=NULL)?(get_stone(i,j)->color):(' '));
+			printf("\n[Redraw win]board[%i][%i][%d] = %c\n", i, j, stone->visible, (get_stone(i,j)!=NULL)?(get_stone(i,j)->color):(' '));
 			if(stone->visible == 1){
 				if(stone->color == 'B'){
 					turn = 0;
@@ -513,7 +513,7 @@ void print_territory(){
  * Permet d'afficher les informations d'une pierre
  */
 void print_stone(Stone* stone){
-	//printf("\nStone : x = %i, y = %i et color = %c\n", stone->x, stone->y, stone->color);
+	printf("\nStone : x = %i, y = %i et color = %c\n", stone->x, stone->y, stone->color);
 }
 
 /*
@@ -697,9 +697,9 @@ void modify_freedoms(Stone* stone){
 	bool check_is_in_same_chain = false;
 
 	// -- CHECK PIERRE A DROITE
-	//printf("\n -- Je cherche la pierre a droite\n");
+	printf("\n -- Je cherche la pierre a droite\n");
 	Stone* getStone = get_stone(stone->x+1,stone->y);
-	if(getStone != NULL){
+	if(getStone != NULL && getStone->visible == true){
 		Chain* getChain = find_chain(getStone);
 
 		//printf("\nils sont dans la meme chaine ? \n");
@@ -720,9 +720,9 @@ void modify_freedoms(Stone* stone){
 
 	// -- CHECK PIERRE A GAUCHE
 
-	//printf("\n -- Je cherche la pierre a gauche\n");
+	printf("\n -- Je cherche la pierre a gauche\n");
 	getStone = get_stone(stone->x-1,stone->y);
-	if(getStone != NULL){
+	if(getStone != NULL && getStone->visible == true){
 		//printf("la pierre n'est pas nulle");
 		Chain* getChain = find_chain(getStone);
 		//printf("\nLibertés de sa chaine : %d\n",getChain->number_of_freedoms);
@@ -738,9 +738,9 @@ void modify_freedoms(Stone* stone){
 	}
 
 	// -- CHECK PIERRE AU DESSUS
-	//printf("\n -- Je cherche la pierre au dessus\n");
+	printf("\n -- Je cherche la pierre au dessus\n");
 	getStone = get_stone(stone->x,stone->y-1);
-	if(getStone != NULL){
+	if(getStone != NULL && getStone->visible == true){
 		print_chains();
 		Chain* getChain = find_chain(getStone);
 		//printf("\nLibertés de sa chaine : %d\n",getChain->number_of_freedoms);
@@ -756,9 +756,9 @@ void modify_freedoms(Stone* stone){
 	}
 
 	// -- CHECK PIERRE EN DESSOUS
-	//printf("\n -- Je cherche la pierre en dessous\n");
+	printf("\n -- Je cherche la pierre en dessous\n");
 	getStone = get_stone(stone->x,stone->y+1);
-	if(getStone != NULL){
+	if(getStone != NULL && getStone->visible == true){
 		Chain* getChain = find_chain(getStone);
 		printf("\nLibertés de sa chaine : %d\n",getChain->number_of_freedoms);
 		printf("\n-1\n");
@@ -792,7 +792,6 @@ void chain_captured(Chain* chain){
 				stone_checked->color = 'W';
 				break;
 		}
-
 		// -- Redonne au pierres autour une libereté pour pas être capturé
 		printf("\nJe redonne des libereté, base : %d , %d",stone_checked->x,stone_checked->y);
 
@@ -822,10 +821,7 @@ void chain_captured(Chain* chain){
 			getChain = find_chain(getStone);
 			getChain->number_of_freedoms = getChain->number_of_freedoms + 1;
 		}
-
 	}
-
-
 
 	redraw_win();
 }
@@ -953,7 +949,7 @@ void do_stone_territory(Stone* stone){
 						break;
 					}
 				}
-				//printf("\nFound stone x : %i,y : %i, : %i",stone_checked->x, stone_checked->y, found_stone);
+				printf("\nFound stone x : %i,y : %i, : %i",stone_checked->x, stone_checked->y, found_stone);
 				if(!found_stone){ // Si les pierres aux environs ne sont pas dans le tableau
 					do_stone_territory(stone_checked);
 				}else{ // Si elle l'est deja
