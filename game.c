@@ -130,14 +130,14 @@ bool play_stone(int x, int y, char color){
 	stone->color = color;
 	stone->x = x;
 	stone->y = y;
- 	stone->visible = true; 
- 
-	 
+ 	stone->visible = true;
+
+
 	if(get_stone(x,y) == NULL || !get_stone(x,y)->visible && ( check_stone_liberties(stone) || check_around_captured(stone) )) { // on vérifie si le joueur peut jouer
 
 		play = true;
   		set_stone(stone);
-		// -- Ajout dans les chaines 
+		// -- Ajout dans les chaines
 		add_in_chain(stone);
 		//if(debug_mode == 'c'){printf("Avant modify freedom \n");}
 		modify_freedoms(stone); // -- Modify freedom redessine le plateau en fonction des turns, il est possible qu'il revienne avec un turn pas exact
@@ -792,7 +792,7 @@ void chain_captured(Chain* chain){
 }
 
 /*
- * Retourne si la pierre capture les pierres qui sont autour  
+ * Retourne si la pierre capture les pierres qui sont autour
  */
 bool check_around_captured(Stone* stone){
 	bool jouable = false;
@@ -803,13 +803,13 @@ bool check_around_captured(Stone* stone){
 			printf("\n -- Couleur differente \n");
 			if(find_chain(get_stone(stone->x+1, stone->y)) != NULL){
 				printf("\n -- chaine non nulle \n");
-				printf("\n-- libereté de cette chaine : %d\n",find_chain(get_stone(stone->x+1, stone->y))->number_of_freedoms);  
+				printf("\n-- libereté de cette chaine : %d\n",find_chain(get_stone(stone->x+1, stone->y))->number_of_freedoms);
 				if(find_chain(get_stone(stone->x+1, stone->y))->number_of_freedoms == 1){
 					jouable = true;
-				}  
+				}
 			}
-			
-		} 
+
+		}
 	}
 	if(get_stone(stone->x-1, stone->y) != NULL){
 		printf("\n -- gauche est pas nulle\n");
@@ -818,12 +818,12 @@ bool check_around_captured(Stone* stone){
 			printf("\n -- Couleur differente \n");
 			if(find_chain(get_stone(stone->x-1, stone->y)) != NULL){
 				printf("\n -- chaine non nulle \n");
-				printf("\n-- libereté de cette chaine : %d\n",find_chain(get_stone(stone->x-1, stone->y))->number_of_freedoms);  
+				printf("\n-- libereté de cette chaine : %d\n",find_chain(get_stone(stone->x-1, stone->y))->number_of_freedoms);
 				if(find_chain(get_stone(stone->x-1, stone->y))->number_of_freedoms == 1){
 					jouable = true;
-				}  
+				}
 			}
-			
+
 		}
 	}
 	if(get_stone(stone->x, stone->y+1) != NULL){
@@ -833,12 +833,12 @@ bool check_around_captured(Stone* stone){
 			printf("\n -- Couleur differente \n");
 			if(find_chain(get_stone(stone->x, stone->y+1)) != NULL){
 				printf("\n -- chaine non nulle \n");
-				printf("\n-- libereté de cette chaine : %d\n",find_chain(get_stone(stone->x, stone->y+1))->number_of_freedoms);  
+				printf("\n-- libereté de cette chaine : %d\n",find_chain(get_stone(stone->x, stone->y+1))->number_of_freedoms);
 				if(find_chain(get_stone(stone->x, stone->y+1))->number_of_freedoms == 1){
 					jouable = true;
-				}  
+				}
 			}
-			
+
 		}
 	}
 
@@ -849,12 +849,12 @@ bool check_around_captured(Stone* stone){
 			printf("\n -- Couleur differente \n");
 			if(find_chain(get_stone(stone->x, stone->y-1)) != NULL){
 				printf("\n -- chaine non nulle \n");
-				printf("\n-- libereté de cette chaine : %d\n",find_chain(get_stone(stone->x, stone->y-1))->number_of_freedoms);  
+				printf("\n-- libereté de cette chaine : %d\n",find_chain(get_stone(stone->x, stone->y-1))->number_of_freedoms);
 				if(find_chain(get_stone(stone->x, stone->y-1))->number_of_freedoms == 1){
-					jouable = true; 
-				}    
+					jouable = true;
+				}
 			}
-			
+
 		}
 	}
 	return jouable;
@@ -882,10 +882,10 @@ bool is_in_same_chain(Stone* stone1, Stone* stone2){
  */
 bool check_stone_liberties(Stone* stone){
 	bool result = true;
-	if(get_stone(stone->x+1, stone->y) != NULL && get_stone(stone->x+1, stone->y)->color != stone->color
-		&& get_stone(stone->x-1, stone->y) != NULL && get_stone(stone->x-1, stone->y)->color != stone->color
-		&& get_stone(stone->x, stone->y+1) != NULL && get_stone(stone->x, stone->y+1)->color != stone->color
-		&& get_stone(stone->x, stone->y-1) != NULL && get_stone(stone->x, stone->y-1)->color != stone->color){
+	if(get_stone(stone->x+1, stone->y) != NULL && get_stone(stone->x+1, stone->y)->visible && get_stone(stone->x+1, stone->y)->color != stone->color
+		&& get_stone(stone->x-1, stone->y) != NULL && get_stone(stone->x-1, stone->y)->visible && get_stone(stone->x-1, stone->y)->color != stone->color
+		&& get_stone(stone->x, stone->y+1) != NULL && get_stone(stone->x, stone->y+1)->visible && get_stone(stone->x, stone->y+1)->color != stone->color
+		&& get_stone(stone->x, stone->y-1) != NULL && get_stone(stone->x, stone->y-1)->visible && get_stone(stone->x, stone->y-1)->color != stone->color){
 		// Regarde si la pierre est entouré par une pierre ou qu'elle est sur la limite
 		result = false;
 	}
