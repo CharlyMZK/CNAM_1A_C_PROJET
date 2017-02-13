@@ -1,6 +1,6 @@
 #include "FILE.h"
 #include "game.h"
-File* FILE;
+FILE* FILE;
 
 ///////////////////// FILE SAVER /////////////////////
 

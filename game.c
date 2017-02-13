@@ -215,6 +215,11 @@ void key_pressed(KeySym code, char c, int x_souris, int y_souris){
 		printf("\n tour passé \n");
 		pass();
 	}
+
+	if(c == 's'){
+		printf("\n tour passé \n");
+		save_game(BOARD);
+	}
 }
 
 /**
@@ -274,6 +279,8 @@ void mouse_clicked(int bouton, int x, int y){
 				bot_play();
 			}
 		}
+
+		BOARD->handicap = handicap_number+1;
 	}
 
 	// -- Mode de jeu
@@ -502,6 +509,13 @@ void print_territory(){
 }
 
 /*
+ * Permet d'afficher les informations d'une pierre
+ */
+void print_stone(Stone* stone){
+	printf("\nStone : x = %i, y = %i et color = %c\n", stone->x, stone->y, stone->color);
+}
+
+/*
  * Permet de créer un tableau d'une taille défini avec un int passé en paramètre
  */
 void init_board(int size){
@@ -509,6 +523,7 @@ void init_board(int size){
   	BOARD = malloc(sizeof(Board));
 	BOARD->size = size;
 	BOARD->intersections = malloc(size*size*sizeof(Stone));
+	BOARD->handicap = 0;
 	// -- Initialisation des chaines
 	CHAINS = malloc(sizeof(Chains));
 	CHAINS->number_of_chain = 0;
@@ -892,7 +907,7 @@ void do_stone_territory(Stone* stone){
 		number_of_stones++;
 	}
 
-	if(number_of_stones > 1){
+	if(number_of_stones > 1 ){
 		set_stone_territory(stone);
 		adjust_territory(stone);
 		for(i = 0; i < 8; i++){ // Pour toutes les pierres du tableau
@@ -919,8 +934,18 @@ void do_stone_territory(Stone* stone){
 			seek_intersetion_territory(stone->color);
 	}
 	print_board();
-	//print_territory();
 	free(stones_around);
+}
+
+/*
+ * Permet de savoir si la pierre passé en paramètre se situe sur le bord du plateau
+ * Retourne true si c'est sur la bord
+ */
+bool is_on_border(Stone* stone){
+	bool result = false;
+	if(stone->x == 0 || stone->x == 18 || stone->y == 0 || stone->y == 18)
+		result = true;
+	return result;
 }
 
 /*
@@ -955,58 +980,79 @@ void adjust_territory(Stone* stone){
  * Permet de remplir les lignes et colonnes pour ensuite mettre les pierres sur la board
  */
 void seek_intersetion_territory(int color){
-	Line* line = malloc(sizeof(Line));
-	Column* column = malloc(sizeof(Column));
+	Lines* lines = malloc(sizeof(Lines));
+	lines->size = 0;
+	lines->lines = malloc(BOARD->size*sizeof(Line));
+	lines->color = color;
+	Columns* columns = malloc(sizeof(Column));
+	columns->size = 0;
+	columns->columns = malloc(BOARD->size*sizeof(Column));
+	columns->color = color;
+
 	int i,j ;
-
-	init_line(line);
-	line->color = color;
-	init_column(column);
-	column->color = color;
-	Stone* stone_cheked_line = malloc(sizeof(Stone));
-	Stone* stone_cheked_column = malloc(sizeof(Stone));
-
-	for(i = TERRITORY->min_x; i <= TERRITORY->max_x; i++){ // Pour tout le territoire, on cherche quelles sont les lignes et colonnes où l'on doit mettre des pierres
-		for(j = TERRITORY->min_y; j <= TERRITORY->max_y; j++){
-			stone_cheked_line = get_stone_territory(j,i);
-			stone_cheked_column = get_stone_territory(i,j);
-			if(stone_cheked_line != NULL && stone_cheked_line->color == column->color){
-				line->y = i;
-				if(line->min_x > stone_cheked_line->x)
-					line->min_x = stone_cheked_line->x;
-				if(line->max_x < stone_cheked_line->x)
-					line->max_x = stone_cheked_line->x;
-				}
-				if(stone_cheked_column != NULL && stone_cheked_column->color == column->color){
-				column->x = i;
-				if(column->min_y > stone_cheked_column->y)
-					column->min_y = stone_cheked_column->y;
-				if(column->max_y < stone_cheked_column->y)
-					column->max_y = stone_cheked_column->y;
+	Stone* stone_checked = malloc(sizeof(Stone));
+	Line* line = NULL;
+	Column* column = NULL;
+	for(i = TERRITORY->min_y; i <= TERRITORY->max_y; i++){ // Pour tout le territoire, on cherche quelles sont les lignes où l'on doit mettre des pierres
+		line = init_line();
+		line->y = i;
+		for(j = TERRITORY->min_x; j <= TERRITORY->max_x; j++){
+			stone_checked = get_stone_territory(j,i);
+			if(stone_checked != NULL && stone_checked->color == lines->color){
+				print_stone(stone_checked);
+				if(line->min_x > stone_checked->x)
+					line->min_x = stone_checked->x;
+				if(line->max_x < stone_checked->x)
+					line->max_x = stone_checked->x;
 			}
 		}
-		if(line->min_x <= line->max_x && column->min_y <= column->max_y)
-			fill_board(line, column);
-		init_line(line);
-		init_column(column);
+		if(line != NULL) {
+			lines->lines[lines->size] = line;
+			lines->size++;
+		}
 	}
+	for(i = TERRITORY->min_x; i <= TERRITORY->max_x; i++){ // Pour tout le territoire, on cherche quelles sont les colonnes où l'on doit mettre des pierres
+		column = init_column(column);
+		column->x = i;
+		for(j = TERRITORY->min_y; j <= TERRITORY->max_y; j++){
+			stone_checked = get_stone_territory(i,j);
+			if(stone_checked != NULL && stone_checked->color == columns->color){
+				if(column->min_y > stone_checked->y)
+					column->min_y = stone_checked->y;
+				if(column->max_y < stone_checked->y)
+					column->max_y = stone_checked->y;
+			}
+		}
+		if(column != NULL){
+			columns->columns[columns->size] = column;
+			columns->size++;
+		}
+	}
+	if(lines->size > 0 && columns->size > 0)
+		fill_board(lines, columns);
+		printf("OK");
 }
 
 /*
 * Permet de remplir une ligne de pierre invisible dans le tableau du plateau
 */
-void fill_board(Line* line, Column* column){
-	int i;
+void fill_board(Lines* lines, Columns* columns){
+	int i,j,k;
 	Stone* stone_to_place = malloc(sizeof(Stone));
-	stone_to_place->color = column->color;
+	stone_to_place->color = lines->color;
 	stone_to_place->visible = false;
-	printf("Line : %i/%i/%i Column : %i/%i/%i", line->min_x, line->max_x, line->y, column->x, column->min_y, column->max_y);
-	for(i = line->min_x; i <= line->max_x; i++){
-		if(line->y >= column->min_y && line->y <= column->max_y){ // Si la line et la colonne sont dans le territoire
-			if(get_stone(i, line->y) == NULL || get_stone(i, line->y)->visible == false){
-				stone_to_place->x = i;
-				stone_to_place->y = line->y;
-				set_stone(stone_to_place);
+	for(i = 0; i < lines->size; i++){
+		for(j = lines->lines[i]->min_x; j <= lines->lines[i]->max_x; j++){
+			for(k = 0; k < columns->size; k++){
+				if(columns->columns[k]->x == j){
+					if(lines->lines[i]->y >= columns->columns[k]->min_y && lines->lines[i]->y <= columns->columns[k]->max_y){ // Si la line et la colonne sont dans le territoire
+						if(get_stone(j, lines->lines[i]->y) == NULL || get_stone(j, lines->lines[i]->y)->visible == false){
+							stone_to_place->x = j;
+							stone_to_place->y = lines->lines[i]->y;
+							set_stone(stone_to_place);
+						}
+					}
+				}
 			}
 		}
 	}
@@ -1015,21 +1061,119 @@ void fill_board(Line* line, Column* column){
 /*
  * Permet de remettre à 0 toutes la variables de la ligne passé en paramètre
  */
-void init_line(Line* line){
+Line* init_line(){
+	Line* line = malloc(sizeof(Line));
 	if(line != NULL){
 		line->min_x = 18;
 		line->max_x = 0;
 		line->y = 0;
 	}
+	return line;
 }
 
 /*
-* Permet de remettre à 0 toutes la variables de la colonne passé en paramètre
-*/
-void init_column(Column* column){
+ * Permet de remettre à 0 toutes la variables de la colonne passé en paramètre
+ */
+Column* init_column(){
+	Column* column = malloc(sizeof(Column));
 	if(column != NULL){
 		column->x = 0;
 		column->min_y = 18;
 		column->max_y = 0;
 	}
+	return column;
+}
+
+
+FILE* FILE_GAME;
+
+///////////////////// FILE_GAME SAVER /////////////////////
+
+/*
+ * Permet de sauvegarder la partie dans un fichier
+ */
+void save_game(Board* board){
+  create_header(board->size, board->handicap);
+  write_game(board);
+  fclose(FILE_GAME);
+}
+
+/*
+ * Permet de crééer le fichier et de mettre l'entête dedans
+ */
+void create_header(int board_size, int handicap){
+	time_t timet = time(NULL);
+	struct tm time_struct = *localtime(&timet); // Pour avoir la date du jour
+  FILE_GAME = fopen("score.sgf", "w"); // Recreer un fichier et écris de dans
+  fprintf(FILE_GAME, "(;FF[4]GM[1]SZ[%i]\n\n", board_size);
+  fprintf(FILE_GAME, "GN[Go Game Mraled]\n");
+  fprintf(FILE_GAME, "PB[Black]\n");
+  fprintf(FILE_GAME, "HA[%i]\n", handicap);
+  fprintf(FILE_GAME, "PW[White]\n");
+  fprintf(FILE_GAME, "KM[%0.1f]\n", 7.5+handicap);
+  fprintf(FILE_GAME, "DT[%d-%d-%d]\n", time_struct.tm_year + 1900, time_struct.tm_mon + 1, time_struct.tm_mday);
+  fprintf(FILE_GAME, "TM[1800]\n"); // Non renseigner
+  fprintf(FILE_GAME, "RU[Japanese]\n\n");
+}
+
+/*
+ * Permet d'écrire la partie dans le fichier
+ */
+void write_game(Board* board){
+  int first_time = true; // Premiere fois qu'on mets une pierre de cette couleur
+	bool white_stones = false; // Permet de savoir s'il y a des pierres blanches
+  Stone * stone_to_save = malloc(sizeof(Stone));
+  fprintf(FILE_GAME, ";");
+  for(int i = 0; i < board->size; i++){
+    for(int j = 0; j < board->size; j++){ // Mets les pierres blanches
+      stone_to_save = get_stone(i,j);
+      if(stone_to_save != NULL && stone_to_save->color == 'W'){
+        if(first_time) {
+          fprintf(FILE_GAME, "AW");
+					first_time = false;
+					white_stones = true;
+				}
+        fprintf(FILE_GAME, "[%c%c]", stone_to_save->x + 'a', stone_to_save->y + 'a');
+      }
+    }
+  }
+  first_time = true;
+	if(white_stones)
+		fprintf(FILE_GAME, "\n");
+  for(int i = 0; i < board->size; i++){
+    for(int j = 0; j < board->size; j++){ // Mets les pierres noires
+      stone_to_save = get_stone(i,j);
+      if(stone_to_save != NULL && stone_to_save->color == 'B'){
+        if(first_time) {
+          fprintf(FILE_GAME, "AB");
+					first_time = false;
+				}
+        fprintf(FILE_GAME, "[%c%c]", stone_to_save->x + 'a', stone_to_save->y + 'a');
+      }
+    }
+  }
+  fprintf(FILE_GAME,")");
+}
+
+///////////////////// FILE_GAME IMPORTER /////////////////////
+/*
+ * Permet d'importer un fichier
+ */
+void import_FILE_GAME(char* FILE_GAME_name, Board* board){
+  /*FILE_GAME = fopen(FILE_GAME_name, "r");
+  if(FILE_GAME != NULL){
+    import_game(board);
+    fclose(FILE_GAME);
+  } else {
+    printf("Fichier non ouvert, nom ou chemin incorrect");
+  }*/
+}
+
+/*
+ * Permet d'importer les pions sur le board
+ */
+void import_game(Board* board){
+  /*int character; // Le caractère à prendre
+  while((character = fgetc(fp)) != EOF)
+    printf("%c",character);*/
 }

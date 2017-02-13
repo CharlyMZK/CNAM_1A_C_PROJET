@@ -15,6 +15,7 @@ typedef struct Structure_Stone{
 typedef struct Structure_Board{
   int size;                       // -- Taille du plateau
   Stone** intersections;          // -- Tableau des cases
+  int handicap;                   // -- Nombre d'handicap
 }Board;
 
 //  -- tructure d'une chaine
@@ -35,21 +36,34 @@ typedef struct Structure_Territory{
     Stone** stones_in_territory;  // -- Tableau des stones présentes dans le territoire
 }Territory;
 
-//Structure des lignes du plateau
+//Structure d'une ligne du plateau
 typedef struct Structure_Line{
     int min_x;                    // -- Coordonnée x minimum
     int max_x;                    // -- Coordonnée x maximum
     int y;                        // -- Coordonnée y
-    char color;                   // -- Couleur de la ligne
 }Line;
 
-// Structure des colonnes du plateau
+// Structure d'une colonne du plateau
 typedef struct Structure_Column{
     int x;                        // -- Coordonnée x
     int min_y;                    // -- Coordonnée y minimum
     int max_y;                    // -- Coordonnée y maximum
-    char color;                   // -- Couleur de la ligne
 }Column;
+
+//Structure des lignes du plateau
+typedef struct Structure_Lines{
+    int size;                     // -- Tailles des lignes
+    Line** lines;                 // -- Tableau des lignes
+    char color;                   // -- Couleur de la ligne
+}Lines;
+
+// Structure des colonnes du plateau
+typedef struct Structure_Columns{
+    int size;                     // -- Taille des colonnes
+    Column** columns;             // -- Tableau des colonnes
+    char color;                   // -- Couleur de la colonne
+}Columns;
+
 
 // Structure des chaines
 typedef struct Structure_Chains{
@@ -141,6 +155,11 @@ void print_board();
 void print_territory();
 
 /*
+ * Permet d'afficher les informations d'une pierre
+ */
+void print_stone(Stone* stone);
+
+/*
  * Permet de créer un tableau d'une taille défini avec un int passé en paramètre
  */
 void init_board(int size);
@@ -214,6 +233,12 @@ void do_territory(Stone* stone);
 void do_stone_territory(Stone* stone);
 
 /*
+ * Permet de savoir si la pierre passé en paramètre se situe sur le bord du plateau
+ * Retourne true si c'est sur la bord
+ */
+bool is_on_border(Stone* stone);
+
+/*
  *  Permet de créer un territoire
  */
 void create_territory();
@@ -231,14 +256,39 @@ void seek_intersetion_territory(int color);
 /*
 * Permet de remplir une ligne de pierre invisible dans le tableau du plateau
 */
-void fill_board(Line* line, Column* column);
+void fill_board(Lines* lines, Columns* columns);
 
 /*
  * Permet de remettre à 0 toutes la variables de la ligne passé en paramètre
  */
-void init_line(Line* line);
+Line*  init_line();
 
 /*
- * Permet de remettre à 0 toutes les variables de la colonne passée en paramètre
+ * Permet de remettre à 0 toutes la variables de la colonne passé en paramètre
  */
-void init_column(Column* column);
+Column* init_column();
+
+/*
+ * Permet de sauvegarder la partie dans un fichier
+ */
+void save_game(Board* board);
+
+/*
+ * Permet de crééer le fichier et de mettre l'entête dedans
+ */
+void create_header(int board_size, int handicap);
+
+/*
+ * Permet d'écrire la partie dans le fichier
+ */
+void write_game(Board* board);
+
+/*
+ * Permet d'importer un fichier
+ */
+void import_file(char* file_name, Board* board);
+
+/*
+ * Permet d'importer les pions sur le board
+ */
+void import_game(Board* board);

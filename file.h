@@ -4,6 +4,7 @@
 #include <time.h>
 #include <math.h>
 #include <string.h>
+#include "game.h"
 
 /*
  * Permet de sauvegarder la partie dans un fichier
