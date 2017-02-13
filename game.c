@@ -1280,12 +1280,16 @@ void import_game(){
 					printf("size : %c %c",var_string[cptSz+3],var_string[cptSz+4]); 
 					total[0] = var_string[cptSz+3];
 					total[1] = var_string[cptSz+4];
+
+					size = atoi(total); 
+					printf("SIZE : %d",size); 
+					init_board(size); 
+
 				} 
 				cptSz++; 
 			}
-			size = atoi(total); 
-			printf("SIZE : %d",size); 
-			init_board(size);
+			
+			
 			if(var_string[1] == 'A'){
 				printf("\n\nSTOP\n\n"); 
 				if(var_string[2] == 'W'){
