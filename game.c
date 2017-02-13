@@ -907,7 +907,7 @@ void do_stone_territory(Stone* stone){
 		number_of_stones++;
 	}
 
-	if(number_of_stones > 1 ){
+	if(number_of_stones > 1 || is_on_border(stone) && number_of_stones > 0){
 		set_stone_territory(stone);
 		adjust_territory(stone);
 		for(i = 0; i < 8; i++){ // Pour toutes les pierres du tableau
@@ -933,7 +933,6 @@ void do_stone_territory(Stone* stone){
 		if(found_starting_stone)
 			seek_intersetion_territory(stone->color);
 	}
-	print_board();
 	free(stones_around);
 }
 
