@@ -190,6 +190,11 @@ void modify_freedoms(Stone* stone);
 void chain_captured(Chain* chain);
 
 /*
+ * Retourne si la pierre capture les pierres qui sont autour  
+ */
+bool check_around_captured(Stone* stone);
+
+/*
  * Verifie si la chaine de la stone1 est dans la même chaine que la chaine de la stone2
  */
 bool is_in_same_chain(Stone* stone1, Stone* stone2);
