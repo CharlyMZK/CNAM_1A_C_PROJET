@@ -474,17 +474,6 @@ void print_board(){
 }
 
 /*
- * Permet d'afficher ce qui est présent dans le territoire
- */
-void print_territory(){
-    for(int i = 0; i < BOARD->size; i++){
-      for(int j = 0; j < BOARD->size; j++){
-        printf("\nTerritory[%i][%i] = %c", i, j, (get_stone_territory(i,j)!=NULL)?(get_stone_territory(i,j)->color):(' '));
-      }
-    }
-}
-
-/*
  * Permet d'afficher les informations d'une pierre
  */
 void print_stone(Stone* stone){
@@ -1015,7 +1004,7 @@ void do_stone_territory(Stone* stone){
  */
 bool is_on_border(Stone* stone){
 	bool result = false;
-	if(stone->x == 0 || stone->x == 18 || stone->y == 0 || stone->y == 18)
+	if(stone->x == 0 || stone->x == BOARD->size-1 || stone->y == 0 || stone->y == BOARD->size-1)
 		result = true;
 	return result;
 }
@@ -1026,8 +1015,8 @@ bool is_on_border(Stone* stone){
 void create_territory(){
 	TERRITORY = malloc(sizeof(Territory));
 	TERRITORY->size = 0;
-	TERRITORY->min_x = 18;
-	TERRITORY->min_y = 18;
+	TERRITORY->min_x = BOARD->size-1;
+	TERRITORY->min_y = BOARD->size-1;
 	TERRITORY->max_x = 0;
 	TERRITORY->max_y = 0;
 	TERRITORY->stones = malloc(BOARD->size*BOARD->size*sizeof(Stone));
@@ -1068,15 +1057,20 @@ void seek_intersetion_territory(int color){
 	for(i = TERRITORY->min_y; i <= TERRITORY->max_y; i++){ // Pour tout le territoire, on cherche quelles sont les lignes où l'on doit mettre des pierres
 		line = init_line();
 		line->y = i;
+		printf("Territory : x: min %d max %d y : min %d max %d", TERRITORY->min_x, TERRITORY->max_x, TERRITORY->min_y, TERRITORY->max_y);
 		for(j = TERRITORY->min_x; j <= TERRITORY->max_x; j++){
 			stone_checked = get_stone_territory(j,i);
-			if(stone_checked != NULL && stone_checked->color == lines->color){
+			if(stone_checked != NULL && stone_checked->color == lines->color){ // Si la pierre n'est pas nul et qu'elle est de la bonne couleur
 				print_stone(stone_checked);
 				if(line->min_x > stone_checked->x)
 					line->min_x = stone_checked->x;
 				if(line->max_x < stone_checked->x)
 					line->max_x = stone_checked->x;
 			}
+			else if(j == 0) //  Ou que l'on est sur un bord
+				line->min_x = 0;
+			else if(j == BOARD->size-1)
+				line->max_x = BOARD->size-1;
 		}
 		if(line != NULL) {
 			lines->lines[lines->size] = line;
@@ -1094,6 +1088,10 @@ void seek_intersetion_territory(int color){
 				if(column->max_y < stone_checked->y)
 					column->max_y = stone_checked->y;
 			}
+			else if(j == 0)
+				column->min_y = 0;
+			else if(j == BOARD->size-1)
+				column->max_y = BOARD->size-1;
 		}
 		if(column != NULL){
 			columns->columns[columns->size] = column;
@@ -1102,7 +1100,6 @@ void seek_intersetion_territory(int color){
 	}
 	if(lines->size > 0 && columns->size > 0)
 		fill_board(lines, columns);
-		printf("OK");
 }
 
 /*
@@ -1128,6 +1125,7 @@ void fill_board(Lines* lines, Columns* columns){
 			}
 		}
 	}
+	print_board();
 }
 
 /*
@@ -1136,7 +1134,7 @@ void fill_board(Lines* lines, Columns* columns){
 Line* init_line(){
 	Line* line = malloc(sizeof(Line));
 	if(line != NULL){
-		line->min_x = 18;
+		line->min_x = BOARD->size-1;
 		line->max_x = 0;
 		line->y = 0;
 	}
@@ -1150,7 +1148,7 @@ Column* init_column(){
 	Column* column = malloc(sizeof(Column));
 	if(column != NULL){
 		column->x = 0;
-		column->min_y = 18;
+		column->min_y = BOARD->size-1;
 		column->max_y = 0;
 	}
 	return column;
