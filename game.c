@@ -142,18 +142,19 @@ int play_stone(int x, int y, char color){
 	// -- Affichage des chaines
 	//print_chains();
 
-	// -- Check si la pierre peut former un territoire
-	if(debug_mode == 'c'){printf("Avant do territory \n");}
-	do_territory(stone);
-	if(debug_mode == 'c'){printf("Apres do territory \n");}
+
+
 	if((played = check_play(x,y)) == 1){ // on vérifie si le joueur peut jouer
 	  	set_stone(stone); // Sinon hors du tableau
-			// -- Check si la pierre posé peut former un territoire
-			do_territory(stone);
+
+		if(debug_mode == 'c'){printf("Avant modify freedom \n");}
+		modify_freedoms(stone); // -- Modify freedom redessine le plateau en fonction des turns, il est possible qu'il revienne avec un turn pas exact
+		if(debug_mode == 'c'){printf("Apres modify freedom \n");}
+
+			
+		// -- Check si la pierre posé peut former un territoire
+		do_territory(stone);
 	}
-	if(debug_mode == 'c'){printf("Avant modify freedom \n");}
-	modify_freedoms(stone); // -- Modify freedom redessine le plateau en fonction des turns, il est possible qu'il revienne avec un turn pas exact
-	if(debug_mode == 'c'){printf("Apres modify freedom \n");}
 
 	return played;
 }
