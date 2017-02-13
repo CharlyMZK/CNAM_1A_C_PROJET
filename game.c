@@ -30,8 +30,10 @@ char debug_mode = 'c';			// -- Debug mode ( Prints de charly = 'c' Prints de que
 
 /**
  * Indique dans la textbox quel joueur joue
+ * Retourne true si un joueur à joué
  */
-void player_play(int x, int y){
+bool player_play(int x, int y){
+	bool play = false;
 	int placement_x;
 	int placement_y;
 
@@ -52,12 +54,14 @@ void player_play(int x, int y){
 		if(turn == 0){
 			if(debug_mode == 'c'){printf("[Player play] La pierre jouée est noire");}
 			if(play_stone(placement_x,placement_y,'B')){
+				play = true;
 				turn = 1;
 				drop_stone(x,y,'B');
 			}
 		}else{
 			if(debug_mode == 'c'){printf("[Player play] La pierre jouée est blanche");}
 			if(play_stone(placement_x,placement_y,'W')){
+				play = true;
 				turn = 0;
 				drop_stone(x,y,'W');
 			}
@@ -68,7 +72,7 @@ void player_play(int x, int y){
 		printf("\n\n===============================FIN PIERRE POSEE  [%d, %d] ]===============================\n\n\n\n",x,y);}
 	}
 	//printf("Pas de pose de pierre !");
-
+	return play;
 }
 
 /**
@@ -131,10 +135,7 @@ bool play_stone(int x, int y, char color){
 	stone->x = x;
 	stone->y = y;
  	stone->visible = true;
-
-
 	if(get_stone(x,y) == NULL || !get_stone(x,y)->visible && ( check_stone_liberties(stone) || check_around_captured(stone) )) { // on vérifie si le joueur peut jouer
-
 		play = true;
   		set_stone(stone);
 		// -- Ajout dans les chaines
@@ -218,16 +219,16 @@ void mouse_clicked(int bouton, int x, int y){
 	// -- Si tout a été pick, on joue
 	if(size_picked && mode_picked && handicap_picked && game_launched){
 		if(debug_mode == 'c'){printf("[ENTER CLICK PLAY]");}
-		player_play(x,y);
-
-		if(bot_activated){bot_play();}
-
-		if(!bot_activated && handicap_picked && handicap_number > 0){
-			if(debug_mode == 'c'){printf("[ENTER PASS]");}
-			handicap_number--;
-			pass();
+		if(player_play(x,y)){
+			if(bot_activated){
+				bot_play();
+			}
+			if(!bot_activated && handicap_picked && handicap_number > 0){
+				if(debug_mode == 'c'){printf("[ENTER PASS]");}
+				handicap_number--;
+				pass();
+			}
 		}
-
 	}
 
 	// -- Handicap
@@ -348,56 +349,58 @@ void pass(){
 void check_game_finished(){
 	int stone_counter = 0;
 	bool finished = false;
-    for(int i = 0; i < BOARD->size; i++){
-      for(int j = 0; j < BOARD->size; j++){
-		if(get_stone(i,j) != NULL){
-			stone_counter++;
-		}
-      }
+  for(int i = 0; i < BOARD->size; i++){
+    for(int j = 0; j < BOARD->size; j++){
+			if(get_stone(i,j) != NULL){
+				stone_counter++;
+			}
     }
-	Stone* checked_stone = NULL;
+  }
 	if(stone_counter >= 1){
 		game_finished();
 	}
-	//printf("\n Dans le jeu il y a %d pierres sur %d",stone_counter,BOARD->size*BOARD->size);
 }
 
 /**
- * Finis la partie
+ * Finit la partie
  */
 void game_finished(){
 	Stone* checked_stone = NULL;
-	int points_player_1 = 0;
-	int points_player_2 = 0;
+	float points_player_1 = 0;
+	float points_player_2 = 0;
+	char display[50];
+
 	for(int i = 0; i < BOARD->size; i++){
 		for(int j = 0; j < BOARD->size; j++){
 			checked_stone = get_stone(i,j);
 			if(checked_stone != NULL){
-				if(checked_stone->color == 'B'){					points_player_1++;
-				}else{
+				if(checked_stone->color == 'B'){ // On calcule les points pour le joueur noire
+					points_player_1++;
+				}else{ // On calcule les points pour le joueur blanc
 					points_player_2++;
 				}
 			}
 		}
 	}
-
+	//On ajoute les points pour avoir commencer deuxieme
+	points_player_2 += 7.5;
 	// -- Refresh du rectange
 	color(255,178,102);
 	filled_rectangle(width_win()+cell_size+5,50,300,30);
 	// -- Marquage du joueur
 	color(0,0,0);
 	string(width_win()+cell_size+20,70,"La partie est terminee");
-
-
 	// -- Refresh du rectange
 	color(255,178,102);
 	filled_rectangle(width_win()+cell_size+5,100,300,30);
 	// -- Marquage du joueur
 	color(0,0,0);
 	if(points_player_1 > points_player_2){
-		string(width_win()+cell_size+20,120,"Le joueur 1 gagne");
-	}else{
-		string(width_win()+cell_size+20,120,"Le joueur 2 gagne");
+		sprintf(display,"Le joueur 1 gagne : %g points contre %g", points_player_1, points_player_2);
+		string(width_win()+cell_size+20,120,display);
+	} else{
+		sprintf(display,"Le joueur 2 gagne : %g points contre %g", points_player_2, points_player_1);
+		string(width_win()+cell_size+20,120,display);
 	}
 }
 
@@ -1187,7 +1190,7 @@ void create_header(int board_size, int handicap){
   fprintf(FILE_GAME, "PB[Black]\n");
   fprintf(FILE_GAME, "HA[%i]\n", handicap);
   fprintf(FILE_GAME, "PW[White]\n");
-  fprintf(FILE_GAME, "KM[%0.1f]\n", 7.5+handicap);
+  fprintf(FILE_GAME, "KM[%g]\n", 7.5);
   fprintf(FILE_GAME, "DT[%d-%d-%d]\n", time_struct.tm_year + 1900, time_struct.tm_mon + 1, time_struct.tm_mday);
   fprintf(FILE_GAME, "TM[1800]\n"); // Non renseigner
   fprintf(FILE_GAME, "RU[Japanese]\n\n");

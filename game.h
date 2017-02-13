@@ -73,8 +73,9 @@ typedef struct Structure_Chains{
 
 /**
  * Indique dans la textbox quel joueur joue
+ * Retourne true si un joueur à joué
  */
-void player_play(int x, int y);
+bool player_play(int x, int y);
 
 /**
  * Le bot joue
@@ -190,7 +191,7 @@ void modify_freedoms(Stone* stone);
 void chain_captured(Chain* chain);
 
 /*
- * Retourne si la pierre capture les pierres qui sont autour  
+ * Retourne si la pierre capture les pierres qui sont autour
  */
 bool check_around_captured(Stone* stone);
 
