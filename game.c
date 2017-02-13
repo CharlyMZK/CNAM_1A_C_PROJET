@@ -30,8 +30,10 @@ char debug_mode = 'c';			// -- Debug mode ( Prints de charly = 'c' Prints de que
 
 /**
  * Indique dans la textbox quel joueur joue
+ * Retourne true si un joueur à joué
  */
-void player_play(int x, int y){
+bool player_play(int x, int y){
+	bool play = false;
 	int placement_x;
 	int placement_y;
 
@@ -52,12 +54,14 @@ void player_play(int x, int y){
 		if(turn == 0){
 			if(debug_mode == 'c'){printf("[Player play] La pierre jouée est noire");}
 			if(play_stone(placement_x,placement_y,'B')){
+				play = true;
 				turn = 1;
 				drop_stone(x,y,'B');
 			}
 		}else{
 			if(debug_mode == 'c'){printf("[Player play] La pierre jouée est blanche");}
 			if(play_stone(placement_x,placement_y,'W')){
+				play = true;
 				turn = 0;
 				drop_stone(x,y,'W');
 			}
@@ -68,7 +72,7 @@ void player_play(int x, int y){
 		printf("\n\n===============================FIN PIERRE POSEE  [%d, %d] ]===============================\n\n\n\n",x,y);}
 	}
 	//printf("Pas de pose de pierre !");
-
+	return play;
 }
 
 /**
@@ -131,10 +135,7 @@ bool play_stone(int x, int y, char color){
 	stone->x = x;
 	stone->y = y;
  	stone->visible = true;
-
-
 	if(get_stone(x,y) == NULL || !get_stone(x,y)->visible && ( check_stone_liberties(stone) || check_around_captured(stone) )) { // on vérifie si le joueur peut jouer
-
 		play = true;
   		set_stone(stone);
 		// -- Ajout dans les chaines
@@ -214,16 +215,16 @@ void mouse_clicked(int bouton, int x, int y){
 	// -- Si tout a été pick, on joue
 	if(size_picked && mode_picked && handicap_picked && game_launched){
 		if(debug_mode == 'c'){printf("[ENTER CLICK PLAY]");}
-		player_play(x,y);
-
-		if(bot_activated){bot_play();}
-
-		if(!bot_activated && handicap_picked && handicap_number > 0){
-			if(debug_mode == 'c'){printf("[ENTER PASS]");}
-			handicap_number--;
-			pass();
+		if(player_play(x,y)){
+			if(bot_activated){
+				bot_play();
+			}
+			if(!bot_activated && handicap_picked && handicap_number > 0){
+				if(debug_mode == 'c'){printf("[ENTER PASS]");}
+				handicap_number--;
+				pass();
+			}
 		}
-
 	}
 
 	// -- Handicap
