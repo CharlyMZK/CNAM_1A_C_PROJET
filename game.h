@@ -280,9 +280,10 @@ void write_game(Board* board);
 /*
  * Permet d'importer un fichier
  */
-void import_file(char* file_name, Board* board);
+void import_file(char* file_name);
 
 /*
  * Permet d'importer les pions sur le board
  */
-void import_game(Board* board);
+void import_game();
+ 

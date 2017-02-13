@@ -210,6 +210,10 @@ void key_pressed(KeySym code, char c, int x_souris, int y_souris){
  * x,y position
  */
 void mouse_clicked(int bouton, int x, int y){
+	printf("\nSELECTED\n"); 
+
+	 
+
 	if(debug_mode == 'c'){printf("[MOUSE CLICKED - %d]",turn);}
 	// -- Si tout a été pick, on joue
 	if(size_picked && mode_picked && handicap_picked && game_launched){
@@ -286,8 +290,9 @@ void mouse_clicked(int bouton, int x, int y){
 
 		// -- Clic boutton charger
 		if( (x > 50 && x < 250) && (y>150 && y<180) ){
-			if(debug_mode == 'c'){printf("Boutton charger"); }
-			draw_menu_handicap();
+			if(debug_mode == 'c'){printf("Boutton charger"); } 
+			draw_win();
+			import_file("score.sgf");  
 		}
 		mode_picked = true;
 	}
@@ -405,6 +410,7 @@ void game_finished(){
  * 1er affichage + redessine si resize
  */
 void draw_win(){
+	
 	// - Vide la fenetre
 	clear_win();
 	if(debug_mode == 'c'){printf("\n[DRAW WIN]\n"); }
@@ -1224,27 +1230,93 @@ void write_game(Board* board){
     }
   }
   fprintf(FILE_GAME,")");
-}
+} 
 
 ///////////////////// FILE_GAME IMPORTER /////////////////////
 /*
  * Permet d'importer un fichier
  */
-void import_FILE_GAME(char* FILE_GAME_name, Board* board){
-  /*FILE_GAME = fopen(FILE_GAME_name, "r");
+/*
+ * Permet d'importer un fichier
+ */
+void import_file(char* FILE_GAME_name){ 
+  FILE_GAME = fopen(FILE_GAME_name, "r");
   if(FILE_GAME != NULL){
-    import_game(board);
+	import_game();
     fclose(FILE_GAME);
   } else {
     printf("Fichier non ouvert, nom ou chemin incorrect");
-  }*/
+  } 
 }
 
 /*
  * Permet d'importer les pions sur le board
  */
-void import_game(Board* board){
-  /*int character; // Le caractère à prendre
-  while((character = fgetc(fp)) != EOF)
-    printf("%c",character);*/
+void import_game(){
+ char file_string[1000] = "";
+	  char character; // Le caractère à prendre
+	  char* var_string = NULL;
+
+	  int cptB = 0;
+	  int cptW = 0;
+
+	  
+	  Stone* stone;
+
+        while (fgets(file_string, 1000, FILE_GAME) != NULL) // On lit le fichier tant qu'on ne reçoit pas d'erreur (NULL)
+        {
+        	printf("\n%s\n", file_string); // On affiche la chaîne qu'on vient de lire
+			//print(chaine);
+			var_string = file_string;
+
+			if(var_string[1] == 'A'){
+				printf("\n\nSTOP\n\n"); 
+				if(var_string[2] == 'W'){
+					printf("\n\nWHITE\n\n");
+
+					cptW = 3;
+					while(var_string[cptW] != '\0'){
+						printf("| %c",var_string[cptW]);
+						if(var_string[cptW] == '['){
+
+							stone = malloc(sizeof(Stone));
+							stone->x = var_string[cptW+1] - 'a';
+							stone->y = var_string[cptW+2] - 'a';
+							stone->color = 'W';
+							stone->visible = 1;
+							printf("\nSTONE WHITE : %d, %d\n",stone->x,stone->y);    	
+							set_stone(stone);
+						}   
+						cptW++;
+					}
+					
+				}
+				
+			} 
+			if(var_string[0] == 'A'){
+				if(var_string[1] == 'B'){
+					printf("\n\nBLACK\n\n");
+
+					cptB = 1;
+					while(var_string[cptB] != '\0'){
+						cptB++; 
+						printf("{%c}",var_string[cptB]);
+						if(var_string[cptB] == '['){
+							printf("Entrée");
+							stone = malloc(sizeof(Stone));
+							stone->x = var_string[cptB+1] - 'a';
+							stone->y = var_string[cptB+2] - 'a';
+							stone->color = 'B';
+							stone->visible = 1;
+							printf("\nSTONE BLACK : %d, %d\n",stone->x,stone->y);    	
+							set_stone(stone);
+						}     
+					} 
+					
+				}
+			}
+        }  
+
+		redraw_win();
 }
+ 
