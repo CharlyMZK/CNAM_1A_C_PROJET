@@ -21,7 +21,7 @@ typedef struct Structure_Board{
 
 //  -- tructure d'une chaine
 typedef struct Structure_Chain{
-  int chain_size;                 // -- Taille du plateau
+  int size;                       // -- Taille du plateau
   int number_of_freedoms;         // -- Nombre de libertés
   Stone** stones;                 // -- Tableau des cases
 }Chain;
@@ -146,11 +146,6 @@ void redraw_win();
 void print_board();
 
 /*
- * Permet d'afficher les informations d'une pierre
- */
-void print_stone(Stone* stone);
-
-/*
  * Permet de créer un tableau d'une taille défini avec un int passé en paramètre
  */
 void init_board(int size);
@@ -177,6 +172,11 @@ void print_chains();
 int add_in_chain(Stone* stone);
 
 /*
+ * Permet de créer une chaine avec une seule pierre
+ */
+void create_new_chain(Stone* stone);
+
+/*
  * Cherche si la pierre est dans une chaine
  */
 Chain* find_chain(Stone* stone);
@@ -187,9 +187,24 @@ Chain* find_chain(Stone* stone);
 void modify_freedoms(Stone* stone);
 
 /*
+ * Permet de savoir s'il faut capturer une pierre ou non
+ */
+void check_capture(Stone* stone, Stone* stone_around);
+
+/*
+ * Permet d'avoir un tableau de chaine différentes au tour d'une pierre
+ */
+void get_distinct_chain_around(Stone* stone, Chains* chains);
+
+/*
  * Gère la capture des chaines
  */
-void chain_captured(Chain* chain);
+void capture_chain(Chain* chain);
+
+/*
+ * Redonne des libertées à la chaine de la pierre passé en paramètre
+ */
+void give_chain_liberties(Stone* stone);
 
 /*
  * Retourne si la pierre capture les pierres qui sont autour
@@ -197,9 +212,25 @@ void chain_captured(Chain* chain);
 bool check_around_captured(Stone* stone);
 
 /*
+ * Retourne true si la pierre est jouable
+ */
+bool is_playable(Stone* stone);
+
+/*
  * Verifie si la chaine de la stone1 est dans la même chaine que la chaine de la stone2
  */
 bool is_in_same_chain(Stone* stone1, Stone* stone2);
+
+/*
+ * Calcule le nombre de libertés d'une chaine et la lui affecte
+ */
+void calculate_chain_liberties(Chain* chain);
+
+/*
+ * Permet de savoir le nombre de liberté d'une pierre
+ * Retourne le nombre de libertée
+ */
+float calculate_stone_liberties(Stone* stone);
 
 /*
  * Permet de savoir si une pierre a des libertées
