@@ -212,9 +212,9 @@ void key_pressed(KeySym code, char c, int x_souris, int y_souris){
  * x,y position
  */
 void mouse_clicked(int bouton, int x, int y){
-	printf("\nSELECTED\n"); 
+	printf("\nSELECTED\n");
 
-	
+
 	if(debug_mode == 'c'){printf("[MOUSE CLICKED - %d]",turn);}
 	// -- Si tout a été pick, on joue
 	if(size_picked && mode_picked && handicap_picked && game_launched){
@@ -289,7 +289,7 @@ void mouse_clicked(int bouton, int x, int y){
 		}
 		if(size_picked){draw_menu_handicap();}
 	}
-	
+
 	// -- Mode de jeu
 	if(!mode_picked){
 
@@ -313,9 +313,9 @@ void mouse_clicked(int bouton, int x, int y){
 
 		// -- Clic boutton charger
 		if( (x > 50 && x < 250) && (y>150 && y<180) ){
-			if(debug_mode == 'c'){printf("Boutton charger"); } 
+			if(debug_mode == 'c'){printf("Boutton charger"); }
 			draw_win();
-			import_file("score.sgf");  
+			import_file("score.sgf");
 		}
 	}
 
@@ -416,12 +416,13 @@ void game_finished(){
  * 1er affichage + redessine si resize
  */
 void draw_win(){
-	
+
 	// - Vide la fenetre
 	clear_win();
 	if(debug_mode == 'c'){printf("\n[DRAW WIN]\n"); }
 	// -- Initialisation
 	int i;
+	char display_date[30];
 
 	// -- Lines color
 	color(0,0,0);
@@ -441,10 +442,15 @@ void draw_win(){
 	draw_hoshi(BOARD->size,cell_size);
 
 	// -- On défini le tour du joueur
-	if(!loaded_game){draw_player_turn(cell_size,turn);}else{draw_loaded_game(cell_size,turn,date);}
- 
+	if(!loaded_game){
+		draw_player_turn(cell_size,turn);
+	}else{
+		sprintf(display_date, "Enregistre le : %s", date);
+		draw_loaded_game(cell_size,turn,display_date);
+	}
+
 }
- 
+
 /*
  * Redessine la fenêtre
  */
@@ -1194,7 +1200,7 @@ void create_header(int board_size, int handicap){
   fprintf(FILE_GAME, "HA[%i]\n", handicap);
   fprintf(FILE_GAME, "PW[White]\n");
   fprintf(FILE_GAME, "KM[%g]\n", 7.5);
-  fprintf(FILE_GAME, "DT[%d-%d-%d]\n", time_struct.tm_year + 1900, time_struct.tm_mon + 1, time_struct.tm_mday);
+  fprintf(FILE_GAME, "DT[%d-%02d-%02d]\n", time_struct.tm_year + 1900, time_struct.tm_mon + 1, time_struct.tm_mday);
   fprintf(FILE_GAME, "TM[1800]\n"); // Non renseigner
   fprintf(FILE_GAME, "RU[Japanese]\n\n");
 }
@@ -1236,7 +1242,7 @@ void write_game(Board* board){
     }
   }
   fprintf(FILE_GAME,")");
-} 
+}
 
 ///////////////////// FILE_GAME IMPORTER /////////////////////
 /*
@@ -1245,14 +1251,14 @@ void write_game(Board* board){
 /*
  * Permet d'importer un fichier
  */
-void import_file(char* FILE_GAME_name){ 
+void import_file(char* FILE_GAME_name){
   FILE_GAME = fopen(FILE_GAME_name, "r");
   if(FILE_GAME != NULL){
 	import_game();
     fclose(FILE_GAME);
   } else {
     printf("Fichier non ouvert, nom ou chemin incorrect");
-  } 
+  }
 }
 
 /*
@@ -1262,95 +1268,105 @@ void import_game(){
 loaded_game = true;
  char file_string[1000] = "";
 	  char character; // Le caractère à prendre
+		char year[5];
+		char month[3];
+		char day[3];
 	  char* var_string = NULL;
+		char* total = malloc(10*sizeof(char));
 
-	  int cptB = 0;
-	  int cptW = 0;
-	  int cptSz = 0;
-	  int cpt_date = 0;
+	  int count_black = 0;
+	  int count_white = 0;
+	  int count_size = 0;
+	  int count_date = 0;
+		int size = 0;
 
-	  char* total = malloc(10*sizeof(char)); 
-	  int size = 0;
 	  Stone* stone;
 
         while (fgets(file_string, 1000, FILE_GAME) != NULL) // On lit le fichier tant qu'on ne reçoit pas d'erreur (NULL)
         {
         	printf("\n%s\n", file_string); // On affiche la chaîne qu'on vient de lire
-			 
+
 			//print(chaine);
 			var_string = file_string;
- 
-			while(var_string[cptSz] != '\0'){
-				if(var_string[cptSz] == 'S' && 	var_string[cptSz+1] == 'Z'){
-					printf("size : %c %c",var_string[cptSz+3],var_string[cptSz+4]); 
-					total[0] = var_string[cptSz+3];
-					total[1] = var_string[cptSz+4];
 
-					size = atoi(total); 
-					printf("SIZE : %d",size); 
-					init_board(size); 
+			while(var_string[count_size] != '\0'){
+				if(var_string[count_size] == 'S' && 	var_string[count_size+1] == 'Z'){
+					printf("size : %c %c",var_string[count_size+3],var_string[count_size+4]);
+					total[0] = var_string[count_size+3];
+					total[1] = var_string[count_size+4];
 
-				} 
-				cptSz++; 
-			}
-			
-			if(var_string[0] == 'D' && var_string[1] == 'T'){
-				date = malloc(10*sizeof(char)); 
-				cpt_date = 3;
-				while(cpt_date < 12){
-					date[cpt_date] = var_string[cpt_date];
-					cpt_date++;
-				} 
+					size = atoi(total);
+					printf("SIZE : %d",size);
+					init_board(size);
+
+				}
+				count_size++;
 			}
 
-			if(var_string[1] == 'A'){
-				printf("\n\nSTOP\n\n"); 
+			if(var_string[0] == 'D' && var_string[1] == 'T'){ // Date
+				date = malloc(10*sizeof(char));
+				count_date = 0;
+				while(count_date < 10){
+					if(count_date < 4) // Pour l'année
+						year[count_date] = var_string[count_date+3];
+					if(count_date > 4 && count_date < 7) // Pour le mois
+						month[count_date-5] = var_string[count_date+3];
+					if(count_date > 7 && count_date < 10) // Pour le jour
+						day[count_date-8] = var_string[count_date+3];
+					count_date++;
+				}
+				year[4] = '\0';
+				month[2] = '\0';
+				day[2] = '\0';
+				sprintf(date, "%s-%s-%s", day, month, year);
+			}
+
+			if(var_string[1] == 'A'){ // Pions blanc
+				printf("\n\nSTOP\n\n");
 				if(var_string[2] == 'W'){
 					printf("\n\nWHITE\n\n");
- 
-					cptW = 3;
-					while(var_string[cptW] != '\0'){
-						printf("{%c}",var_string[cptW]); 
-						if(var_string[cptW] == '['){
+
+					count_white = 3;
+					while(var_string[count_white] != '\0'){
+						printf("{%c}",var_string[count_white]);
+						if(var_string[count_white] == '['){
 							printf("Entrée");
 							stone = malloc(sizeof(Stone));
-							stone->x = var_string[cptW+1] - 'a';
-							stone->y = var_string[cptW+2] - 'a';
+							stone->x = var_string[count_white+1] - 'a';
+							stone->y = var_string[count_white+2] - 'a';
 							stone->color = 'W';
-							stone->visible = 1; 
-							printf("\nSTONE WHITE : %d, %d\n",stone->x,stone->y);    	
+							stone->visible = 1;
+							printf("\nSTONE WHITE : %d, %d\n",stone->x,stone->y);
 							set_stone(stone);
-						}   
-						cptW++;
+						}
+						count_white++;
 					}
-					
+
 				}
-				
-			} 
-			if(var_string[0] == 'A'){
+
+			}
+			if(var_string[0] == 'A'){ // Pions noir
 				if(var_string[1] == 'B'){
 					printf("\n\nBLACK\n\n");
 
-					cptB = 1;
-					while(var_string[cptB] != '\0'){
-						cptB++; 
-						printf("{%c}",var_string[cptB]);
-						if(var_string[cptB] == '['){
+					count_black = 1;
+					while(var_string[count_black] != '\0'){
+						count_black++;
+						printf("{%c}",var_string[count_black]);
+						if(var_string[count_black] == '['){
 							printf("Entrée");
 							stone = malloc(sizeof(Stone));
-							stone->x = var_string[cptB+1] - 'a';
-							stone->y = var_string[cptB+2] - 'a';
+							stone->x = var_string[count_black+1] - 'a';
+							stone->y = var_string[count_black+2] - 'a';
 							stone->color = 'B';
 							stone->visible = 1;
-							printf("\nSTONE BLACK : %d, %d\n",stone->x,stone->y);    	
+							printf("\nSTONE BLACK : %d, %d\n",stone->x,stone->y);
 							set_stone(stone);
-						}     
-					} 
-					
+						}
+					}
+
 				}
 			}
-        }  
-
+    }
 		redraw_win();
 }
- 
