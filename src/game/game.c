@@ -675,16 +675,16 @@ void modify_freedoms(Stone* stone){
 	bool check_is_in_same_chain = false;
 
 	// -- CHECK PIERRE A DROITE
-	//printf("\n -- Je cherche la pierre a droite\n");
+	printf("\n -- Je cherche la pierre a droite\n");
 	Stone* getStone = get_stone(stone->x+1,stone->y);
 	if(getStone != NULL && getStone->visible == true){
 		Chain* getChain = find_chain(getStone);
 
-		//printf("\nils sont dans la meme chaine ? \n");
-		//printf("\n%d\n",is_in_same_chain(stone,getStone));
+		printf("\nils sont dans la meme chaine ? \n"); 
+		printf("\n%d\n",is_in_same_chain(stone,getStone));
 
-		//printf("\nLibertés de sa chaine : %d\n",getChain->number_of_freedoms);
-		//printf("\n-1\n");
+		printf("\nLibertés de sa chaine : %d\n",getChain->number_of_freedoms);
+		printf("\n-1\n");
 		check_is_in_same_chain = is_in_same_chain(stone,getStone);
 		getChain->number_of_freedoms =  getChain->number_of_freedoms - 1;
 		if(!check_is_in_same_chain){stone_parameter_chain->number_of_freedoms =  stone_parameter_chain->number_of_freedoms - 1; }
@@ -693,18 +693,18 @@ void modify_freedoms(Stone* stone){
 			chain_captured(getChain);
 		}
 
-		//printf("\nNouvelle liberetés de sa chaine : %d\n",getChain->number_of_freedoms);
+		printf("\nNouvelle liberetés de sa chaine : %d\n",getChain->number_of_freedoms);
 	}
 
 	// -- CHECK PIERRE A GAUCHE
 
-	//printf("\n -- Je cherche la pierre a gauche\n");
+	printf("\n -- Je cherche la pierre a gauche\n");
 	getStone = get_stone(stone->x-1,stone->y);
 	if(getStone != NULL && getStone->visible == true){
-		//printf("la pierre n'est pas nulle");
+		printf("la pierre n'est pas nulle");
 		Chain* getChain = find_chain(getStone);
-		//printf("\nLibertés de sa chaine : %d\n",getChain->number_of_freedoms);
-		//printf("\n-1\n");
+		printf("\nLibertés de sa chaine : %d\n",getChain->number_of_freedoms);
+		printf("\n-1\n");
 		check_is_in_same_chain = is_in_same_chain(stone,getStone);
 		getChain->number_of_freedoms =  getChain->number_of_freedoms - 1;
 		if(!check_is_in_same_chain){stone_parameter_chain->number_of_freedoms =  stone_parameter_chain->number_of_freedoms - 1; }
@@ -712,17 +712,17 @@ void modify_freedoms(Stone* stone){
 		if(getChain->number_of_freedoms == 0){
 			chain_captured(getChain);
 		}
-		//printf("\nNouvelle liberetés de sa chaine : %d\n",getChain->number_of_freedoms);
+		printf("\nNouvelle liberetés de sa chaine : %d\n",getChain->number_of_freedoms);
 	}
 
 	// -- CHECK PIERRE AU DESSUS
-	//printf("\n -- Je cherche la pierre au dessus\n");
+	printf("\n -- Je cherche la pierre au dessus\n");
 	getStone = get_stone(stone->x,stone->y-1);
 	if(getStone != NULL && getStone->visible == true){
 		
 		Chain* getChain = find_chain(getStone);
-		//printf("\nLibertés de sa chaine : %d\n",getChain->number_of_freedoms);
-		//printf("\n-1\n");
+		printf("\nLibertés de sa chaine : %d\n",getChain->number_of_freedoms);
+		printf("\n-1\n");
 		check_is_in_same_chain = is_in_same_chain(stone,getStone);
 		getChain->number_of_freedoms =  getChain->number_of_freedoms - 1;
 		if(!check_is_in_same_chain){stone_parameter_chain->number_of_freedoms =  stone_parameter_chain->number_of_freedoms - 1; }
@@ -730,11 +730,11 @@ void modify_freedoms(Stone* stone){
 		if(getChain->number_of_freedoms == 0){
 			chain_captured(getChain);
 		}
-		//printf("\nNouvelle liberetés de sa chaine : %d\n",getChain->number_of_freedoms);
+		printf("\nNouvelle liberetés de sa chaine : %d\n",getChain->number_of_freedoms);
 	}
 
 	// -- CHECK PIERRE EN DESSOUS
-	//printf("\n -- Je cherche la pierre en dessous\n");
+	printf("\n -- Je cherche la pierre en dessous\n");
 	getStone = get_stone(stone->x,stone->y+1);
 	if(getStone != NULL && getStone->visible == true){
 		Chain* getChain = find_chain(getStone);
@@ -750,7 +750,7 @@ void modify_freedoms(Stone* stone){
 		printf("\nNouvelle liberetés de sa chaine : %d\n",getChain->number_of_freedoms);
 	}
 
-	//printf("\n--------------------------------[MODIFY FREEDOM END]--------------------------------\n");
+	printf("\n--------------------------------[MODIFY FREEDOM END]--------------------------------\n");
 }
 
 /*
