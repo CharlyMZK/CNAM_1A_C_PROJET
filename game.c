@@ -17,12 +17,13 @@ bool game_launched = false;		// -- Jeu lancé ou non ( Si non on affichera les m
 bool size_picked = false;		// -- Size du board choisie ou non
 bool handicap_picked = false;	// -- Handicap choisis ou non
 bool mode_picked = false;		// -- Mode de jeu choisis ou non ( J vs Bot ou J V J ou Partie chargée)
+bool loaded_game = false; 		// -- Une partie est chargée ou non
 int cell_size; 					// -- Taille de la cellule
 int turn = 0;					// -- Tour du joueur ( 0 ou 1 )
 int pass_counter = 0;			// -- Compteur de tour passé ( si 2 la partie est finie)
 int handicap_number = 0;		// -- Nombre de handicap qui a été choisis
 char debug_mode = 'c';			// -- Debug mode ( Prints de charly = 'c' Prints de quentin = 'q' )
-
+char* date;
 
 // --
 // -- PLAY FUNCTIONS
@@ -292,12 +293,13 @@ void mouse_clicked(int bouton, int x, int y){
 	// -- Mode de jeu
 	if(!mode_picked){
 
-		if(debug_mode == 'c'){printf("[ENTER CLICK MODE DE JEU]");}
+		if(debug_mode == 'c'){printf("[ENTER CLICK MODE DE JEU %d,%d]",x,y);}
 
 		// -- Clic boutton jcj
 		if( (x > 50 && x < 250) && (y>50 && y<80) ){
 			bot_activated = false;
 			game_launched = true;
+			mode_picked = true;
 			draw_win_board_size();
 		}
 
@@ -305,6 +307,7 @@ void mouse_clicked(int bouton, int x, int y){
 		if( (x > 50 && x < 250) && (y>100 && y<130) ){
 			bot_activated = true;
 			game_launched = true;
+			mode_picked = true;
 			draw_win_board_size();
 		}
 
@@ -314,7 +317,6 @@ void mouse_clicked(int bouton, int x, int y){
 			draw_win();
 			import_file("score.sgf");  
 		}
-		mode_picked = true;
 	}
 
 
@@ -439,10 +441,10 @@ void draw_win(){
 	draw_hoshi(BOARD->size,cell_size);
 
 	// -- On défini le tour du joueur
-	draw_player_turn(cell_size,turn);
-
+	if(!loaded_game){draw_player_turn(cell_size,turn);}else{draw_loaded_game(cell_size,turn,date);}
+ 
 }
-
+ 
 /*
  * Redessine la fenêtre
  */
@@ -1257,6 +1259,7 @@ void import_file(char* FILE_GAME_name){
  * Permet d'importer les pions sur le board
  */
 void import_game(){
+loaded_game = true;
  char file_string[1000] = "";
 	  char character; // Le caractère à prendre
 	  char* var_string = NULL;
@@ -1264,6 +1267,7 @@ void import_game(){
 	  int cptB = 0;
 	  int cptW = 0;
 	  int cptSz = 0;
+	  int cpt_date = 0;
 
 	  char* total = malloc(10*sizeof(char)); 
 	  int size = 0;
@@ -1272,6 +1276,7 @@ void import_game(){
         while (fgets(file_string, 1000, FILE_GAME) != NULL) // On lit le fichier tant qu'on ne reçoit pas d'erreur (NULL)
         {
         	printf("\n%s\n", file_string); // On affiche la chaîne qu'on vient de lire
+			 
 			//print(chaine);
 			var_string = file_string;
  
@@ -1289,7 +1294,15 @@ void import_game(){
 				cptSz++; 
 			}
 			
-			
+			if(var_string[0] == 'D' && var_string[1] == 'T'){
+				date = malloc(10*sizeof(char)); 
+				cpt_date = 3;
+				while(cpt_date < 12){
+					date[cpt_date] = var_string[cpt_date];
+					cpt_date++;
+				} 
+			}
+
 			if(var_string[1] == 'A'){
 				printf("\n\nSTOP\n\n"); 
 				if(var_string[2] == 'W'){
@@ -1337,7 +1350,7 @@ void import_game(){
 				}
 			}
         }  
-		print_board();
+
 		redraw_win();
 }
  

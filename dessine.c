@@ -212,6 +212,23 @@ void draw_player_turn(int cell_size, int turn){
 }
 
 /**
+ * Affiche la partie chargée
+ */
+void draw_loaded_game(int cell_size, int turn, char* date){
+	// -- Refresh du rectange
+	color(255,178,102);
+	filled_rectangle(width_win()+cell_size+5,0,300,30);
+	// -- Marquage du joueur
+	color(0,0,0);
+	string(width_win()+cell_size+20,20,"Affichage d'une partie chargee"); 
+
+	color(255,178,102);
+	filled_rectangle(width_win()+cell_size+5,50,300,30);
+	color(0,0,0);
+	string(width_win()+cell_size+20,70,date); 
+}
+
+/**
  * Dessine le menu permettant de choisir le mode de jeu
  */
 void draw_win_menu(){
