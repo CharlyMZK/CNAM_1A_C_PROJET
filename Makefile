@@ -1,14 +1,19 @@
-all: game libdessine.a gamemake
+VPATH= src/dessine src/files/ src/game/ src/
+SRC= $(wildcard src/dessine/*.c src/files/*.c src/game/*.c)
+OBJ= $(notdir $(patsubst %.c,%.o,$(SRC)))
+LDFLAGS = -lX11 -lm  
+
+all: game 
+
+game: gameLauncher.o $(OBJ)
+	gcc -o $@ $^ $(LDFLAGS)
+
+benchmark: benchmarkGame.o $(OBJ)
+	gcc -o $@ $^ $(LDFLAGS)
+ 
+%.o: %.c 
+	gcc -c $< -I./header
 
 clean:
-	rm game dessine.o libdessine.a
-
-game: gameLauncher.c game.c game.h libdessine.a
-	gcc -g gameLauncher.c -o game -L. -ldessine -lX11 -lm
-
-libdessine.a: dessine.c dessine.h
-	gcc -g -c dessine.c
-	ar -r libdessine.a dessine.o
-
-gamemake: benchmarkGame.c game.c
-	gcc -o gamebench benchmarkGame.c -L. -ldessine -lX11 -lm
+	rm game *.o
+    
