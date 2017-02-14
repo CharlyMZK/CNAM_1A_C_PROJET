@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <stdbool.h>
-#include "dessine.h" 
+#include "dessine.h"
 
 // -- Structure de la pierre
 typedef struct Structure_Stone{
@@ -265,6 +265,11 @@ Line*  init_line();
 Column* init_column();
 
 /*
+ * Permet de calculer le score de chaque joueur
+ */
+void calculate_score(float result[2]);
+
+/*
  * Permet de sauvegarder la partie dans un fichier
  */
 void save_game(Board* board);
@@ -288,18 +293,8 @@ void import_file(char* file_name);
  * Permet d'importer les pions sur le board
  */
 void import_game();
- 
-/*
- * Permet de sauvegarder la partie dans un fichier
- */
-void save_game(Board* board);
 
 /*
- * Permet de crééer le fichier et de mettre l'entête dedans
+ * Permet de mettre la variable loaded_game a true
  */
-void create_header(int board_size, int handicap);
-
-/*
- * Permet d'écrire la partie dans le fichier
- */
-void write_game(Board* board);
+void loaded_game_is_true();

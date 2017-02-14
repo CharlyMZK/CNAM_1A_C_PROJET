@@ -4,7 +4,7 @@
 #include <math.h>
 #include <string.h>
 #include "game.h"
- 
+
 // -- Struct init
 Board* BOARD;					// -- Structure du plateau de jeu
 Chains* CHAINS;					// -- Structure contenant les chaines crées
@@ -50,9 +50,9 @@ bool player_play(int x, int y){
 		placement_y = (y/cell_size)-1;
 
 		if(debug_mode == 'c'){printf("\n===============================PIERRE POSEE  [%d, %d]===============================\n",x,y);}
-		///if(debug_mode == 'c'){printf("\n TOUR : %d \n",turn);}
+		if(debug_mode == 'c'){printf("\n TOUR : %d \n",turn);}
 		if(turn == 0){
-			if(debug_mode == 'c'){printf("[Player play] La pierre jouée est noire");}
+			if(debug_mode == 'c'){printf("[Player play] La pierre jouée est noir");}
 			if(play_stone(placement_x,placement_y,'B')){
 				play = true;
 				turn = 1;
@@ -68,8 +68,8 @@ bool player_play(int x, int y){
 		}
 		draw_player_turn(cell_size,turn);
 		check_game_finished();
-		//if(debug_mode == 'c'){printf("\n TOUR : %d \n",turn);}
-		if(debug_mode == 'c'){printf("\n\n===============================FIN PIERRE POSEE  [%d, %d] ]===============================\n\n\n\n",x,y);}
+		if(debug_mode == 'c'){printf("\n TOUR : %d \n",turn);
+		printf("\n\n===============================FIN PIERRE POSEE  [%d, %d] ]===============================\n\n\n\n",x,y);}
 	}
 	//printf("Pas de pose de pierre !");
 	return play;
@@ -115,7 +115,7 @@ void bot_play(){
  void drop_stone(int x, int y, char stone_color){
 	if(stone_color == 'B'){
 		color(0,0,0);
-		if(debug_mode == 'c'){printf("\n[Drop stone] pose d'une pierre noire, le tour est à 0->1\n");}
+		if(debug_mode == 'c'){printf("\n[Drop stone] pose d'une pierre noir, le tour est à 0->1\n");}
 	}else{
 		color(1.0,1.0,1.0);
 		if(debug_mode == 'c'){printf("\n[Drop stone] pose d'une pierre blanche, le tour est à 1->0\n");}
@@ -140,11 +140,10 @@ bool play_stone(int x, int y, char color){
   		set_stone(stone);
 		// -- Ajout dans les chaines
 		add_in_chain(stone);
-		if(debug_mode == 'c'){printf("Avant modify freedom \n");}
+		//if(debug_mode == 'c'){printf("Avant modify freedom \n");}
 		modify_freedoms(stone); // -- Modify freedom redessine le plateau en fonction des turns, il est possible qu'il revienne avec un turn pas exact
-		print_chains();
-		if(debug_mode == 'c'){printf("Apres modify freedom \n");}
-		
+		//if(debug_mode == 'c'){printf("Apres modify freedom \n");}
+
 		// -- Check si la pierre posé peut former un territoire
 		do_territory(stone);
 	}
@@ -212,13 +211,13 @@ void key_pressed(KeySym code, char c, int x_souris, int y_souris){
  * x,y position
  */
 void mouse_clicked(int bouton, int x, int y){
-	//printf("\nSELECTED\n"); 
+	printf("\nSELECTED\n");
 
-	
-	//if(debug_mode == 'c'){printf("[MOUSE CLICKED - %d]",turn);}
+
+	if(debug_mode == 'c'){printf("[MOUSE CLICKED - %d]",turn);}
 	// -- Si tout a été pick, on joue
 	if(size_picked && mode_picked && handicap_picked && game_launched){
-		//if(debug_mode == 'c'){printf("[ENTER CLICK PLAY]");}
+		if(debug_mode == 'c'){printf("[ENTER CLICK PLAY]");}
 		if(player_play(x,y)){
 			if(bot_activated){
 				bot_play();
@@ -289,7 +288,7 @@ void mouse_clicked(int bouton, int x, int y){
 		}
 		if(size_picked){draw_menu_handicap();}
 	}
-	
+
 	// -- Mode de jeu
 	if(!mode_picked){
 
@@ -313,9 +312,9 @@ void mouse_clicked(int bouton, int x, int y){
 
 		// -- Clic boutton charger
 		if( (x > 50 && x < 250) && (y>150 && y<180) ){
-			if(debug_mode == 'c'){printf("Boutton charger"); } 
+			if(debug_mode == 'c'){printf("Boutton charger"); }
 			draw_win();
-			import_file("score.sgf");   
+			import_file("score.sgf");
 		}
 	}
 
@@ -368,25 +367,10 @@ void check_game_finished(){
  * Finit la partie
  */
 void game_finished(){
-	Stone* checked_stone = NULL;
-	float points_player_1 = 0;
-	float points_player_2 = 0;
 	char display[50];
+	float score[2];
+	calculate_score(score);
 
-	for(int i = 0; i < BOARD->size; i++){
-		for(int j = 0; j < BOARD->size; j++){
-			checked_stone = get_stone(i,j);
-			if(checked_stone != NULL){
-				if(checked_stone->color == 'B'){ // On calcule les points pour le joueur noire
-					points_player_1++;
-				}else{ // On calcule les points pour le joueur blanc
-					points_player_2++;
-				}
-			}
-		}
-	}
-	//On ajoute les points pour avoir commencer deuxieme
-	points_player_2 += 7.5;
 	// -- Refresh du rectange
 	color(255,178,102);
 	filled_rectangle(width_win()+cell_size+5,50,300,30);
@@ -398,13 +382,12 @@ void game_finished(){
 	filled_rectangle(width_win()+cell_size+5,100,300,30);
 	// -- Marquage du joueur
 	color(0,0,0);
-	if(points_player_1 > points_player_2){
-		sprintf(display,"Le joueur 1 gagne : %g points contre %g", points_player_1, points_player_2);
-		string(width_win()+cell_size+20,120,display);
+	if(score[0] > score[1]){
+		sprintf(display,"Noir gagne : %g points contre %g", score[0], score[1]);
 	} else{
-		sprintf(display,"Le joueur 2 gagne : %g points contre %g", points_player_2, points_player_1);
-		string(width_win()+cell_size+20,120,display);
+		sprintf(display,"Blanc gagne : %g points contre %g", score[1], score[0]);
 	}
+	string(width_win()+cell_size+20,120,display);
 }
 
 // --
@@ -416,12 +399,15 @@ void game_finished(){
  * 1er affichage + redessine si resize
  */
 void draw_win(){
-	
+
 	// - Vide la fenetre
 	clear_win();
 	if(debug_mode == 'c'){printf("\n[DRAW WIN]\n"); }
 	// -- Initialisation
 	int i;
+	float score[2];
+	char display_date[30];
+	char display_won[50];
 
 	// -- Lines color
 	color(0,0,0);
@@ -441,10 +427,20 @@ void draw_win(){
 	draw_hoshi(BOARD->size,cell_size);
 
 	// -- On défini le tour du joueur
-	if(!loaded_game){draw_player_turn(cell_size,turn);}else{draw_loaded_game(cell_size,turn,date);}
- 
+	if(!loaded_game){
+		draw_player_turn(cell_size,turn);
+	}else{
+		calculate_score(score);
+		sprintf(display_date, "Enregistre le : %s", date); // Formatage de la chaine de date
+		if(score[0] > score[1])
+			sprintf(display_won, "Noir a gagne : %g contre %g", score[0], score[1]);
+		else
+			sprintf(display_won, "Blanc a gagne : %g contre %g", score[1], score[0]);
+		draw_loaded_game(cell_size,turn,display_date, display_won);
+	}
+
 }
- 
+
 /*
  * Redessine la fenêtre
  */
@@ -455,7 +451,7 @@ void redraw_win(){
     for(int j = 0; j < BOARD->size; j++){
 			if(get_stone(i,j)!=NULL){
 				stone = get_stone(i,j);
-				//printf("\n[Redraw win]board[%i][%i][%d] = %c\n", i, j, stone->visible, (get_stone(i,j)!=NULL)?(get_stone(i,j)->color):(' '));
+				printf("\n[Redraw win]board[%i][%i][%d] = %c\n", i, j, stone->visible, (get_stone(i,j)!=NULL)?(get_stone(i,j)->color):(' '));
 				if(stone->visible == 1){
 					if(stone->color == 'B'){
 						drop_stone( (i+1) *cell_size, (j+1) *cell_size, 'B');
@@ -481,7 +477,7 @@ void redraw_win(){
 void print_board(){
     for(int i = 0; i < BOARD->size; i++){
       for(int j = 0; j < BOARD->size; j++){
-        //printf("\nboard[%i][%i] = %c", i, j, (get_stone(i,j)!=NULL)?(get_stone(i,j)->color):(' '));
+        printf("\nboard[%i][%i] = %c", i, j, (get_stone(i,j)!=NULL)?(get_stone(i,j)->color):(' '));
       }
     }
 }
@@ -669,7 +665,6 @@ Chain* find_chain(Stone* stone){
  * Modifie les libertés des chaines autour
  */
 void modify_freedoms(Stone* stone){
-	
 	//printf("\n--------------------------------[MODIFY FREEDOM]--------------------------------\n");
 	Chain* stone_parameter_chain = find_chain(stone);
 	bool check_is_in_same_chain = false;
@@ -680,11 +675,11 @@ void modify_freedoms(Stone* stone){
 	if(getStone != NULL && getStone->visible == true){
 		Chain* getChain = find_chain(getStone);
 
-		printf("\nils sont dans la meme chaine ? \n"); 
-		printf("\n%d\n",is_in_same_chain(stone,getStone));
+		//printf("\nils sont dans la meme chaine ? \n");
+		//printf("\n%d\n",is_in_same_chain(stone,getStone));
 
-		printf("\nLibertés de sa chaine : %d\n",getChain->number_of_freedoms);
-		printf("\n-1\n");
+		//printf("\nLibertés de sa chaine : %d\n",getChain->number_of_freedoms);
+		//printf("\n-1\n");
 		check_is_in_same_chain = is_in_same_chain(stone,getStone);
 		getChain->number_of_freedoms =  getChain->number_of_freedoms - 1;
 		if(!check_is_in_same_chain){stone_parameter_chain->number_of_freedoms =  stone_parameter_chain->number_of_freedoms - 1; }
@@ -693,7 +688,7 @@ void modify_freedoms(Stone* stone){
 			chain_captured(getChain);
 		}
 
-		printf("\nNouvelle liberetés de sa chaine : %d\n",getChain->number_of_freedoms);
+		//printf("\nNouvelle liberetés de sa chaine : %d\n",getChain->number_of_freedoms);
 	}
 
 	// -- CHECK PIERRE A GAUCHE
@@ -701,10 +696,10 @@ void modify_freedoms(Stone* stone){
 	printf("\n -- Je cherche la pierre a gauche\n");
 	getStone = get_stone(stone->x-1,stone->y);
 	if(getStone != NULL && getStone->visible == true){
-		printf("la pierre n'est pas nulle");
+		//printf("la pierre n'est pas nulle");
 		Chain* getChain = find_chain(getStone);
-		printf("\nLibertés de sa chaine : %d\n",getChain->number_of_freedoms);
-		printf("\n-1\n");
+		//printf("\nLibertés de sa chaine : %d\n",getChain->number_of_freedoms);
+		//printf("\n-1\n");
 		check_is_in_same_chain = is_in_same_chain(stone,getStone);
 		getChain->number_of_freedoms =  getChain->number_of_freedoms - 1;
 		if(!check_is_in_same_chain){stone_parameter_chain->number_of_freedoms =  stone_parameter_chain->number_of_freedoms - 1; }
@@ -712,17 +707,17 @@ void modify_freedoms(Stone* stone){
 		if(getChain->number_of_freedoms == 0){
 			chain_captured(getChain);
 		}
-		printf("\nNouvelle liberetés de sa chaine : %d\n",getChain->number_of_freedoms);
+		//printf("\nNouvelle liberetés de sa chaine : %d\n",getChain->number_of_freedoms);
 	}
 
 	// -- CHECK PIERRE AU DESSUS
 	printf("\n -- Je cherche la pierre au dessus\n");
 	getStone = get_stone(stone->x,stone->y-1);
 	if(getStone != NULL && getStone->visible == true){
-		
+		//print_chains();
 		Chain* getChain = find_chain(getStone);
-		printf("\nLibertés de sa chaine : %d\n",getChain->number_of_freedoms);
-		printf("\n-1\n");
+		//printf("\nLibertés de sa chaine : %d\n",getChain->number_of_freedoms);
+		//printf("\n-1\n");
 		check_is_in_same_chain = is_in_same_chain(stone,getStone);
 		getChain->number_of_freedoms =  getChain->number_of_freedoms - 1;
 		if(!check_is_in_same_chain){stone_parameter_chain->number_of_freedoms =  stone_parameter_chain->number_of_freedoms - 1; }
@@ -730,7 +725,7 @@ void modify_freedoms(Stone* stone){
 		if(getChain->number_of_freedoms == 0){
 			chain_captured(getChain);
 		}
-		printf("\nNouvelle liberetés de sa chaine : %d\n",getChain->number_of_freedoms);
+		//printf("\nNouvelle liberetés de sa chaine : %d\n",getChain->number_of_freedoms);
 	}
 
 	// -- CHECK PIERRE EN DESSOUS
@@ -750,7 +745,7 @@ void modify_freedoms(Stone* stone){
 		printf("\nNouvelle liberetés de sa chaine : %d\n",getChain->number_of_freedoms);
 	}
 
-	printf("\n--------------------------------[MODIFY FREEDOM END]--------------------------------\n");
+	//printf("\n--------------------------------[MODIFY FREEDOM END]--------------------------------\n");
 }
 
 /*
@@ -1168,4 +1163,34 @@ Column* init_column(){
 	return column;
 }
 
+/*
+ * Permet de calculer le score de chaque joueur
+ */
+void calculate_score(float result[2]){
+	Stone* checked_stone = NULL;
+	float score_player_1 = 0;
+	float score_player_2 = 0;
+	for(int i = 0; i < BOARD->size; i++){
+		for(int j = 0; j < BOARD->size; j++){
+			checked_stone = get_stone(i,j);
+			if(checked_stone != NULL){
+				if(checked_stone->color == 'B'){ // On calcule les points pour le joueur noire
+					score_player_1++;
+				}else{ // On calcule les points pour le joueur blanc
+					score_player_2++;
+				}
+			}
+		}
+	}
+	//On ajoute les points pour avoir commencer deuxieme
+	score_player_2 += 7.5;
+	result[0] = score_player_1;
+	result[1] = score_player_2;
+}
 
+/*
+ * Permet de mettre la variable loaded_game a true
+ */
+void loaded_game_is_true(){
+	loaded_game = true;
+}
