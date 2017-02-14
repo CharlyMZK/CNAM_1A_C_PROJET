@@ -53,7 +53,7 @@ bool player_play(int x, int y){
 		if(debug_mode == 'c'){printf("\n===============================PIERRE POSEE  [%d, %d]===============================\n",x,y);}
 		if(debug_mode == 'c'){printf("\n TOUR : %d \n",turn);}
 		if(turn == 0){
-			if(debug_mode == 'c'){printf("[Player play] La pierre jouée est noire");}
+			if(debug_mode == 'c'){printf("[Player play] La pierre jouée est noir");}
 			if(play_stone(placement_x,placement_y,'B')){
 				play = true;
 				turn = 1;
@@ -116,7 +116,7 @@ void bot_play(){
  void drop_stone(int x, int y, char stone_color){
 	if(stone_color == 'B'){
 		color(0,0,0);
-		if(debug_mode == 'c'){printf("\n[Drop stone] pose d'une pierre noire, le tour est à 0->1\n");}
+		if(debug_mode == 'c'){printf("\n[Drop stone] pose d'une pierre noir, le tour est à 0->1\n");}
 	}else{
 		color(1.0,1.0,1.0);
 		if(debug_mode == 'c'){printf("\n[Drop stone] pose d'une pierre blanche, le tour est à 1->0\n");}
@@ -368,25 +368,10 @@ void check_game_finished(){
  * Finit la partie
  */
 void game_finished(){
-	Stone* checked_stone = NULL;
-	float points_player_1 = 0;
-	float points_player_2 = 0;
 	char display[50];
+	float score[2];
+	calculate_score(score);
 
-	for(int i = 0; i < BOARD->size; i++){
-		for(int j = 0; j < BOARD->size; j++){
-			checked_stone = get_stone(i,j);
-			if(checked_stone != NULL){
-				if(checked_stone->color == 'B'){ // On calcule les points pour le joueur noire
-					points_player_1++;
-				}else{ // On calcule les points pour le joueur blanc
-					points_player_2++;
-				}
-			}
-		}
-	}
-	//On ajoute les points pour avoir commencer deuxieme
-	points_player_2 += 7.5;
 	// -- Refresh du rectange
 	color(255,178,102);
 	filled_rectangle(width_win()+cell_size+5,50,300,30);
@@ -398,13 +383,12 @@ void game_finished(){
 	filled_rectangle(width_win()+cell_size+5,100,300,30);
 	// -- Marquage du joueur
 	color(0,0,0);
-	if(points_player_1 > points_player_2){
-		sprintf(display,"Le joueur 1 gagne : %g points contre %g", points_player_1, points_player_2);
-		string(width_win()+cell_size+20,120,display);
+	if(score[0] > score[1]){
+		sprintf(display,"Noir gagne : %g points contre %g", score[0], score[1]);
 	} else{
-		sprintf(display,"Le joueur 2 gagne : %g points contre %g", points_player_2, points_player_1);
-		string(width_win()+cell_size+20,120,display);
+		sprintf(display,"Blanc gagne : %g points contre %g", score[1], score[0]);
 	}
+	string(width_win()+cell_size+20,120,display);
 }
 
 // --
@@ -422,7 +406,9 @@ void draw_win(){
 	if(debug_mode == 'c'){printf("\n[DRAW WIN]\n"); }
 	// -- Initialisation
 	int i;
+	float score[2];
 	char display_date[30];
+	char display_won[50];
 
 	// -- Lines color
 	color(0,0,0);
@@ -445,8 +431,13 @@ void draw_win(){
 	if(!loaded_game){
 		draw_player_turn(cell_size,turn);
 	}else{
-		sprintf(display_date, "Enregistre le : %s", date);
-		draw_loaded_game(cell_size,turn,display_date);
+		calculate_score(score);
+		sprintf(display_date, "Enregistre le : %s", date); // Formatage de la chaine de date
+		if(score[0] > score[1])
+			sprintf(display_won, "Noir a gagne : %g contre %g", score[0], score[1]);
+		else
+			sprintf(display_won, "Blanc a gagne : %g contre %g", score[1], score[0]);
+		draw_loaded_game(cell_size,turn,display_date, display_won);
 	}
 
 }
@@ -1171,6 +1162,31 @@ Column* init_column(){
 		column->max_y = 0;
 	}
 	return column;
+}
+
+/*
+ * Permet de calculer le score de chaque joueur
+ */
+void calculate_score(float result[2]){
+	Stone* checked_stone = NULL;
+	float score_player_1 = 0;
+	float score_player_2 = 0;
+	for(int i = 0; i < BOARD->size; i++){
+		for(int j = 0; j < BOARD->size; j++){
+			checked_stone = get_stone(i,j);
+			if(checked_stone != NULL){
+				if(checked_stone->color == 'B'){ // On calcule les points pour le joueur noire
+					score_player_1++;
+				}else{ // On calcule les points pour le joueur blanc
+					score_player_2++;
+				}
+			}
+		}
+	}
+	//On ajoute les points pour avoir commencer deuxieme
+	score_player_2 += 7.5;
+	result[0] = score_player_1;
+	result[1] = score_player_2;
 }
 
 

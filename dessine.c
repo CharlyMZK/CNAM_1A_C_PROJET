@@ -10,7 +10,7 @@ Window  win, root;
 int largeur_fenetre;
 int hauteur_fenetre;
 int     screen;
- 
+
 // -- Externs definition
 extern void player_play(int x, int y);
 extern void draw_win();
@@ -79,7 +79,7 @@ void event_loop()
 {
 	char buffer[8];
 	KeySym touche;
-	int nb;   
+	int nb;
 	XEvent ev;
 	draw_win_menu();
 	//draw_win_menu();
@@ -205,27 +205,33 @@ void draw_player_turn(int cell_size, int turn){
 	// -- Marquage du joueur
 	color(0,0,0);
 	if(turn == 0){
-		string(width_win()+cell_size+20,20,"Tour du joueur 1");
+		string(width_win()+cell_size+20,20,"Tour de noir");
 	}else{
-		string(width_win()+cell_size+20,20,"Tour du joueur 2");
+		string(width_win()+cell_size+20,20,"Tour de blanc");
 	}
 }
 
-/**
- * Affiche la partie chargée
+/*
+ * Affiche les informations de la partie chargée
  */
-void draw_loaded_game(int cell_size, int turn, char* date){
+void draw_loaded_game(int cell_size, int turn, char* date, char* won){
 	// -- Refresh du rectange
 	color(255,178,102);
 	filled_rectangle(width_win()+cell_size+5,0,300,30);
 	// -- Marquage du joueur
 	color(0,0,0);
-	string(width_win()+cell_size+20,20,"Affichage d'une partie chargee"); 
+	string(width_win()+cell_size+20,20,"Affichage d'une partie chargee");
 
 	color(255,178,102);
 	filled_rectangle(width_win()+cell_size+5,50,300,30);
 	color(0,0,0);
-	string(width_win()+cell_size+20,70,date); 
+	string(width_win()+cell_size+20,70,date);
+
+  color(255,178,102);
+  filled_rectangle(width_win()+cell_size+5,100,300,30);
+
+  color(0,0,0);
+  string(width_win()+cell_size+20,120, won);
 }
 
 /**
@@ -315,7 +321,7 @@ void draw_hoshi(int board_size,int cell_size) {
  	int i,j;
 	color(0,0,0);
 	switch(board_size){
-		case 9: 
+		case 9:
 			for(i=2; i <= 6; i+=4){
 				for(j=2; j <= 6; j+=4){
 					int x = cell_size + (j * cell_size);
@@ -344,5 +350,3 @@ void draw_hoshi(int board_size,int cell_size) {
 			break;
 	}
 }
-
- 

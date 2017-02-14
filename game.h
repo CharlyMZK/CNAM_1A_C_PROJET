@@ -264,6 +264,11 @@ Line*  init_line();
 Column* init_column();
 
 /*
+ * Permet de calculer le score de chaque joueur
+ */
+void calculate_score(float result[2]);
+
+/*
  * Permet de sauvegarder la partie dans un fichier
  */
 void save_game(Board* board);
@@ -287,4 +292,3 @@ void import_file(char* file_name);
  * Permet d'importer les pions sur le board
  */
 void import_game();
- 

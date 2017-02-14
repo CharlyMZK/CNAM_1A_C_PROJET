@@ -93,20 +93,20 @@ void string(int x, int y, char* chaine);
  */
 void draw_player_turn(int cell_size, int turn);
 
-/**
- * Affiche la partie chargée
- */ 
-void draw_loaded_game(int cell_size, int turn, char* date);
+/*
+ * Affiche les informations de la partie chargée
+ */
+void draw_loaded_game(int cell_size, int turn, char* date, char* won);
 
 /**
  * Dessine le menu permettant de choisir le mode de jeu
- */ 
+ */
 void draw_win_menu();
 
 /**
  * Dessine le menu permettant de choisir la taille du plateau
  */
-void draw_win_board_size(); 
+void draw_win_board_size();
 
 /**
  * Dessine le menu permettant de choisir le handicap du joueur 2
