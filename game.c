@@ -51,7 +51,7 @@ bool player_play(int x, int y){
 		placement_y = (y/cell_size)-1;
 
 		if(debug_mode == 'c'){printf("\n===============================PIERRE POSEE  [%d, %d]===============================\n",x,y);}
-		if(debug_mode == 'c'){printf("\n TOUR : %d \n",turn);}
+		///if(debug_mode == 'c'){printf("\n TOUR : %d \n",turn);}
 		if(turn == 0){
 			if(debug_mode == 'c'){printf("[Player play] La pierre jouée est noire");}
 			if(play_stone(placement_x,placement_y,'B')){
@@ -69,8 +69,8 @@ bool player_play(int x, int y){
 		}
 		draw_player_turn(cell_size,turn);
 		check_game_finished();
-		if(debug_mode == 'c'){printf("\n TOUR : %d \n",turn);
-		printf("\n\n===============================FIN PIERRE POSEE  [%d, %d] ]===============================\n\n\n\n",x,y);}
+		//if(debug_mode == 'c'){printf("\n TOUR : %d \n",turn);}
+		if(debug_mode == 'c'){printf("\n\n===============================FIN PIERRE POSEE  [%d, %d] ]===============================\n\n\n\n",x,y);}
 	}
 	//printf("Pas de pose de pierre !");
 	return play;
@@ -212,13 +212,13 @@ void key_pressed(KeySym code, char c, int x_souris, int y_souris){
  * x,y position
  */
 void mouse_clicked(int bouton, int x, int y){
-	printf("\nSELECTED\n"); 
+	//printf("\nSELECTED\n"); 
 
 	
-	if(debug_mode == 'c'){printf("[MOUSE CLICKED - %d]",turn);}
+	//if(debug_mode == 'c'){printf("[MOUSE CLICKED - %d]",turn);}
 	// -- Si tout a été pick, on joue
 	if(size_picked && mode_picked && handicap_picked && game_launched){
-		if(debug_mode == 'c'){printf("[ENTER CLICK PLAY]");}
+		//if(debug_mode == 'c'){printf("[ENTER CLICK PLAY]");}
 		if(player_play(x,y)){
 			if(bot_activated){
 				bot_play();
@@ -455,7 +455,7 @@ void redraw_win(){
     for(int j = 0; j < BOARD->size; j++){
 			if(get_stone(i,j)!=NULL){
 				stone = get_stone(i,j);
-				printf("\n[Redraw win]board[%i][%i][%d] = %c\n", i, j, stone->visible, (get_stone(i,j)!=NULL)?(get_stone(i,j)->color):(' '));
+				//printf("\n[Redraw win]board[%i][%i][%d] = %c\n", i, j, stone->visible, (get_stone(i,j)!=NULL)?(get_stone(i,j)->color):(' '));
 				if(stone->visible == 1){
 					if(stone->color == 'B'){
 						drop_stone( (i+1) *cell_size, (j+1) *cell_size, 'B');
@@ -481,7 +481,7 @@ void redraw_win(){
 void print_board(){
     for(int i = 0; i < BOARD->size; i++){
       for(int j = 0; j < BOARD->size; j++){
-        printf("\nboard[%i][%i] = %c", i, j, (get_stone(i,j)!=NULL)?(get_stone(i,j)->color):(' '));
+        //printf("\nboard[%i][%i] = %c", i, j, (get_stone(i,j)!=NULL)?(get_stone(i,j)->color):(' '));
       }
     }
 }
@@ -669,12 +669,13 @@ Chain* find_chain(Stone* stone){
  * Modifie les libertés des chaines autour
  */
 void modify_freedoms(Stone* stone){
+	print_chains();
 	//printf("\n--------------------------------[MODIFY FREEDOM]--------------------------------\n");
 	Chain* stone_parameter_chain = find_chain(stone);
 	bool check_is_in_same_chain = false;
 
 	// -- CHECK PIERRE A DROITE
-	printf("\n -- Je cherche la pierre a droite\n");
+	//printf("\n -- Je cherche la pierre a droite\n");
 	Stone* getStone = get_stone(stone->x+1,stone->y);
 	if(getStone != NULL && getStone->visible == true){
 		Chain* getChain = find_chain(getStone);
@@ -697,7 +698,7 @@ void modify_freedoms(Stone* stone){
 
 	// -- CHECK PIERRE A GAUCHE
 
-	printf("\n -- Je cherche la pierre a gauche\n");
+	//printf("\n -- Je cherche la pierre a gauche\n");
 	getStone = get_stone(stone->x-1,stone->y);
 	if(getStone != NULL && getStone->visible == true){
 		//printf("la pierre n'est pas nulle");
@@ -715,10 +716,10 @@ void modify_freedoms(Stone* stone){
 	}
 
 	// -- CHECK PIERRE AU DESSUS
-	printf("\n -- Je cherche la pierre au dessus\n");
+	//printf("\n -- Je cherche la pierre au dessus\n");
 	getStone = get_stone(stone->x,stone->y-1);
 	if(getStone != NULL && getStone->visible == true){
-		//print_chains();
+		
 		Chain* getChain = find_chain(getStone);
 		//printf("\nLibertés de sa chaine : %d\n",getChain->number_of_freedoms);
 		//printf("\n-1\n");
@@ -733,7 +734,7 @@ void modify_freedoms(Stone* stone){
 	}
 
 	// -- CHECK PIERRE EN DESSOUS
-	printf("\n -- Je cherche la pierre en dessous\n");
+	//printf("\n -- Je cherche la pierre en dessous\n");
 	getStone = get_stone(stone->x,stone->y+1);
 	if(getStone != NULL && getStone->visible == true){
 		Chain* getChain = find_chain(getStone);
