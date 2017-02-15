@@ -23,6 +23,7 @@ int pass_counter = 0;			// -- Compteur de tour passé ( si 2 la partie est finie
 int handicap_number = 0;		// -- Nombre de handicap qui a été choisis
 char debug_mode = 'c';			// -- Debug mode ( Prints de charly = 'c' Prints de quentin = 'q' )
 char* date;
+bool game_is_finished = false;
 
 // --
 // -- PLAY FUNCTIONS
@@ -326,6 +327,7 @@ void mouse_clicked(int bouton, int x, int y){
 void pass(){
 	pass_counter++;
 	if(pass_counter == 2){
+		game_is_finished = true;
 		game_finished();
 	}
 	if(turn == 0){
@@ -350,9 +352,11 @@ void check_game_finished(){
 			}
     }
   }
-	if(stone_counter >= 1){
-		game_finished();
-	}
+	if(stone_counter >= ( BOARD->size * BOARD->size ) ) {
+		game_is_finished = true;
+		
+	}  
+	game_finished(); 
 }
 
 /**
@@ -363,12 +367,18 @@ void game_finished(){
 	float score[2];
 	calculate_score(score);
 
-	// -- Refresh du rectange
-	color(255,178,102);
-	filled_rectangle(width_win()+cell_size+5,50,300,30);
-	// -- Marquage du joueur
-	color(0,0,0);
-	string(width_win()+cell_size+20,70,"La partie est terminee");
+ 
+	
+	if(game_is_finished){
+		// -- Refresh du rectange
+		color(255,178,102);
+		filled_rectangle(width_win()+cell_size+5,50,300,30);
+
+		// -- Marquage du joueur
+		color(0,0,0);
+		string(width_win()+cell_size+20,70,"La partie est terminee");
+	}
+
 	// -- Refresh du rectange
 	color(255,178,102);
 	filled_rectangle(width_win()+cell_size+5,100,300,30);
